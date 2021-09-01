@@ -14,6 +14,8 @@ public class Graph
    int []nodePosX;
    int []nodePosY;
    
+   boolean []selected;
+   
    int []contour;
    
    int []domset;
@@ -32,6 +34,7 @@ public class Graph
       nodePosY = new int[N];
       contour = new int[N];
       domset = new int[N];
+      selected = new boolean[N];
    	
       for(int i=0; i<N; i++)
          contour[i] = i;
@@ -61,6 +64,7 @@ public class Graph
          int []newNodePosX = new int[N];
          int []newNodePosY = new int[N];
          int []newContour = new int[N];  
+         boolean []newSelected = new boolean[N];
       	
       
          if(inN > oldN)
@@ -116,6 +120,11 @@ public class Graph
                newContour[i] = i;
          		
             contour = newContour;
+            
+            for(int i=0; i<oldN; i++)
+               newSelected[i] = selected[i];
+            
+            selected = newSelected;
          	
          }
          else
@@ -151,6 +160,11 @@ public class Graph
                newContour[i] = contour[i];
          		
             contour = newContour;
+            
+            for(int i=0; i<inN; i++)
+               newSelected[i] = selected[i];
+            
+            selected = newSelected;
          }
       }
    }
@@ -244,6 +258,16 @@ public class Graph
             
          }
          contour = newContour;	
+      
+         boolean []newSelected = new boolean[N];
+      
+         for(int i=0; i<N+1; i++)
+            if((i+1) < vertex)
+               newSelected[i] = selected[i];
+            else if((i+1) > vertex)
+               newSelected[i-1] = selected[i];
+         selected = newSelected;
+      
       
       }
    
@@ -465,6 +489,10 @@ public class Graph
       int tempDom = domset[v1-1];
       domset[v1-1] = domset[v2-1];
       domset[v2-1] = tempDom;
+      
+      boolean tempSelected = selected[v1-1];
+      selected[v1-1] = selected[v2-1];
+      selected[v2-1] = tempSelected;
    }
 	
    public int[] getDegrees()
@@ -517,6 +545,32 @@ public class Graph
    {
       contour = co;
    }
+   
+   public boolean[] getSelected()
+   {
+      return selected;
+   }
+   
+   public void setSelected(boolean[] se)
+   {
+      selected = se;
+   }
+   
+   public void select(int v)
+   {
+      selected[v] = true;
+   }
+   
+   public void deselect(int v)
+   {
+      selected[v] = false;
+   }
+   
+   public boolean isSelected(int v)
+   {
+      return selected[v];
+   }
+   
    
    public void createCircle()
    {

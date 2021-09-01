@@ -162,6 +162,7 @@ public class UndoNode
    
    public void undo()
    {
+      System.out.println(eventType);
       Graph graph = graphPane.getGraph();
       if(eventType == ADD_VERTEX)
       {
