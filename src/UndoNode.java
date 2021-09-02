@@ -18,12 +18,12 @@ public class UndoNode
    int [][]newArcs;
    int []degrees;
    int []newDegrees;
-   int singleXPos;
-   int singleYPos;
-   int []xPos;
-   int []yPos;
-   int []newXPos;
-   int []newYPos;
+   double singleXPos;
+   double singleYPos;
+   double []xPos;
+   double []yPos;
+   double []newXPos;
+   double []newYPos;
    int []contour;
    int []newContour;
    int []oldDomset;
@@ -85,7 +85,7 @@ public class UndoNode
       return eventType;
    }
    
-   public void addVertex(int v, int xp, int yp)
+   public void addVertex(int v, double xp, double yp)
    {
       vertex = v;
       singleXPos = xp;
@@ -98,7 +98,7 @@ public class UndoNode
       edge2 = e2;
    }
    
-   public void removeVertex(int v, int [][]oa, int []d, int []ods, int []xp, int []yp, int []c)
+   public void removeVertex(int v, int [][]oa, int []d, int []ods, double []xp, double []yp, int []c)
    {
       vertex = v;
       oldArcs = oa;
@@ -115,7 +115,7 @@ public class UndoNode
       edge2 = e2;
    }
    
-   public void relabelVertices(int [][]oa, int []d, int []xp, int []yp, int v, int nv, boolean i)
+   public void relabelVertices(int [][]oa, int []d, double []xp, double []yp, int v, int nv, boolean i)
    {
       oldArcs = oa;
       degrees = d;
@@ -126,7 +126,7 @@ public class UndoNode
       increment = i;
    }
    
-   public void arrangeVertices(int []xp, int []yp, int []c, int []nc)
+   public void arrangeVertices(double []xp, double []yp, int []c, int []nc)
    {
       xPos = xp;
       yPos = yp;
@@ -134,7 +134,7 @@ public class UndoNode
       newContour = nc;
    }
    
-   public void editEdgeList(int [][]oa, int []d, int []xp, int []yp, int []c, int [][]na, int []nd, boolean a)
+   public void editEdgeList(int [][]oa, int []d, double []xp, double []yp, int []c, int [][]na, int []nd, boolean a)
    {
       oldArcs = oa;
       degrees = d;
@@ -146,7 +146,7 @@ public class UndoNode
       arrange = a;
    }
    
-   public void moveVertex(int []xp, int []yp, int []nx, int []ny)
+   public void moveVertex(double []xp, double []yp, double []nx, double []ny)
    {
       xPos = xp;
       yPos = yp;
@@ -280,6 +280,14 @@ public class UndoNode
       }
    }
    
+   public double[] copy(double []a)
+   {
+      double []copy = new double[a.length];
+      for(int i=0; i<copy.length; i++)
+         copy[i] = a[i];
+      return copy;
+   }
+
    public int[] copy(int []a)
    {
       int []copy = new int[a.length];

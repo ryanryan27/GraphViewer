@@ -24,8 +24,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    Timer timer;
 
    Graph graph;
-   int []originalX;
-   int []originalY;
+   double []originalX;
+   double []originalY;
    int nodeSelected = -1;
    int nodeHighlighted = -1;
    int nodeSelectedForEdge = -1;
@@ -38,8 +38,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    double xScale = 1;
    double yScale = 1;
 
-   int rotateX = -1;
-   int rotateY = -1;
+   double rotateX = -1;
+   double rotateY = -1;
 
    int xTopLeft = 0;
    int yTopLeft = 0;
@@ -283,8 +283,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                   if(Math.pow(Math.pow(xPos + xTopLeft*xScale - graph.getXPos(i)*xScale,2) + Math.pow(yPos + yTopLeft*yScale - graph.getYPos(i)*yScale,2),0.5) <= radius*Math.min(xScale,yScale))
                   {
                      nodeSelected = i;
-                     originalX = new int[graph.getN()];
-                     originalY = new int[graph.getN()];
+                     originalX = new double[graph.getN()];
+                     originalY = new double[graph.getN()];
                      for(int j=0; j<graph.getN(); j++)
                      {
                         originalX[j] = graph.getXPos(j);
@@ -336,8 +336,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                           @Override
                           public void run() {
                              //System.out.println("Testing"+e.getX());
-                             rotateX = (int)Math.round((e.getX()-4)/xScale + xTopLeft);
-                             rotateY = (int)Math.round((e.getY()-53)/yScale + yTopLeft);
+                             rotateX = ((e.getX()-4)/xScale + xTopLeft);
+                             rotateY = ((e.getY()-53)/yScale + yTopLeft);
                              rotate();
                           }
                        },0,1);
@@ -356,8 +356,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       for(int i=0; i<graph.getN(); i++)
          if(graph.isSelected(i))
          {
-            int x = graph.getXPos(i);
-            int y = graph.getYPos(i);
+            double x = graph.getXPos(i);
+            double y = graph.getYPos(i);
             System.out.println("x = " + x + " and rotateX = " + rotateX);
             double r = Math.pow(Math.pow(x-rotateX,2)+Math.pow(y-rotateY,2),0.5);
             double theta = Math.atan(Math.abs((1.0*(x-rotateX))/(1.0*(y-rotateY))));
@@ -370,12 +370,12 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             if(x >= rotateX && y < rotateY)
                theta = 3.0*Math.PI/2.0 + theta;
             theta = theta + Math.PI/360.0;
-            int newx = x;
-            int newy = y;
+            double newx = x;
+            double newy = y;
             if(r >= 0.001)
             {
-               newx = (int)Math.round(rotateX + r*Math.cos(theta));
-               newy = (int)Math.round(rotateY + r*Math.sin(theta));
+               newx = (rotateX + r*Math.cos(theta));
+               newy = (rotateY + r*Math.sin(theta));
             }
             graph.setXPos(i,newx);
             graph.setYPos(i,newy);
@@ -393,8 +393,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(nodeSelected != -1)
             {
-               int []xPos = graph.getXPoses();
-               int []yPos = graph.getYPoses();
+               double []xPos = graph.getXPoses();
+               double []yPos = graph.getYPoses();
                /*int []oldX = new int[xPos.length];
                int []oldY = new int[yPos.length];
                for(int i=0; i<xPos.length; i++)
@@ -405,8 +405,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                oldX[nodeSelected] = originalX;
                oldY[nodeSelected] = originalY;*/
 
-               int []oldX = new int[xPos.length];
-               int []oldY = new int[yPos.length];
+               double []oldX = new double[xPos.length];
+               double []oldY = new double[yPos.length];
                for(int i=0; i<xPos.length; i++)
                {
                   oldX[i] = originalX[i];
@@ -423,14 +423,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(startedCreatingVertex)
             {
-               undoStream.addVertex(graph.getN()+1,(int)Math.round((e.getX()-4)/xScale + xTopLeft),(int)Math.round((e.getY()-53)/yScale + yTopLeft));
+               undoStream.addVertex(graph.getN()+1,((e.getX()-4)/xScale + xTopLeft),((e.getY()-53)/yScale + yTopLeft));
 
                startedCreatingVertex = false;
                graph.setN(graph.getN()+1);
                             /*graph.setXPos(graph.getN()-1,(int)Math.round((e.getX()-4)/xScale + xTopLeft - radius));
                            graph.setYPos(graph.getN()-1,(int)Math.round((e.getY()-53)/yScale + yTopLeft - radius));*/
-               graph.setXPos(graph.getN()-1,(int)Math.round((e.getX()-4)/xScale + xTopLeft));
-               graph.setYPos(graph.getN()-1,(int)Math.round((e.getY()-53)/yScale + yTopLeft));
+               graph.setXPos(graph.getN()-1,((e.getX()-4)/xScale + xTopLeft));
+               graph.setYPos(graph.getN()-1,((e.getY()-53)/yScale + yTopLeft));
 
 
 
@@ -650,11 +650,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             graph.setYPos(nodeSelected, yTopLeft + (int)Math.round(( (e.getY()-53)/yScale-offsetY-radius)));*/
             if(graph.isSelected(nodeSelected))
             {
-               int origX = graph.getXPos(nodeSelected);
-               int origY = graph.getYPos(nodeSelected);
+               double origX = graph.getXPos(nodeSelected);
+               double origY = graph.getYPos(nodeSelected);
 
-               int newX = xTopLeft + (int)Math.round(( (e.getX()-4)/xScale-offsetX));
-               int newY = yTopLeft + (int)Math.round(( (e.getY()-53)/yScale-offsetY));
+               double newX = xTopLeft +  ((e.getX()-4)/xScale-offsetX);
+               double newY = yTopLeft +  ((e.getY()-53)/yScale-offsetY);
 
                graph.setXPos(nodeSelected, newX);
                graph.setYPos(nodeSelected, newY);
@@ -670,8 +670,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             {
                boolean []newSelected = new boolean[graph.getN()];
                graph.setSelected(newSelected);
-               graph.setXPos(nodeSelected, xTopLeft + (int)Math.round(( (e.getX()-4)/xScale-offsetX)));
-               graph.setYPos(nodeSelected, yTopLeft + (int)Math.round(( (e.getY()-53)/yScale-offsetY)));
+               graph.setXPos(nodeSelected, xTopLeft + ( (e.getX()-4)/xScale-offsetX));
+               graph.setYPos(nodeSelected, yTopLeft + ( (e.getY()-53)/yScale-offsetY));
             }
          }
       }
@@ -835,8 +835,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                     new TimerTask() {
                        @Override
                        public void run() {
-                          rotateX = (int)Math.round((e.getX()-4)/xScale + xTopLeft);
-                          rotateY = (int)Math.round((e.getY()-53)/yScale + yTopLeft);
+                          rotateX = ((e.getX()-4)/xScale + xTopLeft);
+                          rotateY = ((e.getY()-53)/yScale + yTopLeft);
                           rotate();
                        }
                     },0,1);
@@ -1188,6 +1188,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                g.setStroke(new BasicStroke(1.0f,BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
                g.drawRect((int)Math.round((-xTopLeft + graph.getXPos(i)))-radius-6,(int)Math.round((-yTopLeft + graph.getYPos(i)))-radius-6,2*radius+12,2*radius+12);
                g.setStroke(new BasicStroke(1));
+
             }
             if(i == nodeHighlighted || i == nodeSelectedForEdge)
             {
@@ -1385,10 +1386,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                int centre2X = -xTopLeft + radius+graph.getXPos(v2);
                int centre2Y = -yTopLeft + radius+graph.getYPos(v2);*/
 
-               int centre1X = -xTopLeft + graph.getXPos(v1);
-               int centre1Y = -yTopLeft + graph.getYPos(v1);
-               int centre2X = -xTopLeft + graph.getXPos(v2);
-               int centre2Y = -yTopLeft + graph.getYPos(v2);
+               double centre1X = -xTopLeft + graph.getXPos(v1);
+               double centre1Y = -yTopLeft + graph.getYPos(v1);
+               double centre2X = -xTopLeft + graph.getXPos(v2);
+               double centre2Y = -yTopLeft + graph.getYPos(v2);
 
 
                double theta = 0;
@@ -1447,10 +1448,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                int centre2X = -xTopLeft + radius+graph.getXPos(v2);
                int centre2Y = -yTopLeft + radius+graph.getYPos(v2);*/
 
-               int centre1X = -xTopLeft +graph.getXPos(v1);
-               int centre1Y = -yTopLeft +graph.getYPos(v1);
-               int centre2X = -xTopLeft +graph.getXPos(v2);
-               int centre2Y = -yTopLeft +graph.getYPos(v2);
+               double centre1X = -xTopLeft +graph.getXPos(v1);
+               double centre1Y = -yTopLeft +graph.getYPos(v1);
+               double centre2X = -xTopLeft +graph.getXPos(v2);
+               double centre2Y = -yTopLeft +graph.getYPos(v2);
 
                double theta = 0;
                if(centre2X == centre1X)
@@ -1511,8 +1512,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             int centre2X = mouseX;
             int centre2Y = mouseY;*/
 
-            int centre1X = -xTopLeft +graph.getXPos(nodeSelectedForEdge);
-            int centre1Y = -yTopLeft +graph.getYPos(nodeSelectedForEdge);
+            double centre1X = -xTopLeft +graph.getXPos(nodeSelectedForEdge);
+            double centre1Y = -yTopLeft +graph.getYPos(nodeSelectedForEdge);
             int centre2X = mouseX;
             int centre2Y = mouseY;
 
@@ -1552,10 +1553,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             int centre2X = -xTopLeft + radius+graph.getXPos(edgeHighlighted[1]);
             int centre2Y = -yTopLeft + radius+graph.getYPos(edgeHighlighted[1]);*/
 
-            int centre1X = -xTopLeft + graph.getXPos(edgeHighlighted[0]);
-            int centre1Y = -yTopLeft + graph.getYPos(edgeHighlighted[0]);
-            int centre2X = -xTopLeft + graph.getXPos(edgeHighlighted[1]);
-            int centre2Y = -yTopLeft + graph.getYPos(edgeHighlighted[1]);
+            double centre1X = -xTopLeft + graph.getXPos(edgeHighlighted[0]);
+            double centre1Y = -yTopLeft + graph.getYPos(edgeHighlighted[0]);
+            double centre2X = -xTopLeft + graph.getXPos(edgeHighlighted[1]);
+            double centre2Y = -yTopLeft + graph.getYPos(edgeHighlighted[1]);
 
             double theta = 0;
             if(centre2X == centre1X)
@@ -1879,14 +1880,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                   if(v3 > v4)
                      continue;
 
-                  int p1x = graph.getXPos(v1);
-                  int p1y = graph.getYPos(v1);
-                  int p2x = graph.getXPos(v2);
-                  int p2y = graph.getYPos(v2);
-                  int p3x = graph.getXPos(v3);
-                  int p3y = graph.getYPos(v3);
-                  int p4x = graph.getXPos(v4);
-                  int p4y = graph.getYPos(v4);
+                  double p1x = graph.getXPos(v1);
+                  double p1y = graph.getYPos(v1);
+                  double p2x = graph.getXPos(v2);
+                  double p2y = graph.getYPos(v2);
+                  double p3x = graph.getXPos(v3);
+                  double p3y = graph.getYPos(v3);
+                  double p4x = graph.getXPos(v4);
+                  double p4y = graph.getYPos(v4);
 
                   double s1x = p2x - p1x;
                   double s1y = p2y - p1y;

@@ -11,8 +11,8 @@ public class Graph
    int [][]arcs;
    int []degrees;
    
-   int []nodePosX;
-   int []nodePosY;
+   double []nodePosX;
+   double []nodePosY;
    
    boolean []selected;
    
@@ -30,8 +30,8 @@ public class Graph
       maxDegree = inMaxDegree;
       arcs = new int[N][maxDegree];
       degrees = new int[N];
-      nodePosX = new int[N];
-      nodePosY = new int[N];
+      nodePosX = new double[N];
+      nodePosY = new double[N];
       contour = new int[N];
       domset = new int[N];
       selected = new boolean[N];
@@ -61,9 +61,9 @@ public class Graph
       
          int [][]newArcs = new int[N][maxDegree];
          int []newDegrees = new int[N];
-         int []newNodePosX = new int[N];
-         int []newNodePosY = new int[N];
-         int []newContour = new int[N];  
+         double []newNodePosX = new double[N];
+         double []newNodePosY = new double[N];
+         int []newContour = new int[N];
          boolean []newSelected = new boolean[N];
       	
       
@@ -89,7 +89,7 @@ public class Graph
          	
             degrees = newDegrees;
          
-            int totalX = 0;   
+            int totalX = 0;
             for(int i=0; i<oldN; i++)
             {
                newNodePosX[i] = nodePosX[i];
@@ -225,9 +225,9 @@ public class Graph
                newMaxDegree = degrees[i];
       
          maxDegree = newMaxDegree;
-      
-         int []newNodePosX = new int[N];
-         int []newNodePosY = new int[N];
+
+         double []newNodePosX = new double[N];
+         double []newNodePosY = new double[N];
       
          for(int i=0; i<N+1; i++)
             if((i+1) < vertex)
@@ -477,12 +477,12 @@ public class Graph
       int temp = degrees[v1-1];
       degrees[v1-1] = degrees[v2-1];
       degrees[v2-1] = temp;
-      
-      int tempX = nodePosX[v1-1];
+
+      double tempX = nodePosX[v1-1];
       nodePosX[v1-1] = nodePosX[v2-1];
       nodePosX[v2-1] = tempX;
-   	
-      int tempY = nodePosY[v1-1];
+
+      double tempY = nodePosY[v1-1];
       nodePosY[v1-1] = nodePosY[v2-1];
       nodePosY[v2-1] = tempY;
    
@@ -500,38 +500,38 @@ public class Graph
       return degrees;
    }
    
-   public int getXPos(int node)
+   public double getXPos(int node)
    {
       return nodePosX[node];
    }
 	
-   public int getYPos(int node)
+   public double getYPos(int node)
    {
       return nodePosY[node];
    }
 	
-   public void setXPos(int node, int posX)
+   public void setXPos(int node, double posX)
    {
       nodePosX[node] = posX;
    }
 	
-   public void setYPos(int node, int posY)
+   public void setYPos(int node, double posY)
    {
       nodePosY[node] = posY;
    }
   
-   public void setAllPos(int []nx, int []ny)
+   public void setAllPos(double []nx, double []ny)
    {
       nodePosX = nx;
       nodePosY = ny;
    }
   
-   public int[] getXPoses()
+   public double[] getXPoses()
    {
       return nodePosX;
    }
   
-   public int[] getYPoses()
+   public double[] getYPoses()
    {
       return nodePosY;
    }
@@ -1132,7 +1132,13 @@ public class Graph
       else if(domset[node] == 2)
          domset[node] = 0;
       return domset;
-   }  
+   }
+
+   public void springIteration(){
+
+   }
+
+
 }
 
 

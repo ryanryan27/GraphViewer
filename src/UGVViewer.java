@@ -2108,12 +2108,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             String yPosesString = br.readLine();
             StringTokenizer xTokens = new StringTokenizer(xPosesString);
             StringTokenizer yTokens = new StringTokenizer(yPosesString);
-            int xPos[] = new int[N];
-            int yPos[] = new int[N];
+            double xPos[] = new double[N];
+            double yPos[] = new double[N];
             for(int i=0; i<N; i++)
             {
-               xPos[i] = Integer.parseInt(xTokens.nextToken());
-               yPos[i] = Integer.parseInt(yTokens.nextToken());		
+               xPos[i] = Double.parseDouble(xTokens.nextToken());
+               yPos[i] = Double.parseDouble(yTokens.nextToken());
             }
             int []degrees = new int[N];
             int maxDegree = 0;
@@ -4505,10 +4505,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       GraphPane graphPane = graphPanels.get(index+1);
       int radius = graphPane.getRadius();
       Graph thisGraph = graphPane.getGraph();
-      int minX = thisGraph.getXPos(0)-radius;
-      int maxX = thisGraph.getXPos(0)+radius;
-      int minY = thisGraph.getYPos(0)-radius;
-      int maxY = thisGraph.getYPos(0)+radius;
+      double minX = thisGraph.getXPos(0)-radius;
+      double maxX = thisGraph.getXPos(0)+radius;
+      double minY = thisGraph.getYPos(0)-radius;
+      double maxY = thisGraph.getYPos(0)+radius;
       for(int i=0; i<thisGraph.getN(); i++)
       {
          if(minX > thisGraph.getXPos(i)-radius)

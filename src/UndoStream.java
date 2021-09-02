@@ -28,7 +28,7 @@ public class UndoStream
       current = head;
    }
 
-   public void addVertex(int v, int xp, int yp)
+   public void addVertex(int v, double xp, double yp)
    {
       current.setNext(new UndoNode(current,graphPane,ADD_VERTEX));
       current = current.getNext();
@@ -45,7 +45,7 @@ public class UndoStream
       
    }
    	
-   public void removeVertex(int v, int [][]oa, int []d, int []ods, int []xp, int []yp, int []c)
+   public void removeVertex(int v, int [][]oa, int []d, int []ods, double []xp, double []yp, int []c)
    {
       current.setNext(new UndoNode(current,graphPane,REMOVE_VERTEX));
       current = current.getNext();
@@ -61,7 +61,7 @@ public class UndoStream
       graphPane.getParent().checkSave();
    }
    
-   public void relabelVertices(int [][]oa, int []d, int []xp, int []yp, int v, int nv, boolean i)
+   public void relabelVertices(int [][]oa, int []d, double []xp, double []yp, int v, int nv, boolean i)
    {
       current.setNext(new UndoNode(current,graphPane,RELABEL_VERTICES));
       current = current.getNext();
@@ -69,7 +69,7 @@ public class UndoStream
       graphPane.getParent().checkSave();
    }
    
-   public void arrangeVertices(int []xp, int []yp, int []c, int []nc)
+   public void arrangeVertices(double []xp, double []yp, int []c, int []nc)
    {
       current.setNext(new UndoNode(current,graphPane,ARRANGE_VERTICES));
       current = current.getNext();
@@ -77,7 +77,7 @@ public class UndoStream
       graphPane.getParent().checkSave();
    }
    
-   public void editEdgeList(int [][]oa, int []d, int []xp, int []yp, int []c, int [][]na, int []nd, boolean a)
+   public void editEdgeList(int [][]oa, int []d, double []xp, double []yp, int []c, int [][]na, int []nd, boolean a)
    {
       current.setNext(new UndoNode(current,graphPane,EDIT_EDGE_LIST));
       current = current.getNext();
@@ -85,7 +85,7 @@ public class UndoStream
       graphPane.getParent().checkSave();
    }
    
-   public void moveVertex(int []xp, int []yp, int []nx, int []ny)
+   public void moveVertex(double []xp, double []yp, double []nx, double []ny)
    {
       current.setNext(new UndoNode(current,graphPane,MOVE_VERTEX));
       current = current.getNext();
@@ -138,6 +138,14 @@ public class UndoStream
    public int[] copy(int []a)
    {
       int []copy = new int[a.length];
+      for(int i=0; i<copy.length; i++)
+         copy[i] = a[i];
+      return copy;
+   }
+
+   public double[] copy(double []a)
+   {
+      double []copy = new double[a.length];
       for(int i=0; i<copy.length; i++)
          copy[i] = a[i];
       return copy;
