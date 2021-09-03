@@ -281,8 +281,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       toolTipsForLabels[6] = new String("Arrange vertices into a circle");
       toolTipsForLabels[7] = new String("Check graph properties");
       toolTipsForLabels[8] = new String("Edit edge list");
-      toolTipsForLabels[9] = new String("Select vertices");
-      toolTipsForLabels[10] = new String("Rotate vertices");
+      toolTipsForLabels[9] = new String("Spring layout");
+      toolTipsForLabels[10] = new String("Select vertices");
+      toolTipsForLabels[11] = new String("Rotate vertices");
    
    	
       icons = new ImageIcon[choices+bottomChoices+selectChoices][4];
@@ -333,16 +334,21 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       icons[8][1] = new ImageIcon("pics/editedges_highlight.png");
       icons[8][2] = new ImageIcon("pics/editedges_select.png");
       icons[8][3] = new ImageIcon("pics/editedges_chosen.png");
+
+      icons[9][0] = new ImageIcon("pics/spring.png");
+      icons[9][1] = new ImageIcon("pics/spring_highlight.png");
+      icons[9][2] = new ImageIcon("pics/spring_select.png");
+      icons[9][3] = new ImageIcon("pics/spring_chosen.png");
       
-      icons[9][0] = new ImageIcon("pics/select.png");
-      icons[9][1] = new ImageIcon("pics/select_highlight.png");
-      icons[9][2] = new ImageIcon("pics/select_select.png");
-      icons[9][3] = new ImageIcon("pics/select_chosen.png");
+      icons[10][0] = new ImageIcon("pics/select.png");
+      icons[10][1] = new ImageIcon("pics/select_highlight.png");
+      icons[10][2] = new ImageIcon("pics/select_select.png");
+      icons[10][3] = new ImageIcon("pics/select_chosen.png");
       
-      icons[10][0] = new ImageIcon("pics/rotate.png");
-      icons[10][1] = new ImageIcon("pics/rotate_highlight.png");
-      icons[10][2] = new ImageIcon("pics/rotate_select.png");
-      icons[10][3] = new ImageIcon("pics/rotate_chosen.png");
+      icons[11][0] = new ImageIcon("pics/rotate.png");
+      icons[11][1] = new ImageIcon("pics/rotate_highlight.png");
+      icons[11][2] = new ImageIcon("pics/rotate_select.png");
+      icons[11][3] = new ImageIcon("pics/rotate_chosen.png");
    
       highlighted = new boolean[choices+bottomChoices+selectChoices];
       pressed = new boolean[choices+bottomChoices+selectChoices];
@@ -1097,6 +1103,20 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             }
             else
                gp.repaint();
+         }
+      }
+      if(function == BOTTOM_SPRING){
+         GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
+         Graph gr = gp.getGraph();
+         if(!gr.calculatingSpring) {
+            double[] oldX = gr.getXPoses().clone();
+            double[] oldY = gr.getYPoses().clone();
+
+
+            gr.springLayout(gp.radius);
+            gp.undoStream.moveVertex(oldX, oldY, gr.getXPoses(), gr.getYPoses());
+            gp.validate();
+            gp.repaint();
          }
       }
       
@@ -4702,7 +4722,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    boolean []pressed;
    boolean []chosen;
    int choices = 6;
-   int bottomChoices = 3;
+   int bottomChoices = 4;
    int selectChoices = 2;
    int selectedOption = -1;
 
@@ -4718,6 +4738,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    final int BOTTOM_ARRANGE = choices;
    final int BOTTOM_PROPERTIES = choices+1;
    final int BOTTOM_EDITEDGES = choices+2;
+   final int BOTTOM_SPRING = choices+3;
 
    Cursor defaultCursor;
 	

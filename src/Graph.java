@@ -1,5 +1,6 @@
 //package UGV;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import javax.swing.*;
 
@@ -10,6 +11,10 @@ public class Graph
    int maxDegree;
    int [][]arcs;
    int []degrees;
+
+   int[][] dists;
+   double springStrength = 1;
+   boolean calculatingSpring = false;
    
    double []nodePosX;
    double []nodePosY;
@@ -1134,7 +1139,162 @@ public class Graph
       return domset;
    }
 
-   public void springIteration(){
+   public void springLayout(int radius){
+      calculatingSpring = true;
+      //calculateShortestPaths();
+
+      double tolerance = 0.001/N;
+
+
+      int[][] l = new int[N][N];
+      double[][] k = new double[N][N];
+      double[] parX = new double[N];
+      double[] parY = new double[N];
+      double[] delta = new double[N];
+
+      for (int i = 0; i < N; i++) {
+         for (int j = 0; j < N; j++) {
+            if(dist(i,j) < N+1) {
+               l[i][j] = radius * 10 * dist(i,j);
+               k[i][j] = springStrength/dist(i,j);
+            } else {
+               l[i][j] = 0;
+               k[i][j] = 0;
+            }
+
+
+
+         }
+
+
+      }
+
+      int m = 0;
+
+      for (int i = 0; i < N; i++) {
+         for (int j = 0; j < N; j++) {
+            if(i != j){
+               parX[i] += k[i][j]*(getXPos(i)-getXPos(j)) - l[i][j]*(getXPos(i)-getXPos(j))/Math.sqrt(distL2(i,j));
+               parY[i] += k[i][j]*(getYPos(i)-getYPos(j)) - l[i][j]*(getYPos(i)-getYPos(j))/Math.sqrt(distL2(i,j));
+            }
+         }
+         delta[i] = Math.sqrt(Math.pow(parX[i],2) + Math.pow(parY[i],2));
+         if(delta[i] >= delta[m]){
+            m = i;
+         }
+      }
+
+      double prevD = 0;
+      int count = 0;
+      while(count < 1000 && (delta[m] > 0.001 && Math.abs(delta[m] - prevD)/prevD >= tolerance)){
+         count++;
+         prevD = delta[m];
+
+         double[] contX = new double[N];
+         double[] contY = new double[N];
+
+         for (int i = 0; i < N; i++) {
+            if (i == m){
+               continue;
+            }
+            contX[i] = k[i][m]*(getXPos(i)-getXPos(m)) - l[i][m]*(getXPos(i) - getXPos(m))/Math.sqrt(distL2(i,m));
+            contY[i] = k[i][m]*(getYPos(i)-getYPos(m)) - l[i][m]*(getYPos(i) - getYPos(m))/Math.sqrt(distL2(i,m));
+         }
+
+         double pimd = 0;
+
+         int countInner = 0;
+         do {
+            countInner++;
+            pimd = delta[m];
+
+            double C = -1*parX[m];
+            double E = -1*parY[m];
+            double F = 0;
+            double B = 0;
+            double D = 0;
+
+            for (int i = 0; i < N; i++) {
+               if(i==m) continue;
+
+               F += k[m][i]*(1-l[m][i]*Math.pow(getYPos(m)-getYPos(i),2)/Math.pow(distL2(m,i),1.5));
+               D += k[m][i]*(1-l[m][i]*Math.pow(getXPos(m)-getXPos(i),2)/Math.pow(distL2(m,i),1.5));
+               B += k[m][i]*(l[m][i]*(getXPos(m)-getXPos(i))*(getYPos(m)-getYPos(i))/Math.pow(distL2(m,i),1.5));
+            }
+
+            double dX = (C*D - E*B)/(F*D - B*B);
+            double dY = (E*F - B*C)/(F*D - B*B);
+
+            setXPos(m, getXPos(m)+dX);
+            setYPos(m, getYPos(m)+dY);
+
+            parX[m] = 0;
+            parY[m] = 0;
+
+            for (int i = 0; i < N; i++) {
+               if(i==m) continue;
+
+               parX[m] += k[m][i]*((getXPos(m)-getXPos(i)) - l[m][i]*(getXPos(m)-getXPos(i))/Math.sqrt(distL2(m,i))) - contX[m];
+               parY[m] += k[m][i]*((getYPos(m)-getYPos(i)) - l[m][i]*(getYPos(m)-getYPos(i))/Math.sqrt(distL2(m,i))) - contY[m];
+            }
+            delta[m] = Math.sqrt(parX[m]*parX[m] + parY[m]*parY[m]);
+
+         } while (countInner < 1000 && delta[m] > 0.000001 && (pimd - delta[m])/pimd > tolerance);
+
+
+
+         for (int i = 0; i < N; i++) {
+            if(delta[i] >= delta[m]) {
+               m = i;
+            }
+         }
+
+
+
+      }
+
+
+   calculatingSpring = false;
+   }
+
+   public int dist(int v1, int v2){
+      if (dists == null || dists.length != N){
+         calculateShortestPaths();
+      }
+      return dists[v1][v2];
+   }
+
+   public double distL2(int v1, int v2){
+      return Math.pow(getXPos(v1)-getXPos(v2),2) + Math.pow(getYPos(v1)-getYPos(v2),2);
+   }
+
+   private void calculateShortestPaths(){
+      //initialise distances for Dijkstra
+      dists = new int[N][N];
+      for (int i = 0; i < N; i++){
+         for (int j = 0 ; j < N; j++){
+            dists[i][j] = 2*N;
+            if(i == j){
+               dists[i][j] = 0;
+            }
+            if(isEdge(i+1,j+1)){
+               dists[i][j] = 1;
+            }
+
+         }
+      }
+
+      for (int i = 0; i < N; i++) {
+         for (int j = 0; j < N; j++) {
+            for (int k = 0; k < N; k++) {
+               if(dists[i][j] > dists[i][k] + dists[k][j]){
+                  dists[i][j] = dists[i][k] + dists[k][j];
+               }
+            }
+         }
+      }
+
+
 
    }
 

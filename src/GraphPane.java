@@ -82,8 +82,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    final int SCISSORS_OPTION = 3;
    final int RELABEL_OPTION = 4;
    final int DOM_OPTION = 5;
-   final int SELECT_OPTION = 9;
-   final int ROTATE_OPTION = 10;
+   final int SELECT_OPTION = 10;
+   final int ROTATE_OPTION = 11;
 
 
    final int SCISSORS_DISTANCE = 15;
