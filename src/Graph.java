@@ -13,7 +13,7 @@ public class Graph
    int []degrees;
 
    int[][] dists;
-   double springStrength = 1;
+   double springStrength = .8;
    boolean calculatingSpring = false;
    
    double []nodePosX;
@@ -1140,10 +1140,12 @@ public class Graph
    }
 
    public void springLayout(int radius){
-      calculatingSpring = true;
-      //calculateShortestPaths();
+      //calculatingSpring = true;
+      calculateShortestPaths();
 
       double tolerance = 0.001/N;
+
+      double[] before = getMiddle();
 
 
       int[][] l = new int[N][N];
@@ -1253,12 +1255,41 @@ public class Graph
 
       }
 
+      double[] after = getMiddle();
+      double xShift = before[0] - after[0];
+      double yShift = before[1] - after[1];
 
-   calculatingSpring = false;
+      for (int i = 0; i < N; i++) {
+         nodePosX[i] += xShift;
+         nodePosY[i] += yShift;
+      }
+
+
+   //calculatingSpring = false;
    }
 
+
+   public double[] getMiddle(){
+      double x = 0;
+      double y = 0;
+
+      for (int i = 0; i < N; i++) {
+         x += nodePosX[i];
+         y += nodePosY[i];
+      }
+
+      x = x/N;
+      y = y/N;
+
+      return new double[]{x, y};
+
+
+   }
+
+
    public int dist(int v1, int v2){
-      if (dists == null || dists.length != N){
+      if (dists == null || dists.length != N) {
+         //TODO need to update shortest paths when verts/edges/labels changed
          calculateShortestPaths();
       }
       return dists[v1][v2];

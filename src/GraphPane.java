@@ -3,9 +3,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.image.*;
-import javax.imageio.ImageIO;
 import java.io.*;
 import java.util.*;
 import java.util.Timer;
@@ -22,6 +20,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    UndoStream undoStream;
 
    Timer timer;
+
+   Timer springTimer;
 
    Graph graph;
    double []originalX;
@@ -40,6 +40,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    double rotateX = -1;
    double rotateY = -1;
+
+   double[] beforeSpringX;
+   double[] beforeSpringY;
 
    int xTopLeft = 0;
    int yTopLeft = 0;
@@ -1778,6 +1781,34 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    {
       domWeakRoman = dwr;
    }
+
+   public void beginSpring(){
+      beforeSpringX = graph.getXPoses().clone();
+      beforeSpringY = graph.getYPoses().clone();
+      graph.calculatingSpring = true;
+
+      springTimer = new Timer();
+      springTimer.schedule(
+              new TimerTask() {
+                 @Override
+                 public void run() {
+
+                    graph.springLayout(radius);
+                    validate();
+                    repaint();
+                 }
+              },0,100);
+
+   }
+
+   public void cancelSpring(){
+      if (graph.calculatingSpring) {
+         springTimer.cancel();
+         undoStream.moveVertex(beforeSpringX, beforeSpringY, graph.getXPoses(), graph.getYPoses());
+         graph.calculatingSpring = false;
+      }
+   }
+
 
 
    public int getTextSize()

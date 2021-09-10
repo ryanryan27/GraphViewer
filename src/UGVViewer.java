@@ -869,8 +869,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             
    public void mousePressed(MouseEvent e)
    {
+
       if(e.getButton() == MouseEvent.BUTTON1)
       {
+
+
+
          for(int i=0; i<choices+bottomChoices+selectChoices; i++)
             if(e.getSource() == labels[i])
             {
@@ -878,6 +882,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                pressed[i] = true;
             }
       }
+
+      //cancel spring timer here
+      GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
+      gp.cancelSpring();
    }
 
    public void mouseReleased(MouseEvent e)
@@ -1109,6 +1117,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
          GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
          Graph gr = gp.getGraph();
          if(!gr.calculatingSpring) {
+            gp.beginSpring();
+         }
+         /*if(!gr.calculatingSpring) {
             double[] oldX = gr.getXPoses().clone();
             double[] oldY = gr.getYPoses().clone();
 
@@ -1117,7 +1128,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             gp.undoStream.moveVertex(oldX, oldY, gr.getXPoses(), gr.getYPoses());
             gp.validate();
             gp.repaint();
-         }
+         }*/
       }
       
       chosen[function] = false;
