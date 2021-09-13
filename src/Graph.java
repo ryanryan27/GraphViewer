@@ -1176,8 +1176,8 @@ public class Graph
       for (int i = 0; i < N; i++) {
          for (int j = 0; j < N; j++) {
             if(i != j){
-               parX[i] += k[i][j]*(getXPos(i)-getXPos(j)) - l[i][j]*(getXPos(i)-getXPos(j))/Math.sqrt(distL2(i,j));
-               parY[i] += k[i][j]*(getYPos(i)-getYPos(j)) - l[i][j]*(getYPos(i)-getYPos(j))/Math.sqrt(distL2(i,j));
+               parX[i] += k[i][j]*((getXPos(i)-getXPos(j)) - l[i][j]*(getXPos(i)-getXPos(j))/Math.sqrt(distL2(i,j)));
+               parY[i] += k[i][j]*((getYPos(i)-getYPos(j)) - l[i][j]*(getYPos(i)-getYPos(j))/Math.sqrt(distL2(i,j)));
             }
          }
          delta[i] = Math.sqrt(Math.pow(parX[i],2) + Math.pow(parY[i],2));
@@ -1199,8 +1199,8 @@ public class Graph
             if (i == m){
                continue;
             }
-            contX[i] = k[i][m]*(getXPos(i)-getXPos(m)) - l[i][m]*(getXPos(i) - getXPos(m))/Math.sqrt(distL2(i,m));
-            contY[i] = k[i][m]*(getYPos(i)-getYPos(m)) - l[i][m]*(getYPos(i) - getYPos(m))/Math.sqrt(distL2(i,m));
+            contX[i] = k[i][m]*((getXPos(i)-getXPos(m)) - l[i][m]*(getXPos(i) - getXPos(m))/Math.sqrt(distL2(i,m)));
+            contY[i] = k[i][m]*((getYPos(i)-getYPos(m)) - l[i][m]*(getYPos(i) - getYPos(m))/Math.sqrt(distL2(i,m)));
          }
 
          double pimd = 0;
@@ -1315,9 +1315,9 @@ public class Graph
          }
       }
 
-      for (int i = 0; i < N; i++) {
-         for (int j = 0; j < N; j++) {
-            for (int k = 0; k < N; k++) {
+      for (int k = 0; k < N; k++) {
+         for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
                if(dists[i][j] > dists[i][k] + dists[k][j]){
                   dists[i][j] = dists[i][k] + dists[k][j];
                }
@@ -1325,7 +1325,14 @@ public class Graph
          }
       }
 
-
+      /*
+      for (int i = 0; i < N; i++) {
+         for (int j = 0; j < N; j++) {
+            System.out.print(dists[i][j] + " ");
+         }
+         System.out.println();
+      }
+      */
 
    }
 
