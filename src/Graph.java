@@ -15,14 +15,14 @@ public class Graph
    int[][] dists;
    double springStrength = .8;
    boolean calculatingSpring = false;
-   
+
    double []nodePosX;
    double []nodePosY;
-   
+
    boolean []selected;
-   
+
    int []contour;
-   
+
    int []domset;
    final int DOM_TYPE_STANDARD = 1;
    final int DOM_TYPE_TOTAL = 2;
@@ -40,18 +40,18 @@ public class Graph
       contour = new int[N];
       domset = new int[N];
       selected = new boolean[N];
-   	
+
       for(int i=0; i<N; i++)
          contour[i] = i;
-         
+
       createCircle();
    }
-   
+
    public int getN()
    {
       return N;
    }
-	
+
    public int getMaxDegree()
    {
       return maxDegree;
@@ -63,15 +63,15 @@ public class Graph
       {
          int oldN = N;
          N = inN;
-      
+
          int [][]newArcs = new int[N][maxDegree];
          int []newDegrees = new int[N];
          double []newNodePosX = new double[N];
          double []newNodePosY = new double[N];
          int []newContour = new int[N];
          boolean []newSelected = new boolean[N];
-      	
-      
+
+
          if(inN > oldN)
          {
             int []newDomset = new int[inN];
@@ -79,101 +79,101 @@ public class Graph
                newDomset[i] = domset[i];
             for(int i=oldN; i<inN; i++)
                newDomset[i] = 0;
-         
+
             domset = newDomset;
-         
-         
+
+
             for(int i=0; i<oldN; i++)
                for(int j=0; j<maxDegree; j++)
                   newArcs[i][j] = arcs[i][j];
-         
+
             arcs = newArcs;
-            
+
             for(int i=0; i<oldN; i++)
                newDegrees[i] = degrees[i];
-         	
+
             degrees = newDegrees;
-         
+
             int totalX = 0;
             for(int i=0; i<oldN; i++)
             {
                newNodePosX[i] = nodePosX[i];
                totalX += nodePosX[i];
             }
-         		
+
             for(int i=oldN; i<inN; i++)
                newNodePosX[i] = (int)Math.round(totalX*1.0/oldN)-(inN-oldN)/2*2 + (i-oldN)*2;
-         		
+
             nodePosX = newNodePosX;
-         	
+
             int totalY = 0;
             for(int i=0; i<oldN; i++)
             {
                newNodePosY[i] = nodePosY[i];
                totalY += nodePosY[i];
             }
-         		
+
             for(int i=oldN; i<inN; i++)
                newNodePosY[i] = (int)Math.round(totalY*1.0/oldN)-(inN-oldN)/2*2 + (i-oldN)*2;
-         		
+
             nodePosY = newNodePosY;
-            
+
             for(int i=0; i<oldN; i++)
                newContour[i] = contour[i];
-         		
+
             for(int i=oldN; i<inN; i++)
                newContour[i] = i;
-         		
+
             contour = newContour;
-            
+
             for(int i=0; i<oldN; i++)
                newSelected[i] = selected[i];
-            
+
             selected = newSelected;
-         	
+
          }
          else
          {
             int []newDomset = new int[inN];
             for(int i=0; i<inN; i++)
                newDomset[i] = domset[i];
-         
+
             domset = newDomset;
-         
+
             for(int i=0; i<inN; i++)
                for(int j=0; j<maxDegree; j++)
                   newArcs[i][j] = arcs[i][j];
-         			
+
             arcs = newArcs;
-            
+
             for(int i=0; i<inN; i++)
                newDegrees[i] = degrees[i];
-         		
+
             degrees = newDegrees;
-            
+
             for(int i=0; i<inN; i++)
                newNodePosX[i] = nodePosX[i];
-         		
+
             nodePosX = newNodePosX;
-         	
+
             for(int i=0; i<inN; i++)
                newNodePosY[i] = nodePosY[i];
-         		
+
             nodePosY = newNodePosY;
-            
+
             for(int i=0; i<inN; i++)
                newContour[i] = contour[i];
-         		
+
             contour = newContour;
-            
+
             for(int i=0; i<inN; i++)
                newSelected[i] = selected[i];
-            
+
             selected = newSelected;
          }
       }
    }
-   
+
    public void deleteVertex(int vertex)
    {
       if(vertex >= 1 && vertex <= N)
@@ -184,8 +184,8 @@ public class Graph
          for(int i=vertex; i<N; i++)
             newDomset[i-1] = domset[i];
          domset = newDomset;
-      
-      
+
+
          int [][]newArcs = new int[N-1][maxDegree];
          for(int i=0; i<N; i++)
             for(int j=0; j<degrees[i]; j++)
@@ -193,18 +193,18 @@ public class Graph
                   newArcs[i][j] = arcs[i][j];
                else if((i+1) > vertex)
                   newArcs[i-1][j] = arcs[i][j];
-      	
+
          int []newDegrees = new int[N-1];
          for(int i=0; i<N; i++)
             if((i+1) < vertex)
                newDegrees[i] = degrees[i];
             else if((i+1) > vertex)
                newDegrees[i-1] = degrees[i];
-      	
+
          arcs = newArcs;
          degrees = newDegrees;
          N = N-1;
-      
+
          for(int i=0; i<N; i++)
          {
             int moveBack = -1;
@@ -213,27 +213,27 @@ public class Graph
                   arcs[i][j]--;
                else if(arcs[i][j] == vertex)
                   moveBack = j;
-         		
+
             if(moveBack > -1)
             {
                for(int j=moveBack+1;j<degrees[i]; j++)
                   arcs[i][j-1] = arcs[i][j];
-            
+
                arcs[i][degrees[i]-1] = 0;
-               degrees[i]--;			
+               degrees[i]--;
             }
          }
-      
+
          int newMaxDegree = 0;
          for(int i=0; i<N; i++)
             if(degrees[i] > newMaxDegree)
                newMaxDegree = degrees[i];
-      
+
          maxDegree = newMaxDegree;
 
          double []newNodePosX = new double[N];
          double []newNodePosY = new double[N];
-      
+
          for(int i=0; i<N+1; i++)
             if((i+1) < vertex)
             {
@@ -245,39 +245,39 @@ public class Graph
                newNodePosX[i-1] = nodePosX[i];
                newNodePosY[i-1] = nodePosY[i];
             }
-      
+
          nodePosX = newNodePosX;
          nodePosY = newNodePosY;
-      
+
          int []newContour = new int[N];
          if(N != 0)
          {
             int offset = 0;
-            for(int i=0; i<N+1; i++)		
+            for(int i=0; i<N+1; i++)
                if((contour[i] + 1) < vertex)
                   newContour[i-offset] = contour[i];
                else if((contour[i] + 1) > vertex)
                   newContour[i-offset] = contour[i]-1;
                else
                   offset = 1;
-            
+
          }
-         contour = newContour;	
-      
+         contour = newContour;
+
          boolean []newSelected = new boolean[N];
-      
+
          for(int i=0; i<N+1; i++)
             if((i+1) < vertex)
                newSelected[i] = selected[i];
             else if((i+1) > vertex)
                newSelected[i-1] = selected[i];
          selected = newSelected;
-      
-      
+
+
       }
-   
+
    }
-	
+
    public void deleteArc(int v1, int v2)
    {
       for(int i=0; i<degrees[v1-1]; i++)
@@ -288,7 +288,7 @@ public class Graph
                arcs[v1-1][j-1] = arcs[v1-1][j];
             arcs[v1-1][degrees[v1-1]-1] = 0;
             degrees[v1-1]--;
-         
+
             if(degrees[v1-1]+1 == maxDegree)
             {
                int maxDegree = 0;
@@ -306,22 +306,22 @@ public class Graph
       deleteArc(v1,v2);
       deleteArc(v2,v1);
    }
-	
+
    public void setMaxDegree(int inMaxDegree)
    {
       if(maxDegree != inMaxDegree)
       {
          int oldMaxDegree = maxDegree;
          maxDegree = inMaxDegree;
-      
+
          int [][]newArcs = new int[N][maxDegree];
-      
+
          if(inMaxDegree > oldMaxDegree)
          {
             for(int i=0; i<N; i++)
                for(int j=0; j<oldMaxDegree; j++)
                   newArcs[i][j] = arcs[i][j];
-         
+
             arcs = newArcs;
          }
          else
@@ -329,9 +329,9 @@ public class Graph
             for(int i=0; i<N; i++)
                for(int j=0; j<maxDegree; j++)
                   newArcs[i][j] = arcs[i][j];
-         
+
             arcs = newArcs;
-            
+
             for(int i=0; i<N; i++)
                if(degrees[i] > maxDegree)
                   degrees[i] = maxDegree;
@@ -344,7 +344,7 @@ public class Graph
       for(int i=0; i<degrees[v1-1]; i++)
          if(arcs[v1-1][i] == v2)
             return true;
-   
+
       return false;
    }
 
@@ -362,15 +362,15 @@ public class Graph
       for(int i=0; i<newArcs.length; i++)
          addArc(newArcs[i][0],newArcs[i][1]);
    }
-   
+
    public void orderArcs(int row)
    {
       int []newRow = new int[degrees[row-1]];
       for(int i=0; i<degrees[row-1]; i++)
          newRow[i] = arcs[row-1][i];
-   
+
       Arrays.sort(newRow);
-   
+
       for(int i=0; i<degrees[row-1]; i++)
          arcs[row-1][i] = newRow[i];
    }
@@ -383,7 +383,7 @@ public class Graph
          if(degrees[i] > maxDegree)
             maxDegree = degrees[i];
    }
-   
+
    public boolean isEdge(int v1, int v2)
    {
       boolean check = false;
@@ -393,14 +393,14 @@ public class Graph
             check = true;
             break;
          }
-   
+
       if(check)
       {
          for(int i=0; i<degrees[v2-1]; i++)
             if(arcs[v2-1][i] == v1)
                return true;
       }
-      
+
       return false;
    }
 
@@ -408,7 +408,7 @@ public class Graph
    {
       if(degrees[v1-1] == maxDegree || degrees[v2-1] == maxDegree)
          setMaxDegree(maxDegree+1);
-   
+
       arcs[v1-1][degrees[v1-1]++] = v2;
       arcs[v2-1][degrees[v2-1]++] = v1;
    }
@@ -418,49 +418,49 @@ public class Graph
       for(int i=0; i<newEdges.length; i++)
          addEdge(newEdges[i][0],newEdges[i][1]);
    }
-   
+
    public int[][] getArcs()
    {
       return arcs;
    }
-   
+
    public void setArcs(int [][]a, int []d, int nodes, boolean requiresSorting)
    {
-   // THIS FUNCTION ASSUMES arcs AND degrees HAVE BEEN PROCESSED AND ARE ACCURATE!
+      // THIS FUNCTION ASSUMES arcs AND degrees HAVE BEEN PROCESSED AND ARE ACCURATE!
       if(N != nodes)
          setN(nodes);
-   
+
       arcs = a;
       setDegrees(d);
-      
+
       if(requiresSorting)
       {
          for(int i=0; i<N; i++)
             orderArcs(i+1);
       }
    }
-	
+
    public void swapVertices(int v1, int v2)
    {
-   
+
       if(v1 == v2 || v1 <= 0 || v2 <= 0 || v1 > N || v2 > N)
          return;
-   
+
       for(int i=0; i<N; i++)
-         //if(i != v1-1 && i != v2-1)
-         //{
+      //if(i != v1-1 && i != v2-1)
+      //{
       {
          boolean changed = false;
          for(int j=0; j<degrees[i]; j++)
          {
-            
-            
+
+
             if(arcs[i][j] == v1)
             {
                arcs[i][j] = v2;
                changed = true;
             }
-               
+
             else if(arcs[i][j] == v2)
             {
                arcs[i][j] = v1;
@@ -468,17 +468,17 @@ public class Graph
             }
          }
          if(changed)
-            orderArcs(i+1);   
+            orderArcs(i+1);
       }
-         //}
-   
+      //}
+
       for(int i=0; i<maxDegree; i++)
       {
          int temp = arcs[v1-1][i];
          arcs[v1-1][i] = arcs[v2-1][i];
          arcs[v2-1][i] = temp;
       }
-      
+
       int temp = degrees[v1-1];
       degrees[v1-1] = degrees[v2-1];
       degrees[v2-1] = temp;
@@ -490,57 +490,57 @@ public class Graph
       double tempY = nodePosY[v1-1];
       nodePosY[v1-1] = nodePosY[v2-1];
       nodePosY[v2-1] = tempY;
-   
+
       int tempDom = domset[v1-1];
       domset[v1-1] = domset[v2-1];
       domset[v2-1] = tempDom;
-      
+
       boolean tempSelected = selected[v1-1];
       selected[v1-1] = selected[v2-1];
       selected[v2-1] = tempSelected;
    }
-	
+
    public int[] getDegrees()
    {
       return degrees;
    }
-   
+
    public double getXPos(int node)
    {
       return nodePosX[node];
    }
-	
+
    public double getYPos(int node)
    {
       return nodePosY[node];
    }
-	
+
    public void setXPos(int node, double posX)
    {
       nodePosX[node] = posX;
    }
-	
+
    public void setYPos(int node, double posY)
    {
       nodePosY[node] = posY;
    }
-  
+
    public void setAllPos(double []nx, double []ny)
    {
       nodePosX = nx;
       nodePosY = ny;
    }
-  
+
    public double[] getXPoses()
    {
       return nodePosX;
    }
-  
+
    public double[] getYPoses()
    {
       return nodePosY;
    }
-  
+
    public int[] getContour()
    {
       return contour;
@@ -550,37 +550,37 @@ public class Graph
    {
       contour = co;
    }
-   
+
    public boolean[] getSelected()
    {
       return selected;
    }
-   
+
    public void setSelected(boolean[] se)
    {
       selected = se;
    }
-   
+
    public void select(int v)
    {
       selected[v] = true;
    }
-   
+
    public void deselect(int v)
    {
       selected[v] = false;
    }
-   
+
    public boolean isSelected(int v)
    {
       return selected[v];
    }
-   
-   
+
+
    public void createCircle()
    {
       int radius = 15*N;
-   
+
       for(int i=0; i<N; i++)
       {
          int node = contour[i];
@@ -597,13 +597,13 @@ public class Graph
          return true;
       int []reached = new int[N];
       int []checked = new int[N];
-   
+
       reached[0] = 1;
-   
+
       int difference = 0;
       for(int i=0; i<N; i++)
          difference += reached[i]-checked[i];
-   		
+
       while(difference > 0)
       {
          int index = 0;
@@ -611,33 +611,33 @@ public class Graph
             index++;
          if(index == N)
             return false;
-            
+
          for(int i=0; i<degrees[index]; i++)
             reached[arcs[index][i]-1] = 1;
-      	
+
          checked[index] = 1;
-      	
+
          difference = 0;
          for(int i=0; i<N; i++)
             difference += reached[i]-checked[i];
       }
-   
+
       for(int i=0; i<N; i++)
          if(reached[i] == 0)
             return false;
       return true;
    }
-   
+
    public int checkRegular()
    {
       int regular = degrees[0];
       for(int i=1; i<N; i++)
          if(degrees[i] != regular)
             return -1;
-   			
+
       return regular;
    }
-   
+
    public boolean isBipartite()
    {
       if(N == 0)
@@ -648,18 +648,18 @@ public class Graph
       boolean []toCheck = new boolean[N];
       for(int i=0; i<N; i++)
          toCheck[i] = false;
-         
+
       int firstNode = 0;
-   		
+
       while(firstNode != -1)
       {
          colour[firstNode] = 1;
          for(int i=0; i<degrees[firstNode]; i++)
          {
             colour[arcs[firstNode][i]-1] = -1;
-            toCheck[arcs[firstNode][i]-1] = true;  
+            toCheck[arcs[firstNode][i]-1] = true;
          }
-      
+
          int nodeToCheck = -1;
          for(int i=0; i<N; i++)
             if(toCheck[i])
@@ -667,7 +667,7 @@ public class Graph
                nodeToCheck = i;
                break;
             }
-         
+
          while(nodeToCheck != -1)
          {
             toCheck[nodeToCheck] = false;
@@ -682,7 +682,7 @@ public class Graph
                   toCheck[arcs[nodeToCheck][i]-1] = true;
                }
             }
-         
+
             nodeToCheck = -1;
             for(int i=0; i<N; i++)
                if(toCheck[i])
@@ -691,8 +691,8 @@ public class Graph
                   break;
                }
          }
-      
-      
+
+
          firstNode = -1;
          for(int i=0; i<N; i++)
             if(colour[i] == 0)
@@ -700,16 +700,16 @@ public class Graph
                firstNode = i;
                break;
             }
-      
-      
+
+
       }
-   
+
       for(int i=0; i<N; i++)
          for(int j=0; j<degrees[i]; j++)
             if(colour[i] == colour[arcs[i][j]-1])
                return false;
-   
-   
+
+
       return true;
    }
 
@@ -734,13 +734,13 @@ public class Graph
          if(progressBar != null)
             progressBar.setValue(i-1);
          //if(maxFlow == 1)
-            //System.out.println(i);
+         //System.out.println(i);
       }
       return minMaxFlow;
    }
-   
-   
-       
+
+
+
    public int maxFlow(int v)
    {
       int flow = 0;
@@ -748,28 +748,28 @@ public class Graph
       for(int i=0; i<N; i++)
          for(int j=0; j<degrees[i]; j++)
             flowMatrix[i][arcs[i][j]-1] = 1;
-     
+
       int [][]updateFlow = new int[N][N];
-     
-     
+
+
       while(true)
       {
          int []path = findPath(flowMatrix, 0, v-1);
          if(path[0] == -1)
             return flow;
-      
+
          flow++;
          for(int i=1; i<N; i++)
          {
             if(path[i] == -1)
                break;
-         
+
             flowMatrix[path[i-1]][path[i]] -= 1;
             flowMatrix[path[i]][path[i-1]] += 1;
          }
       }
    }
-	
+
    public int[] findPath(int [][]flowMatrix, int v1, int v2)
    {
       int nodes = flowMatrix[0].length;
@@ -780,7 +780,7 @@ public class Graph
       int []parents = new int[nodes];
       boolean []checked = new boolean[nodes];
       checked[v1] = true;
-   	
+
       boolean []toCheck = new boolean[nodes];
       boolean goOn = false;
       int current = -1;
@@ -791,7 +791,7 @@ public class Graph
                current = i;
             toCheck[i] = true;
             parents[i] = v1;
-            levels[i] = 1;		
+            levels[i] = 1;
             goOn = true;
             if(i == v2)
             {
@@ -800,15 +800,15 @@ public class Graph
                return path;
             }
          }
-   	
-      boolean finished = false;  
-   	
+
+      boolean finished = false;
+
       while(goOn)
       {
          goOn = false;
-         
-          
-        
+
+
+
          for(int i=0; i<nodes; i++)
          {
             if(flowMatrix[current][i] > 0 && !checked[i])
@@ -820,16 +820,16 @@ public class Graph
                {
                   finished = true;
                   break;
-               }		
-            }		
+               }
+            }
          }
-      		
+
          if(finished)
             break;
-      		
+
          checked[current] = true;
          toCheck[current] = false;
-         
+
          current = -1;
          for(int i=0; i<nodes; i++)
             if(toCheck[i])
@@ -839,16 +839,16 @@ public class Graph
                break;
             }
       }
-      
+
       if(finished)
-      {	
+      {
          current = v2;
          for(int i=levels[v2]; i>=0; i--)
          {
             path[i] = current;
             current = parents[current];
          }
-      
+
       /*for(int i=0; i<nodes; i++)
       {
          if(path[i] == -1)
@@ -856,10 +856,10 @@ public class Graph
          System.out.print((path[i]+1) + " ");
       }
       System.out.println();*/
-      } 
+      }
       return path;
    }
-	
+
 
    public int girth(PropertiesDialog pd)
    {
@@ -913,7 +913,7 @@ public class Graph
                         if(girth == 3)
                         {
                            progressBar.setValue(N);
-                           return girth;	
+                           return girth;
                         }
                      }
                   }
@@ -928,7 +928,7 @@ public class Graph
                   break;
                }
          }
-      
+
          if(progressBar != null)
             progressBar.setValue(i);
       }
@@ -951,32 +951,32 @@ public class Graph
       int diameter = 0;
       for(int i=0; i<N; i++)
       {
-      
+
          int []dist = new int[N];
          int []previous = new int[N];
-      
+
          for(int j=0; j<N; j++)
          {
             dist[j] = N+1;
             previous[j] = 0;
          }
-      
+
          dist[i] = 0;
-      
+
          boolean []Q = new boolean[N];
          for(int j=0; j<N; j++)
             Q[j] = true;
-      
+
          boolean goOn = true;
          int u = i;
          Q[u] = false;
-      	
+
          while(goOn)
          {
             goOn = false;
             if(dist[u] == N+1)
                break;
-         
+
             for(int j=0; j<degrees[u]; j++)
             {
                if(Q[arcs[u][j]-1])
@@ -989,7 +989,7 @@ public class Graph
                   }
                }
             }
-         
+
             int min = N+2;
             for(int j=0; j<N; j++)
                if(Q[j])
@@ -999,23 +999,23 @@ public class Graph
                   {
                      min = dist[j];
                      u = j;
-                  }   
+                  }
                }
-               
+
             if(goOn)
             {
                Q[u] = false;
             }
          }
-      	
+
          for(int j=0; j<N; j++)
             if(dist[j] > diameter)
                diameter = dist[j];
-      	
+
          if(progressBar != null)
             progressBar.setValue(i);
-      }  
-      return diameter; 
+      }
+      return diameter;
    }
 
    public int inDomset(int node)
@@ -1030,28 +1030,28 @@ public class Graph
    public boolean[] dominatedVertices(boolean domTotal, boolean domSecure, boolean domConnected, boolean domRoman, boolean domWeakRoman)
    {
       boolean []dv = new boolean[N];
-      
+
       if(domConnected)
-      {   
+      {
          Graph newGraph = new Graph(N,maxDegree);
-         
+
          for(int i=0; i<N; i++)
             for(int j=0; j<maxDegree; j++)
                if(arcs[i][j] > i+1)
                   newGraph.addEdge(i+1,arcs[i][j]);
-         
+
          newGraph.setDomset(domset);
-      
+
          int nga[][] = newGraph.getArcs();
          for(int i=N-1; i>=0; i--)
             if(domset[i] == 0)
                newGraph.deleteVertex(i+1);
-      
+
          if(!newGraph.isConnected())
             return dv;
       }
-      
-   
+
+
       for(int i=0; i<N; i++)
       {
          if(domset[i] > 0 && !domTotal)
@@ -1067,7 +1067,7 @@ public class Graph
                      dv[i] = true;
                      break;
                   }
-               
+
                   if(domSecure || domWeakRoman)
                   {
                      boolean canmove = true;
@@ -1113,8 +1113,8 @@ public class Graph
             }
          }
       }
-   
-      
+
+
       return dv;
    }
 
@@ -1127,7 +1127,7 @@ public class Graph
    {
       domset = ds;
    }
-   
+
    public int[] toggleDom(int node)
    {
       if(domset[node] == 0)
@@ -1159,7 +1159,8 @@ public class Graph
             if(dist(i,j) < N+1) {
                l[i][j] = radius * 10 * dist(i,j);
                k[i][j] = springStrength/dist(i,j);
-            } else {
+            }
+            else {
                l[i][j] = 0;
                k[i][j] = 0;
             }
@@ -1186,9 +1187,12 @@ public class Graph
          }
       }
 
+      //System.out.println("m = " + m);
+
       double prevD = 0;
       int count = 0;
       while(count < 1000 && (delta[m] > 0.001 && Math.abs(delta[m] - prevD)/prevD >= tolerance)){
+         //System.out.println("Inner m = " + m);
          count++;
          prevD = delta[m];
 
@@ -1217,7 +1221,8 @@ public class Graph
             double D = 0;
 
             for (int i = 0; i < N; i++) {
-               if(i==m) continue;
+               if(i==m)
+                  continue;
 
                F += k[m][i]*(1-l[m][i]*Math.pow(getYPos(m)-getYPos(i),2)/Math.pow(distL2(m,i),1.5));
                D += k[m][i]*(1-l[m][i]*Math.pow(getXPos(m)-getXPos(i),2)/Math.pow(distL2(m,i),1.5));
@@ -1227,6 +1232,9 @@ public class Graph
             double dX = (C*D - E*B)/(F*D - B*B);
             double dY = (E*F - B*C)/(F*D - B*B);
 
+
+            //System.out.println("dX = " +dX + " and dY = " + dY+". F*D - B*B = " + (F*D - B*B) + " and C*D - E*B = " + (C*D - E*B) + ". C = " + C + " and D + " + D + " and E = " + E + " and F = " + F);
+
             setXPos(m, getXPos(m)+dX);
             setYPos(m, getYPos(m)+dY);
 
@@ -1234,7 +1242,8 @@ public class Graph
             parY[m] = 0;
 
             for (int i = 0; i < N; i++) {
-               if(i==m) continue;
+               if(i==m)
+                  continue;
 
                parX[m] += k[m][i]*((getXPos(m)-getXPos(i)) - l[m][i]*(getXPos(m)-getXPos(i))/Math.sqrt(distL2(m,i))) - contX[m];
                parY[m] += k[m][i]*((getYPos(m)-getYPos(i)) - l[m][i]*(getYPos(m)-getYPos(i))/Math.sqrt(distL2(m,i))) - contY[m];
@@ -1255,17 +1264,17 @@ public class Graph
 
       }
 
-      double[] after = getMiddle();
+      /*double[] after = getMiddle();
       double xShift = before[0] - after[0];
       double yShift = before[1] - after[1];
 
       for (int i = 0; i < N; i++) {
          nodePosX[i] += xShift;
          nodePosY[i] += yShift;
-      }
+      }*/
 
 
-   //calculatingSpring = false;
+      //calculatingSpring = false;
    }
 
 
@@ -1301,7 +1310,54 @@ public class Graph
 
    private void calculateShortestPaths(){
       //initialise distances for Dijkstra
+
       dists = new int[N][N];
+
+      for(int i=0; i<N; i++)
+      {
+         int next[] = new int[N];
+         next[0] = i;
+         int index = 0;
+         int count = 0;
+
+         boolean reached[] = new boolean[N];
+
+         int v = next[index];
+         reached[v] = true;
+
+         while(true)
+         {
+            for(int j=0; j<degrees[v]; j++)
+            {
+               int v2 = arcs[v][j]-1;
+               if(!reached[v2])
+               {
+                  reached[v2] = true;
+                  dists[i][v2] = dists[i][v] + 1;
+                  next[++count] = v2;
+               }
+            }
+
+            index++;
+            if(index > count)
+               break;
+            v = next[index];
+         }
+      }
+      /*System.out.println("Shortest paths:");
+
+      for(int i=0; i<N; i++)
+      {
+         for(int j=0; j<N; j++)
+         {
+            System.out.print(dists[i][j] + " ");
+         }
+         System.out.println();
+      }*/
+
+
+
+      /*dists = new int[N][N];
       for (int i = 0; i < N; i++){
          for (int j = 0 ; j < N; j++){
             dists[i][j] = 2*N;
@@ -1315,9 +1371,9 @@ public class Graph
          }
       }
 
-      for (int k = 0; k < N; k++) {
-         for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+      for (int i = 0; i < N; i++) {
+         for (int j = 0; j < N; j++) {
+            for (int k = 0; k < N; k++) {
                if(dists[i][j] > dists[i][k] + dists[k][j]){
                   dists[i][j] = dists[i][k] + dists[k][j];
                }
@@ -1325,15 +1381,17 @@ public class Graph
          }
       }
 
-      /*
-      for (int i = 0; i < N; i++) {
-         for (int j = 0; j < N; j++) {
+      System.out.println("Shortest paths:");
+
+      for(int i=0; i<N; i++)
+      {
+         for(int j=0; j<N; j++)
+         {
             System.out.print(dists[i][j] + " ");
          }
          System.out.println();
       }
-      */
-
+   */
    }
 
 
