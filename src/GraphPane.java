@@ -78,6 +78,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    int selectedOption;
 
+
    final int DEFAULT_OPTION = -1;
    final int VERTEX_OPTION = 0;
    final int EDGE_OPTION = 1;
@@ -2105,4 +2106,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       validate();
       repaint();
    }
+
+
+
+
 }

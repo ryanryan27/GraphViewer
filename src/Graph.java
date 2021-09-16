@@ -1308,10 +1308,19 @@ public class Graph
       return Math.pow(getXPos(v1)-getXPos(v2),2) + Math.pow(getYPos(v1)-getYPos(v2),2);
    }
 
-   private void calculateShortestPaths(){
-      //initialise distances for Dijkstra
+   private void calculateShortestPaths() {
+
 
       dists = new int[N][N];
+
+      for (int i = 0; i < N; i++) {
+         for (int j = 0; j < N; j++) {
+            if (i != j){
+               dists[i][j] = N*2;
+            }
+         }
+      }
+
 
       for(int i=0; i<N; i++)
       {
@@ -1344,43 +1353,9 @@ public class Graph
             v = next[index];
          }
       }
-      /*System.out.println("Shortest paths:");
-
-      for(int i=0; i<N; i++)
-      {
-         for(int j=0; j<N; j++)
-         {
-            System.out.print(dists[i][j] + " ");
-         }
-         System.out.println();
-      }*/
 
 
-
-      /*dists = new int[N][N];
-      for (int i = 0; i < N; i++){
-         for (int j = 0 ; j < N; j++){
-            dists[i][j] = 2*N;
-            if(i == j){
-               dists[i][j] = 0;
-            }
-            if(isEdge(i+1,j+1)){
-               dists[i][j] = 1;
-            }
-
-         }
-      }
-
-      for (int i = 0; i < N; i++) {
-         for (int j = 0; j < N; j++) {
-            for (int k = 0; k < N; k++) {
-               if(dists[i][j] > dists[i][k] + dists[k][j]){
-                  dists[i][j] = dists[i][k] + dists[k][j];
-               }
-            }
-         }
-      }
-
+   /*
       System.out.println("Shortest paths:");
 
       for(int i=0; i<N; i++)
@@ -1392,8 +1367,127 @@ public class Graph
          System.out.println();
       }
    */
+
    }
 
+   public Graph getSubgraph(boolean[] vertices){
+      int subN = 0;
+      for (boolean v : vertices) {
+         if(v) subN++;
+      }
+
+      int[] verts = new int[subN];
+      int count = 0;
+      for (int i = 0; i < N; i++) {
+         if(vertices[i]){
+            verts[count] = i;
+            count++;
+         }
+      }
+
+      return getSubgraph(verts);
+   }
+
+   public Graph getSubgraph(int[] vertices){
+      int subN = vertices.length;
+      int mDegree = 0;
+      for (int v : vertices) {
+         if(degrees[v] > mDegree)
+            mDegree = degrees[v];
+      }
+
+      Graph g = new Graph(subN, mDegree);
+
+      for (int i = 0; i < subN; i++) {
+         for (int j = 0; j < subN; j++) {
+            if(isArc(vertices[i]+1,vertices[j]+1)){
+               g.addArc(i+1,j+1);
+            }
+
+         }
+         g.nodePosX[i] = nodePosX[vertices[i]];
+         g.nodePosY[i] = nodePosY[vertices[i]];
+         g.domset[i] = domset[i];
+      }
+
+      return g;
+   }
+
+   public void addVertex(double x, double y){
+      this.setN(N+1);
+
+      setXPos(N-1, x);
+      setYPos(N-1, y);
+   }
+
+   public void addSubgraph(Graph g){
+      int oldN = N;
+
+      double[] offset = {15,15};
+      double offsetDist = Integer.MAX_VALUE;
+      for (int i = 0; i < g.N; i++) {
+         double dist = Math.sqrt(Math.pow(g.distToClosestNeighbour(i)[0],2) + Math.pow(g.distToClosestNeighbour(i)[1],2));
+         if(dist <= offsetDist){
+            offsetDist = dist;
+            offset[0] = distToClosestNeighbour(i)[0]/2;
+            offset[1] = distToClosestNeighbour(i)[1]/2;
+         }
+      }
+
+
+      for (int i = 0; i < g.N; i++) {
+         addVertex(g.getXPos(i)+offset[0],g.getYPos(i)+offset[1]);
+         domset[oldN + i] = g.domset[i];
+      }
+
+      boolean[] select = new boolean[N];
+
+      for (int i = 0; i < g.N; i++) {
+         for (int j = 0; j < g.N; j++) {
+            if(g.isArc(i+1,j+1)){
+               addArc(oldN+i+1,oldN+j+1);
+            }
+         }
+
+         domset[oldN+i] = g.domset[i];
+         select[oldN+i] = true;
+      }
+
+
+      setSelected(select);
+
+   }
+
+   public double[] distToClosestNeighbour(int vertex){
+      double[] closestXY = {15,15};
+
+      if(vertex >= degrees.length){
+         return closestXY;
+      }
+
+      int degree = degrees[vertex];
+
+      double x = getXPos(vertex);
+      double y = getYPos(vertex);
+
+      double closestDist = Integer.MAX_VALUE;
+
+
+      for (int i = 0; i < degree; i++) {
+         int v2 = arcs[vertex][i]-1;
+         double x2 = getXPos(v2);
+         double y2 = getYPos(v2);
+
+         double dist = Math.sqrt(Math.pow(x-x2,2)+Math.pow(y-y2,2));
+
+         if(dist <= closestDist){
+            closestXY[0] = Math.abs(x-x2)/2;
+            closestXY[1] = Math.abs(y-y2)/2;
+         }
+      }
+
+      return closestXY;
+   }
 
 }
 

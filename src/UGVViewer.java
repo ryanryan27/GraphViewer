@@ -4282,13 +4282,43 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             });      
       checkCrossingsItem.setMnemonic(KeyEvent.VK_C);
       checkCrossingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,InputEvent.CTRL_DOWN_MASK));
-    
+
+      copyItem = new JMenuItem("Copy Selected");
+      copyItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    copySelected();
+
+                 }
+              });
+      copyItem.setMnemonic(KeyEvent.VK_K);
+      copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,InputEvent.CTRL_DOWN_MASK));
+
+      pasteItem = new JMenuItem("Paste Selected");
+      pasteItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    pasteGraph();
+                    copySelected();
+                    validate();
+                    repaint();
+                 }
+              });
+      pasteItem.setMnemonic(KeyEvent.VK_C);
+      pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,InputEvent.CTRL_DOWN_MASK));
+
+      editItem.add(copyItem);
+      editItem.add(pasteItem);
       editItem.add(undoEditItem);
       editItem.add(redoEditItem);
       editItem.add(checkCrossingsItem);
       editItem.setMnemonic(KeyEvent.VK_E);
       undoEditItem.setEnabled(false);
       redoEditItem.setEnabled(false);
+      pasteItem.setEnabled(false);
+
        
    	
       JMenu viewItem = new JMenu("View");
@@ -4353,7 +4383,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             
             });
       colourSettingsItem.setMnemonic(KeyEvent.VK_L);
-      colourSettingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,InputEvent.CTRL_DOWN_MASK));
+      colourSettingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,InputEvent.CTRL_DOWN_MASK));
       
       displayCrossingsItem = new JCheckBoxMenuItem("Display crossings");
       displayCrossingsItem.addActionListener(
@@ -4527,7 +4557,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    {
       redoEditItem.setEnabled(available);
    }
-   
+
    public void fitToScreen()
    {
       int index = tabbedPane.getSelectedIndex();
@@ -4702,10 +4732,29 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
          setTitle("Universal Graph Viewer - " + tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()));
       }
    }
+
+
+   public void copySelected(){
+      if(tabbedPane.getSelectedIndex() != -1){
+         GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+         Graph g = gp.getGraph();
+         copiedGraph = g.getSubgraph(g.getSelected());
+         pasteItem.setEnabled(true);
+      }
+   }
+
+   public void pasteGraph(){
+      if(copiedGraph != null && tabbedPane.getSelectedIndex() != -1){
+         GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+         gp.graph.addSubgraph(copiedGraph);
+      }
+   }
    
    Graph graph;
    JMenuBar menuBar;
-   
+
+   Graph copiedGraph;
+
    JTabbedPane tabbedPane;
    JPanel graphHolderPanel;
    //GraphPane []graphPanel = new GraphPane[1000];
@@ -4724,7 +4773,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JCheckBoxMenuItem domRomanItem;
    JCheckBoxMenuItem domWeakRomanItem;
    JMenu windowItem;
-   JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem;
+   JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    
    JPanel graphEditPane, buttonPane, bottomButtonPane, selectButtonPane;
    JLabel []labels;  
