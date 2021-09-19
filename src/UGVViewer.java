@@ -4301,7 +4301,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                  public void actionPerformed(ActionEvent e)
                  {
                     pasteGraph();
-                    copySelected();
+                    //copySelected();
                     validate();
                     repaint();
                  }
@@ -4745,8 +4745,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
    public void pasteGraph(){
       if(copiedGraph != null && tabbedPane.getSelectedIndex() != -1){
+
+
          GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-         gp.graph.addSubgraph(copiedGraph);
+         gp.graph.addSubgraph(copiedGraph, gp.xTopLeft+2* gp.radius, gp.yTopLeft+2*gp.radius, gp.xScale);
       }
    }
    

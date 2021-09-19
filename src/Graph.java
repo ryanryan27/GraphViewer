@@ -1410,6 +1410,9 @@ public class Graph
          g.domset[i] = domset[i];
       }
 
+
+      g.alignTopLeft();
+
       return g;
    }
 
@@ -1421,24 +1424,28 @@ public class Graph
    }
 
    public void addSubgraph(Graph g){
+
+      addSubgraph(g, 0,0, 1);
+}
+
+   public void addSubgraph(Graph g, double scale){
+      addSubgraph(g, 0, 0, scale);
+   }
+
+   public void addSubgraph(Graph g, double xOffset, double yOffset){
+      addSubgraph(g, xOffset, yOffset, 1);
+   }
+
+   public void addSubgraph(Graph g, double xOffset, double yOffset, double scale){
       int oldN = N;
 
-      double[] offset = {15,15};
-      double offsetDist = Integer.MAX_VALUE;
-      for (int i = 0; i < g.N; i++) {
-         double dist = Math.sqrt(Math.pow(g.distToClosestNeighbour(i)[0],2) + Math.pow(g.distToClosestNeighbour(i)[1],2));
-         if(dist <= offsetDist){
-            offsetDist = dist;
-            offset[0] = distToClosestNeighbour(i)[0]/2;
-            offset[1] = distToClosestNeighbour(i)[1]/2;
-         }
-      }
 
 
       for (int i = 0; i < g.N; i++) {
-         addVertex(g.getXPos(i)+offset[0],g.getYPos(i)+offset[1]);
+         addVertex(g.getXPos(i)/scale+xOffset,g.getYPos(i)/scale+yOffset);
          domset[oldN + i] = g.domset[i];
       }
+
 
       boolean[] select = new boolean[N];
 
@@ -1449,7 +1456,6 @@ public class Graph
             }
          }
 
-         domset[oldN+i] = g.domset[i];
          select[oldN+i] = true;
       }
 
@@ -1487,6 +1493,64 @@ public class Graph
       }
 
       return closestXY;
+   }
+
+   public void alignTopLeft(){
+      alignTopLeft(0,0, 1);
+   }
+
+
+
+   public void alignTopLeft(double xOffset, double yOffset, double scale){
+
+      if(N == 0) return;
+
+      if(scale != 1) {
+         rescale(scale);
+      }
+
+      double[] topleft = getTopLeft();
+
+
+      for (int i = 0; i < N; i++) {
+         nodePosX[i] = nodePosX[i] - topleft[0] + xOffset;
+         nodePosY[i] = nodePosY[i] - topleft[1] + yOffset;
+      }
+
+
+
+   }
+
+   public double[] getTopLeft(){
+
+      if(N == 0) return new double[2];
+
+      double[] topleft = {Integer.MAX_VALUE, Integer.MAX_VALUE};
+
+      for (int i = 0; i < N; i++) {
+         if(nodePosX[i] < topleft[0]){
+            topleft[0] = nodePosX[i];
+
+         }
+         if(nodePosY[i] < topleft[1]){
+            topleft[1] = nodePosY[i];
+         }
+
+      }
+
+
+      return topleft;
+
+   }
+
+   public void rescale(double scale){
+
+      for (int i = 0; i < N; i++) {
+         nodePosX[i] = nodePosX[i]/scale;
+         nodePosY[i] = nodePosY[i]/scale;
+      }
+
+
    }
 
 }
