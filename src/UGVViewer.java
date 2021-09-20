@@ -4309,11 +4309,73 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       pasteItem.setMnemonic(KeyEvent.VK_C);
       pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,InputEvent.CTRL_DOWN_MASK));
 
+      growItem = new JMenuItem("Enlarge Selected");
+      growItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                       Graph g = gp.getGraph();
+                       g.rescaleSelected(1.0/1.1);
+                       validate();
+                       repaint();
+                    }
+
+                 }
+              });
+      growItem.setMnemonic(KeyEvent.VK_K);
+      growItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS,InputEvent.CTRL_DOWN_MASK));
+
+
+      shrinkItem = new JMenuItem("Shrink Selected");
+      shrinkItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                       Graph g = gp.getGraph();
+                       g.rescaleSelected(1.1);
+                       validate();
+                       repaint();
+
+                    MILPRunner runner = new MILPRunner(MILPRunner.TOTAL_DOMINATION, g);
+                    try {
+                       double[] solution = runner.run();
+
+                       int[] domset = new int[g.N];
+
+                       for (int i = 0; i < g.N; i++) {
+                          domset[i] = (int)Math.floor(solution[i]);
+                       }
+                       g.setDomset(domset);
+                       validate();
+                       repaint();
+
+                    } catch (Exception e1){
+
+                    }
+
+
+
+                    }
+
+                 }
+              });
+      shrinkItem.setMnemonic(KeyEvent.VK_K);
+      shrinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,InputEvent.CTRL_DOWN_MASK));
+
+
       editItem.add(copyItem);
       editItem.add(pasteItem);
       editItem.add(undoEditItem);
       editItem.add(redoEditItem);
       editItem.add(checkCrossingsItem);
+
+      editItem.add(growItem);
+      editItem.add(shrinkItem);
+
       editItem.setMnemonic(KeyEvent.VK_E);
       undoEditItem.setEnabled(false);
       redoEditItem.setEnabled(false);
@@ -4748,7 +4810,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
 
          GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-         gp.graph.addSubgraph(copiedGraph, gp.xTopLeft+2* gp.radius, gp.yTopLeft+2*gp.radius, gp.xScale);
+         gp.pasteGraph(copiedGraph);
       }
    }
    
@@ -4776,6 +4838,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JCheckBoxMenuItem domWeakRomanItem;
    JMenu windowItem;
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
+   JMenuItem growItem, shrinkItem;
    
    JPanel graphEditPane, buttonPane, bottomButtonPane, selectButtonPane;
    JLabel []labels;  

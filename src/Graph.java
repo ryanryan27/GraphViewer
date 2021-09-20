@@ -1550,6 +1550,35 @@ public class Graph
          nodePosY[i] = nodePosY[i]/scale;
       }
 
+   }
+
+   public void rescaleSelected(double scale){
+      rescaleList(scale, selected);
+   }
+
+   public void rescaleList(double scale, boolean[] toRescale){
+
+      if(N == 0) return;
+
+      double[] corner = {Integer.MAX_VALUE, Integer.MAX_VALUE};
+
+      for (int i = 0; i < N; i++) {
+         if(toRescale[i]) {
+            if (nodePosX[i] < corner[0]) {
+               corner[0] = nodePosX[i];
+            }
+            if (nodePosY[i] < corner[1]) {
+               corner[1] = nodePosY[i];
+            }
+         }
+      }
+
+      for (int i = 0; i < N; i++) {
+         if(toRescale[i]){
+            nodePosX[i] = (nodePosX[i]-corner[0])/scale + corner[0];
+            nodePosY[i] = (nodePosY[i]-corner[1])/scale + corner[1];
+         }
+      }
 
    }
 

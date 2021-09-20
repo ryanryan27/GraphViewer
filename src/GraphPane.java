@@ -2108,6 +2108,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    }
 
 
+   public void pasteGraph(Graph g){
+
+      //TODO handle undo/redo here
+      graph.addSubgraph(g, xTopLeft+2*radius, yTopLeft+2*radius, xScale);
+   }
 
 
 }
