@@ -33,17 +33,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    int nodeSelectedForErasing = -1;
    int nodeSelectedForRelabelling = -1;
    int nodeSelectedForDom = -1;
-   int edgeHighlighted[] = new int[2];
-   int edgeSelectedForErasing[] = new int[2];
+   int[] edgeHighlighted = new int[2];
+   int[] edgeSelectedForErasing = new int[2];
    int radius = 12;
    double xScale = 1;
    double yScale = 1;
 
    double rotateX = -1;
    double rotateY = -1;
-
-   double[] beforeSpringX;
-   double[] beforeSpringY;
 
    int xTopLeft = 0;
    int yTopLeft = 0;
@@ -68,12 +65,12 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    boolean domRoman = false;
    boolean domWeakRoman = false;
    int crossings = 0;
-   int crossingsX[] = new int[0];
-   int crossingsY[] = new int[0];
-   int crossingsE1[] = new int[0];
-   int crossingsE2[] = new int[0];
-   int crossingsE3[] = new int[0];
-   int crossingsE4[] = new int[0];
+   int[] crossingsX = new int[0];
+   int[] crossingsY = new int[0];
+   int[] crossingsE1 = new int[0];
+   int[] crossingsE2 = new int[0];
+   int[] crossingsE3 = new int[0];
+   int[] crossingsE4 = new int[0];
 
    Cursor defaultCursor;
 
@@ -285,6 +282,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(selectedOption == DEFAULT_OPTION)
             {
+               setUndoState();
                for(int i=0; i<graph.getN(); i++)
                   if(Math.pow(Math.pow(xPos + xTopLeft*xScale - graph.getXPos(i)*xScale,2) + Math.pow(yPos + yTopLeft*yScale - graph.getYPos(i)*yScale,2),0.5) <= radius*Math.min(xScale,yScale))
                   {
@@ -399,28 +397,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(nodeSelected != -1)
             {
-               double []xPos = graph.getXPoses();
-               double []yPos = graph.getYPoses();
-               /*int []oldX = new int[xPos.length];
-               int []oldY = new int[yPos.length];
-               for(int i=0; i<xPos.length; i++)
-               {
-                  oldX[i] = xPos[i];
-                  oldY[i] = yPos[i];
-               }
-               oldX[nodeSelected] = originalX;
-               oldY[nodeSelected] = originalY;*/
-
-               double []oldX = new double[xPos.length];
-               double []oldY = new double[yPos.length];
-               for(int i=0; i<xPos.length; i++)
-               {
-                  oldX[i] = originalX[i];
-                  oldY[i] = originalY[i];
-               }
-
-
-               setUndoState();
 
 
                nodeSelected = -1;
