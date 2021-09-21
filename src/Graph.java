@@ -1,6 +1,5 @@
 //package UGV;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import javax.swing.*;
 
@@ -1042,7 +1041,6 @@ public class Graph
 
          newGraph.setDomset(domset);
 
-         int nga[][] = newGraph.getArcs();
          for(int i=N-1; i>=0; i--)
             if(domset[i] == 0)
                newGraph.deleteVertex(i+1);
@@ -1207,7 +1205,7 @@ public class Graph
             contY[i] = k[i][m]*((getYPos(i)-getYPos(m)) - l[i][m]*(getYPos(i) - getYPos(m))/Math.sqrt(distL2(i,m)));
          }
 
-         double pimd = 0;
+         double pimd;
 
          int countInner = 0;
          do {
@@ -1324,12 +1322,12 @@ public class Graph
 
       for(int i=0; i<N; i++)
       {
-         int next[] = new int[N];
+         int[] next = new int[N];
          next[0] = i;
          int index = 0;
          int count = 0;
 
-         boolean reached[] = new boolean[N];
+         boolean[] reached = new boolean[N];
 
          int v = next[index];
          reached[v] = true;

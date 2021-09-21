@@ -6,8 +6,8 @@ import java.util.Arrays;
 public class MILPRunner {
 
 
-    private Graph graph;
-    private int domType;
+    private final Graph graph;
+    private final int domType;
 
     public static int DOMINATION = 1;
     public static int TOTAL_DOMINATION = 2;
@@ -31,9 +31,9 @@ public class MILPRunner {
         double[] solution = model.getValues(variables[0]);
 
         /*
-        for (int j = 0; j < solution.length; ++j) {
-            System.out.println("Variable " + j + ": Value = " + solution[j]);
-        }
+         for (int j = 0; j < solution.length; ++j) {
+             System.out.println("Variable " + j + ": Value = " + solution[j]);
+         }
         */
         model.end();
 

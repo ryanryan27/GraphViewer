@@ -453,23 +453,12 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(nodeSelectedForErasing == nodeHighlighted && nodeSelectedForErasing != -1)
             {
-               int []tempDS = graph.getDomset();
-               int []oldDomset = new int[graph.getN()];
-               for(int i=0; i<graph.getN(); i++)
-                  oldDomset[i] = tempDS[i];
-
                setUndoState();
-
 
                graph.deleteVertex(nodeHighlighted+1);
                nodeSelectedForErasing = -1;
                nodeHighlighted = -1;
 
-
-               //System.out.println("Here");
-               //System.out.println(thisGraphPane);
-               //thisGraphPane = gll.get(1);
-               //System.out.println(thisGraphPane);
                repaint();
 
 
@@ -510,8 +499,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                   {
                      setUndoState();
 
-                     int [][]testArcs = graph.getArcs();
-                     int []testDegrees = graph.getDegrees();
 
                      if(rd.getIncrement())
                      {
@@ -616,8 +603,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    }
 
 
-   int ttt = 0;
-
    public void mouseDragged(MouseEvent e)
    {
       if(selectedOption == DEFAULT_OPTION)
@@ -663,13 +648,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
             nodeHighlighted = -1;
 
-            boolean vertexFound = false;
             for(int i=0; i<graph.getN(); i++)
                //if(Math.pow(Math.pow(xPos + xTopLeft*xScale - graph.getXPos(i)*xScale - radius*xScale,2) + Math.pow(yPos + yTopLeft*yScale - graph.getYPos(i)*yScale - radius*yScale,2),0.5) <= radius*Math.min(xScale,yScale))
                if(Math.pow(Math.pow(xPos + xTopLeft*xScale - graph.getXPos(i)*xScale,2) + Math.pow(yPos + yTopLeft*yScale - graph.getYPos(i)*yScale,2),0.5) <= radius*Math.min(xScale,yScale))
                {
                   nodeHighlighted = i;
-                  vertexFound = true;
 
                   break;
                }
@@ -985,7 +968,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       ImageFilter filter =
               new RGBImageFilter()
               {
-                 public final int filterRGB(int x, int y, int rgb)
+                 public int filterRGB(int x, int y, int rgb)
                  {
                     int r = (rgb & 0xFF0000) >> 16;
                     int g = (rgb & 0xFF00) >> 8;
@@ -1093,10 +1076,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             findCrossings();
             g.setColor(crossColor);
             for(int i=0; i<crossings; i++)
-               g.fillOval((int)Math.round(-xTopLeft + crossingsX[i])-radius,(int)Math.round(-yTopLeft + crossingsY[i])-radius,2*radius,2*radius);
+               g.fillOval(Math.round(-xTopLeft + crossingsX[i])-radius,Math.round(-yTopLeft + crossingsY[i])-radius,2*radius,2*radius);
 
             g.setFont(g.getFont().deriveFont((float)(20/xScale)));
-            g.drawString(("Crossings: " + crossings),(int)Math.round(20/xScale),Math.round(20/xScale));
+            g.drawString(("Crossings: " + crossings),Math.round(20/xScale),Math.round(20/xScale));
             g.setFont(g.getFont().deriveFont((float)textSize));
             g.setColor(defaultColor);
          }
@@ -1162,7 +1145,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                g.fillRect((int)Math.round((-xTopLeft + graph.getXPos(i)))-radius-6,(int)Math.round((-yTopLeft + graph.getYPos(i)))+radius+1,5,5);
                g.fillRect((int)Math.round((-xTopLeft + graph.getXPos(i)))+radius+1,(int)Math.round((-yTopLeft + graph.getYPos(i)))+radius+1,5,5);*/
 
-               final float dash1[] = { 2.0f };
+               final float[] dash1 = { 2.0f };
                g.setStroke(new BasicStroke(1.0f,BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
                g.drawRect((int)Math.round((-xTopLeft + graph.getXPos(i)))-radius-6,(int)Math.round((-yTopLeft + graph.getYPos(i)))-radius-6,2*radius+12,2*radius+12);
                g.setStroke(new BasicStroke(1));
@@ -1332,7 +1315,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                topY = tempY;
             }
 
-            final float dash1[] = { 2.0f };
+            final float[] dash1 = { 2.0f };
             g.setStroke(new BasicStroke(1.0f,BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
             g.drawRect(leftX,bottomY,rightX-leftX,topY-bottomY);
             g.setStroke(new BasicStroke(1));
@@ -1370,7 +1353,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                double centre2Y = -yTopLeft + graph.getYPos(v2);
 
 
-               double theta = 0;
+               double theta;
                if(centre2X == centre1X)
                   if(centre1Y > centre2Y)
                      theta = Math.PI/2;
@@ -1431,7 +1414,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                double centre2X = -xTopLeft +graph.getXPos(v2);
                double centre2Y = -yTopLeft +graph.getYPos(v2);
 
-               double theta = 0;
+               double theta;
                if(centre2X == centre1X)
                   if(centre1Y > centre2Y)
                      theta = Math.PI/2;
@@ -1495,7 +1478,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             int centre2X = mouseX;
             int centre2Y = mouseY;
 
-            double theta = 0;
+            double theta;
             if(centre2X == centre1X)
                if(centre1Y > centre2Y)
                   theta = Math.PI/2;
@@ -1518,7 +1501,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
          if(startedCreatingVertex)
-            g.drawOval((int)Math.round(mouseX - radius),(int)Math.round(mouseY - radius),2*radius,2*radius);
+            g.drawOval(Math.round(mouseX - radius),Math.round(mouseY - radius),2*radius,2*radius);
 
          if(edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1)
          {
@@ -1536,7 +1519,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             double centre2X = -xTopLeft + graph.getXPos(edgeHighlighted[1]);
             double centre2Y = -yTopLeft + graph.getYPos(edgeHighlighted[1]);
 
-            double theta = 0;
+            double theta;
             if(centre2X == centre1X)
                if(centre1Y > centre2Y)
                   theta = Math.PI/2;
@@ -1981,7 +1964,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       File minFile = null;
 
       File checkDir = new File("./checkby");
-      File files[] = checkDir.listFiles();
+      File[] files = checkDir.listFiles();
       System.out.print("Checking files ");
       double mark = 0.01;
       int divideup = 1;
@@ -1989,7 +1972,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       if(startPoint == -1)
          startPoint = rn;
       int counti = 0;
-      for(int ii=Math.max(0,startPoint-20*divideup); ii<files.length+startPoint; ii+=divideup)
+      for(int ii=Math.max(0,startPoint-20*divideup); ii< files.length+startPoint; ii+=divideup)
       {
          counti++;
          if(counti == 1000)
@@ -2022,8 +2005,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             //System.out.println(files[i].getName());
             //System.out.println("Opening " + files[i].getName());
-            int newArcs[][] = new int[26][3];
-            int d[] = new int[26];
+            int[][] newArcs = new int[26][3];
+            int[] d = new int[26];
             try
             {
                BufferedReader br = new BufferedReader(new FileReader(files[i]));
@@ -2065,8 +2048,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       //if(minCrossings > 10)
       //startPoint = -1;
       System.out.println(".");
-      int newArcs[][] = new int[26][3];
-      int d[] = new int[26];
+      int[][] newArcs = new int[26][3];
+      int[] d = new int[26];
 
       minFilename = minFile.getName();
       try
