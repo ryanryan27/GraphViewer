@@ -1595,7 +1595,9 @@ public class Graph
       boolean[] all = new boolean[N];
       Arrays.fill(all, true);
 
-      return getSubgraph(all);
+      Graph g =  getSubgraph(all);
+      g.selected = selected.clone();
+      return g;
 
    }
 

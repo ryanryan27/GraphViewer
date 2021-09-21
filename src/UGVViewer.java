@@ -2,14 +2,12 @@
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.StringTokenizer;
 import java.awt.image.*;
 import java.awt.*;
 import javax.swing.filechooser.*;
-import javax.swing.event.*;
 import javax.imageio.ImageIO;
   
 
@@ -737,7 +735,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                   
       for(int i=0; i < tabs; i++)
       {
-         if(!((GraphPane)tabbedPane.getComponentAt(i-offset)).getUndoStream().getLastSave())
+         if(!((GraphPane)tabbedPane.getComponentAt(i-offset)).getUndoState().getLastSave())
          {
             JOptionPane jop = new JOptionPane();
             String name = tabbedPane.getTitleAt(i-offset);
@@ -1077,7 +1075,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         
          if(!ad.getCancelled())
          {
-            ((GraphPane)tabbedPane.getSelectedComponent()).getUndoStream().arrangeVertices(gr.getXPoses(), gr.getYPoses(), gr.getContour(), ad.getContour());
+            ((GraphPane)tabbedPane.getSelectedComponent()).setUndoState();
             
             gr.setContour(ad.getContour());
             gr.createCircle();
@@ -1101,7 +1099,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       
          if(!eed.getCancelled())
          {
-            gp.getUndoStream().editEdgeList(gr.getArcs(), gr.getDegrees(), gr.getXPoses(), gr.getYPoses(), gr.getContour(), eed.getArcs(), eed.getDegrees(), eed.getArrangeContour());
+            gp.setUndoState();
          
             gr.setArcs(eed.getArcs(),eed.getDegrees(),eed.getNodes(),true);
             if(eed.getArrangeContour())
@@ -3827,7 +3825,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                {
                   if(tabbedPane.getSelectedIndex() != -1)
                   {
-                     if(!((GraphPane)tabbedPane.getSelectedComponent()).getUndoStream().getLastSave())
+                     if(!((GraphPane)tabbedPane.getSelectedComponent()).getUndoState().getLastSave())
                      {
                         JOptionPane jop = new JOptionPane();
                         String name = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
@@ -3948,8 +3946,11 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                               filename = filename + ".ugv";
                            saveGraphUGV(filename, graphPane);
                         }
-                        
-                        graphPane.getUndoStream().saved(tabbedPane.getSelectedIndex());
+
+                        graphPane.getUndoState().setLastSave();
+                        checkSave(tabbedPane.getSelectedIndex());
+
+
                         saveSettings();
                      }
                      repaint();
@@ -4065,7 +4066,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                            
                               for(int i=0; i<graphPanes.length; i++)
                               {
-                                 graphPanes[i].getUndoStream().saved(graphsToSave[i]);
+                                 graphPanes[i].getUndoState().setLastSave();
+                                 checkSave(graphsToSave[i]);
                               }
                               saveSettings();
                            }
@@ -4554,7 +4556,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                   int offset = 0;
                   for(int i=0; i < tabs; i++)
                   {
-                     if(!((GraphPane)tabbedPane.getComponentAt(i-offset)).getUndoStream().getLastSave())
+                     if(!((GraphPane)tabbedPane.getComponentAt(i-offset)).getUndoState().getLastSave())
                      {
                         JOptionPane jop = new JOptionPane();
                         String name = tabbedPane.getTitleAt(i-offset);
@@ -4723,7 +4725,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       if(tabbedPane.getSelectedIndex() != -1)
       {
          GraphPane gp = (GraphPane)tabbedPane.getSelectedComponent();
-         if(gp.getUndoStream().getLastSave())
+         if(gp.getUndoState().getLastSave())
          {
          	//System.out.println("First");
             String title = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
@@ -4752,7 +4754,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       if(tabbedPane.getSelectedIndex() != -1)
       {
          GraphPane gp = (GraphPane)tabbedPane.getComponentAt(index);
-         if(gp.getUndoStream().getLastSave())
+         if(gp.getUndoState().getLastSave())
          {
          	//System.out.println("First");
             String title = tabbedPane.getTitleAt(index);

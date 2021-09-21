@@ -17,7 +17,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    String minFilename = "temp";
    int startPoint = -1;
 
-   UndoStream undoStream;
+
+   UndoRedo undoState;
 
    Timer timer;
 
@@ -129,7 +130,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    {
       parent = pa;
       gll = new GraphLinkedList();
-      undoStream = new UndoStream(this);
+
+      undoState = new UndoRedo();
 
       edgeHighlighted[0] = -1;
       edgeHighlighted[1] = -1;
@@ -334,7 +336,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             {
                timer = new Timer();
                startedRotating = true;
-
+               setUndoState();
                timer.schedule(
                        new TimerTask() {
                           @Override
@@ -418,7 +420,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                }
 
 
-               undoStream.moveVertex(oldX, oldY, xPos, yPos);
+               setUndoState();
+
 
                nodeSelected = -1;
             }
@@ -427,7 +430,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(startedCreatingVertex)
             {
-               undoStream.addVertex(graph.getN()+1,((e.getX()-4)/xScale + xTopLeft),((e.getY()-53)/yScale + yTopLeft));
+               setUndoState();
 
                startedCreatingVertex = false;
                graph.setN(graph.getN()+1);
@@ -459,7 +462,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             {
                if(nodeHighlighted != -1 && nodeHighlighted != nodeSelectedForEdge)
                {
-                  undoStream.addEdge(nodeSelectedForEdge+1,nodeHighlighted+1);
+                  setUndoState();
 
                   graph.addArc(nodeSelectedForEdge+1,nodeHighlighted+1);
                   graph.addArc(nodeHighlighted+1,nodeSelectedForEdge+1);
@@ -479,7 +482,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                for(int i=0; i<graph.getN(); i++)
                   oldDomset[i] = tempDS[i];
 
-               undoStream.removeVertex(nodeHighlighted+1, graph.getArcs(), graph.getDegrees(), oldDomset, graph.getXPoses(), graph.getYPoses(), graph.getContour());
+               setUndoState();
+
 
                graph.deleteVertex(nodeHighlighted+1);
                nodeSelectedForErasing = -1;
@@ -499,7 +503,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(edgeSelectedForErasing[0] != -1 && edgeSelectedForErasing[1] != -1 && edgeSelectedForErasing[0] == edgeHighlighted[0] && edgeSelectedForErasing[1] == edgeHighlighted[1])
             {
-               undoStream.removeEdge(edgeSelectedForErasing[0]+1,edgeSelectedForErasing[1]+1);
+               setUndoState();
 
                graph.deleteArc(edgeSelectedForErasing[0]+1,edgeSelectedForErasing[1]+1);
                graph.deleteArc(edgeSelectedForErasing[1]+1,edgeSelectedForErasing[0]+1);
@@ -528,7 +532,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                   }
                   else
                   {
-                     undoStream.relabelVertices(graph.getArcs(), graph.getDegrees(), graph.getXPoses(), graph.getYPoses(), nodeSelectedForRelabelling+1, newLabel, rd.getIncrement());
+                     setUndoState();
 
                      int [][]testArcs = graph.getArcs();
                      int []testDegrees = graph.getDegrees();
@@ -562,17 +566,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(nodeSelectedForDom == nodeHighlighted && nodeSelectedForDom != -1)
             {
-               int []tempDS = graph.getDomset();
-               int []oldDomset = new int[graph.getN()];
-               for(int i=0; i<graph.getN(); i++)
-                  oldDomset[i] = tempDS[i];
+
+               setUndoState();
 
                graph.toggleDom(nodeSelectedForDom);
-               tempDS = graph.getDomset();
-               int []newDomset = new int[graph.getN()];
-               for(int i=0; i<graph.getN(); i++)
-                  newDomset[i] = tempDS[i];
-               undoStream.toggleDom(oldDomset,newDomset);
+
                repaint();
             }
          }
@@ -834,7 +832,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             timer.cancel();
             timer = new Timer();
             startedRotating = true;
-
+            setUndoState();
             timer.schedule(
                     new TimerTask() {
                        @Override
@@ -1784,8 +1782,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    }
 
    public void beginSpring(){
-      beforeSpringX = graph.getXPoses().clone();
-      beforeSpringY = graph.getYPoses().clone();
+
+      setUndoState();
+
       graph.calculatingSpring = true;
 
       springTimer = new Timer();
@@ -1805,7 +1804,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    public void cancelSpring(){
       if (graph.calculatingSpring) {
          springTimer.cancel();
-         undoStream.moveVertex(beforeSpringX, beforeSpringY, graph.getXPoses(), graph.getYPoses());
          graph.calculatingSpring = false;
       }
    }
@@ -1842,10 +1840,21 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       menuItem = mi;
    }
 
+
+   public void setUndoState(){
+      undoState.addItem(graph);
+      setUndoAvailable(true);
+      setRedoAvailable(false);
+      parent.checkSave();
+   }
+
    public void undo()
    {
-      undoStream.undo();
-      if(!undoStream.undoAvailable())
+      System.out.println("undo called in gp");
+      graph = undoState.undo(graph);
+      parent.checkSave();
+
+      if(!undoState.canUndo())
          parent.setUndoAvailable(false);
       parent.setRedoAvailable(true);
       validate();
@@ -1854,8 +1863,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    public void redo()
    {
-      undoStream.redo();
-      if(!undoStream.redoAvailable())
+
+      graph = undoState.redo(graph);
+      parent.checkSave();
+      if(!undoState.canRedo())
          parent.setRedoAvailable(false);
       parent.setUndoAvailable(true);
       validate();
@@ -1872,9 +1883,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       parent.setRedoAvailable(available);
    }
 
-   public UndoStream getUndoStream()
+   public UndoRedo getUndoState()
    {
-      return undoStream;
+      return undoState;
    }
 
    public UGVViewer getParent()
@@ -2110,8 +2121,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    public void pasteGraph(Graph g){
 
-      //TODO handle undo/redo here
+      setUndoState();
       graph.addSubgraph(g, xTopLeft+2*radius, yTopLeft+2*radius, xScale);
+
    }
 
 

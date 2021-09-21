@@ -8,16 +8,26 @@ public class UndoRedo {
     private final Stack<Graph> undo;
     private final Stack<Graph> redo;
 
+    int stepsSinceSave;
+
 
     public UndoRedo(){
         undo = new Stack<>();
         redo = new Stack<>();
+
+        stepsSinceSave = 0;
     }
 
     public void addItem(Graph g){
 
-        undo.push(g);
         redo.clear();
+
+
+        undo.push(g.getCopy());
+        if(stepsSinceSave >= 0) {
+            stepsSinceSave++;
+        }
+
 
     }
 
@@ -25,9 +35,11 @@ public class UndoRedo {
     //call like graph = undo(graph);
     public Graph undo(Graph beforeUndo){
 
-        if(!canUndo()) return null;
 
+        if(!canUndo()) return null;
+        System.out.println("called undo");
         Graph g = undo.pop();
+        stepsSinceSave--;
         redo.push(beforeUndo);
         return g;
     }
@@ -39,16 +51,28 @@ public class UndoRedo {
 
         Graph g = redo.pop();
         undo.push(beforeRedo);
+        stepsSinceSave++;
         return g;
     }
 
     public boolean canRedo(){
-        return (redo.peek() != null);
+        return (!redo.empty());
     }
 
     public boolean canUndo(){
-        return  (undo.peek() != null);
+
+        return  (!undo.empty());
     }
+
+    public boolean getLastSave(){
+        return stepsSinceSave == 0;
+    }
+
+    public void setLastSave(){
+        stepsSinceSave = 0;
+    }
+
+
 
 
 
