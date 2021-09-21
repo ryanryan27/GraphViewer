@@ -1026,6 +1026,10 @@ public class Graph
       return domset[node-1];
    }
 
+   public void setDomValue(int node, int domValue){
+      domset[node] = domValue;
+   }
+
    public boolean[] dominatedVertices(boolean domTotal, boolean domSecure, boolean domConnected, boolean domRoman, boolean domWeakRoman)
    {
       boolean []dv = new boolean[N];
@@ -1352,20 +1356,6 @@ public class Graph
          }
       }
 
-
-   /*
-      System.out.println("Shortest paths:");
-
-      for(int i=0; i<N; i++)
-      {
-         for(int j=0; j<N; j++)
-         {
-            System.out.print(dists[i][j] + " ");
-         }
-         System.out.println();
-      }
-   */
-
    }
 
    public Graph getSubgraph(boolean[] vertices){
@@ -1447,10 +1437,13 @@ public class Graph
       int oldN = N;
 
 
+      setN(oldN + g.getN());
 
       for (int i = 0; i < g.N; i++) {
-         addVertex(g.getXPos(i)/scale+xOffset,g.getYPos(i)/scale+yOffset);
+         setXPos(oldN + i, g.getXPos(i)/scale+xOffset);
+         setYPos(oldN + i,g.getYPos(i)/scale+yOffset);
          domset[oldN + i] = g.domset[i];
+
       }
 
 
@@ -1619,129 +1612,3 @@ public class Graph
    }
 
 }
-
-
-
-
-
-
-
-
-   /*
-   public int maxFlow(int v)
-   {
-      int v1 = 1;
-      int v2 = v;
-      
-      int [][]tempArcs = new int[N][maxDegree];
-      int []tempDegrees = new int[N];
-      
-      for(int i=0; i<N; i++)
-      {
-         tempDegrees[i] = degrees[i];
-         for(int j=0; j<tempDegrees[i]; j++)
-            tempArcs[i][j] = arcs[i][j];
-      }
-      
-      int flow = 0;
-   
-      while(true)
-      {
-         int considering = v1-1;
-         int []previous = new int[N];
-         int []dist = new int[N];
-         int []toCheck = new int[N];
-         int []level = new int[N];
-         boolean []reached = new boolean[N];
-         reached[0] = true;
-         int index = 0;
-         int smallest = N+2;
-      
-            //int []dist = new int[N];
-         for(int i=0; i<N; i++)
-            dist[i] = N+1;
-               
-         dist[v1-1] = 0;
-         
-            //int []previous = new int[N];
-         for(int i=0; i<N; i++)
-            previous[i] = -1;
-              
-         boolean []Q = new boolean[N];
-         for(int i=0; i<N; i++)
-            Q[i] = true;
-            
-         boolean goOn = true;
-         while(goOn)
-         {
-            goOn = false;
-            smallest = N+2;
-            index = -1;
-            for(int i=0; i<N; i++)
-            {
-               if(Q[i] && dist[i] < smallest)
-               {
-                  smallest = dist[i];
-                  index = i;
-               }
-               
-            }
-            Q[index] = false;
-            //System.out.println("Index : " + (index+1));
-            if(index == v2-1)
-               break;
-            if(smallest == N+1)
-               break;
-                
-            for(int i=0; i<degrees[index]; i++)
-            {
-               if(tempArcs[index][i] != 0 && Q[tempArcs[index][i]-1])
-               {
-                  int vertex = tempArcs[index][i]-1;
-                  int alt = dist[index] + 1;
-                  if(alt < dist[vertex])
-                  {
-                     dist[vertex] = alt;
-                     previous[vertex] = index;
-                  }
-               }
-            }
-               
-            for(int i=0; i<N; i++)
-               if(Q[i])
-                  goOn = true;
-         }
-            
-         if(smallest == N+1)
-         {
-            return flow;
-         }
-         else
-         {
-            index = v2-1;
-            while(index != v1-1)
-            {
-               for(int i=0; i<tempDegrees[index]; i++)
-               {
-                  if(tempArcs[index][i] == previous[index]+1)
-                  {
-                     tempArcs[index][i] = 0;
-                     break;
-                  }
-               }
-               for(int i=0; i<tempDegrees[previous[index]]; i++)
-               {
-                  if(tempArcs[previous[index]][i] == index+1)
-                  {
-                     tempArcs[previous[index]][i] = 0;
-                     break;
-                  }
-               }
-               index = previous[index];
-            }
-            flow++;
-         }
-      
-      }
-   
-   }*/

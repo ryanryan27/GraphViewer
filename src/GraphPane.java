@@ -362,7 +362,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             double x = graph.getXPos(i);
             double y = graph.getYPos(i);
-            System.out.println("x = " + x + " and rotateX = " + rotateX);
+            //System.out.println("x = " + x + " and rotateX = " + rotateX);
             double r = Math.pow(Math.pow(x-rotateX,2)+Math.pow(y-rotateY,2),0.5);
             double theta = Math.atan(Math.abs((1.0*(x-rotateX))/(1.0*(y-rotateY))));
             if(x >= rotateX && y >= rotateY)
@@ -1809,7 +1809,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    public void undo()
    {
-      System.out.println("undo called in gp");
       graph = undoState.undo(graph);
       parent.checkSave();
 
@@ -2072,7 +2071,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       }
       graph.setArcs(newArcs,d,26,true);
       findCrossings();
-      System.out.println("Opening " + minFilename + " : Crossings = " + crossings);
+     // System.out.println("Opening " + minFilename + " : Crossings = " + crossings);
       validate();
       repaint();
    }

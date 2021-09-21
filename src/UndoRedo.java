@@ -37,7 +37,6 @@ public class UndoRedo {
 
 
         if(!canUndo()) return null;
-        System.out.println("called undo");
         Graph g = undo.pop();
         stepsSinceSave--;
         redo.push(beforeUndo);
