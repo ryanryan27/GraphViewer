@@ -1371,6 +1371,10 @@ public class Graph
    }
 
    public Graph getSubgraph(boolean[] vertices){
+      return getSubgraph(vertices, false);
+   }
+
+   public Graph getSubgraph(boolean[] vertices, boolean align){
       int subN = 0;
       for (boolean v : vertices) {
          if(v) subN++;
@@ -1385,10 +1389,14 @@ public class Graph
          }
       }
 
-      return getSubgraph(verts);
+      return getSubgraph(verts, align);
    }
 
    public Graph getSubgraph(int[] vertices){
+      return getSubgraph(vertices, false);
+   }
+
+   public Graph getSubgraph(int[] vertices, boolean align){
       int subN = vertices.length;
       int mDegree = 0;
       for (int v : vertices) {
@@ -1410,8 +1418,9 @@ public class Graph
          g.domset[i] = domset[i];
       }
 
-
-      g.alignTopLeft();
+      if(align) {
+         g.alignTopLeft();
+      }
 
       return g;
    }
@@ -1579,6 +1588,33 @@ public class Graph
             nodePosY[i] = (nodePosY[i]-corner[1])/scale + corner[1];
          }
       }
+
+   }
+
+   public Graph getCopy(){
+      boolean[] all = new boolean[N];
+      Arrays.fill(all, true);
+
+      return getSubgraph(all);
+
+   }
+
+   public void alignToGrid(int spacing){
+      boolean[] all = new boolean[N];
+      Arrays.fill(all, true);
+
+      alignToGrid(spacing, all);
+   }
+
+   public void alignToGrid(int spacing, boolean[] toAlign){
+
+      for (int i = 0; i < N; i++) {
+         if(toAlign[i]){
+            nodePosX[i] = Math.round(nodePosX[i]/spacing)*spacing;
+            nodePosY[i] = Math.round(nodePosY[i]/spacing)*spacing;
+         }
+      }
+
 
    }
 

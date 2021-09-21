@@ -4340,25 +4340,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        validate();
                        repaint();
 
-                    MILPRunner runner = new MILPRunner(MILPRunner.TOTAL_DOMINATION, g);
-                    try {
-                       double[] solution = runner.run();
-
-                       int[] domset = new int[g.N];
-
-                       for (int i = 0; i < g.N; i++) {
-                          domset[i] = (int)Math.floor(solution[i]);
-                       }
-                       g.setDomset(domset);
-                       validate();
-                       repaint();
-
-                    } catch (Exception e1){
-
-                    }
-
-
-
                     }
 
                  }
@@ -4800,7 +4781,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       if(tabbedPane.getSelectedIndex() != -1){
          GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
          Graph g = gp.getGraph();
-         copiedGraph = g.getSubgraph(g.getSelected());
+         copiedGraph = g.getSubgraph(g.getSelected(), true);
          pasteItem.setEnabled(true);
       }
    }
@@ -4812,6 +4793,31 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
          GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
          gp.pasteGraph(copiedGraph);
       }
+   }
+
+   public void runMILP(int domType){
+      if(tabbedPane.getSelectedIndex() != -1) {
+         GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+         Graph g = gp.getGraph();
+
+         MILPRunner runner = new MILPRunner(domType, g);
+         try {
+            double[] solution = runner.run();
+
+            int[] domset = new int[g.N];
+
+            for (int i = 0; i < g.N; i++) {
+               domset[i] = (int) Math.round(solution[i]);
+            }
+            g.setDomset(domset);
+            validate();
+            repaint();
+
+         } catch (Exception e1) {
+
+         }
+      }
+
    }
    
    Graph graph;
