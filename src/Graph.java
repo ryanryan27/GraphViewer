@@ -1,6 +1,9 @@
 //package UGV;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.*;
 
 public class Graph
@@ -49,6 +52,14 @@ public class Graph
    public int getN()
    {
       return N;
+   }
+
+   public int getEdgeCount(){
+      int count = 0;
+      for (int i = 0; i < N; i++) {
+         count += degrees[i];
+      }
+      return count/2;
    }
 
    public int getMaxDegree()
@@ -1308,6 +1319,35 @@ public class Graph
 
    public double distL2(int v1, int v2){
       return Math.pow(getXPos(v1)-getXPos(v2),2) + Math.pow(getYPos(v1)-getYPos(v2),2);
+   }
+
+   public int[] twoApartList(int v1){
+      //ArrayList<Integer> verts = new ArrayList<>();
+      Set<Integer> verts = new HashSet<>();
+
+      //get 1 away
+      int[] neighbours = getArcs()[v1];
+      for (int jj = 0; jj < degrees[v1];  jj++) {
+         int j = neighbours[jj]-1;
+         //get 2 away
+         int[] n2 = getArcs()[j];
+         for (int vv2 = 0; vv2 < degrees[j];vv2++) {
+            int v2 = n2[vv2]-1;
+            //don't add self
+            if (v2 == v1) continue;
+
+            for (int nn = 0; nn < degrees[j]; nn++) {
+               int neighbour = neighbours[nn]-1;
+               //don't add 1 away
+               if (v2 == neighbour) continue;
+               verts.add(v2);
+               break;
+            }
+
+         }
+      }
+
+      return verts.stream().mapToInt(Number::intValue).toArray();
    }
 
    private void calculateShortestPaths() {

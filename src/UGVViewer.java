@@ -4319,10 +4319,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                  {
                     if(tabbedPane.getSelectedIndex() != -1){
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                       gp.setUndoState();
                        Graph g = gp.getGraph();
                        g.rescaleSelected(1.0/1.1);
                        validate();
                        repaint();
+
+
+                       runMILP(MILPRunner.DOMINATION);
                     }
 
                  }
@@ -4338,10 +4342,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                  {
                     if(tabbedPane.getSelectedIndex() != -1){
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                       gp.setUndoState();
                        Graph g = gp.getGraph();
                        g.rescaleSelected(1.1);
                        validate();
                        repaint();
+
+                       runMILP(MILPRunner.ROMAN_DOMINATION);
 
                     }
 
@@ -4612,6 +4619,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       GraphPane graphPane = graphPanels.get(index+1);
       int radius = graphPane.getRadius();
       Graph thisGraph = graphPane.getGraph();
+
+      if(thisGraph.getN() <= 0) return;
+
       double minX = thisGraph.getXPos(0)-radius;
       double maxX = thisGraph.getXPos(0)+radius;
       double minY = thisGraph.getYPos(0)-radius;
@@ -4807,10 +4817,18 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
          try {
             double[] solution = runner.run();
 
-            int[] domset = new int[g.N];
+            int[] domset = new int[g.getN()];
 
-            for (int i = 0; i < g.N; i++) {
+            for (int i = 0; i < g.getN(); i++) {
                domset[i] = (int) Math.round(solution[i]);
+
+               //System.out.println("solution["+i+"] = " + solution[i]);
+               
+               if(domType == MILPRunner.WEAK_ROMAN_DOMINATION || domType == MILPRunner.ROMAN_DOMINATION){
+                  domset[i] = (int) Math.round(solution[i]+2*solution[i+g.getN()]);
+                  //System.out.println("solution["+i+g.getN()+"] = " + solution[i+g.getN()]);
+               }
+
             }
             g.setDomset(domset);
             validate();
