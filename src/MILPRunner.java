@@ -73,30 +73,32 @@ public class MILPRunner {
         int continuous;
 
         switch (domType) {
-            case SECURE_DOMINATION -> {
+            case SECURE_DOMINATION:
                 binary = N;
                 continuous = N * N;
-            }
-            case ROMAN_DOMINATION, UPPER_DOMINATION -> {
-                binary = 2*N;
+                break;
+            case ROMAN_DOMINATION:
+            case UPPER_DOMINATION:
+                binary = 2 * N;
                 continuous = 0;
-            }
-            case WEAK_ROMAN_DOMINATION -> {
-                binary = 2*N;
-                continuous = N*N;
-            }
-            case CONNECTED_DOMINATION -> {
-                binary = 2*M + 3*N + 1;
+                break;
+            case WEAK_ROMAN_DOMINATION:
+                binary = 2 * N;
+                continuous = N * N;
+                break;
+            case CONNECTED_DOMINATION:
+                binary = 2 * M + 3 * N + 1;
                 continuous = N + 1;
-            }
-            case UPPER_DOMINATION_ALT -> {
-                binary = 2*N + 2*M;
+                break;
+            case UPPER_DOMINATION_ALT:
+                binary = 2 * N + 2 * M;
                 continuous = 0;
-            }
-            default -> {//DOMINATION, TOTAL_DOMINATION
+                break;
+//DOMINATION, TOTAL_DOMINATION
+            default:
                 binary = N;
                 continuous = 0;
-            }
+                break;
         }
 
         int total = binary + continuous;
@@ -124,11 +126,14 @@ public class MILPRunner {
         double[] objMultipliers = new double[total];
 
         switch (domType) {
-            case ROMAN_DOMINATION, WEAK_ROMAN_DOMINATION -> {
+            case ROMAN_DOMINATION:
+            case WEAK_ROMAN_DOMINATION:
                 Arrays.fill(objMultipliers, 0, N, 1);
-                Arrays.fill(objMultipliers, N, 2*N, 2);
-            }
-            default -> Arrays.fill(objMultipliers, 0, N, 1);
+                Arrays.fill(objMultipliers, N, 2 * N, 2);
+                break;
+            default:
+                Arrays.fill(objMultipliers, 0, N, 1);
+                break;
         }
 
         if(domType == UPPER_DOMINATION || domType == UPPER_DOMINATION_ALT) {
@@ -157,43 +162,55 @@ public class MILPRunner {
             twoApartList = new int[1][];
         }
 
-        switch (domType){
-            //SD and wrd needs to be calculated
-            case SECURE_DOMINATION, WEAK_ROMAN_DOMINATION -> {
-                numContraintsIneq = N + 2*M + twoApartCount;
+        //SD and wrd needs to be calculated
+        switch (domType) {
+            case SECURE_DOMINATION:
+            case WEAK_ROMAN_DOMINATION:
+                numContraintsIneq = N + 2 * M + twoApartCount;
                 numContraintsEq = N;
-            }
-            case ROMAN_DOMINATION -> {
-                numContraintsIneq = 3*N;
+                break;
+            case ROMAN_DOMINATION:
+                numContraintsIneq = 3 * N;
                 numContraintsEq = 0;
-            }
-            case CONNECTED_DOMINATION -> {
-                numContraintsIneq = 3*N + 4*M + 1;
-                numContraintsEq = 2*N + 2;
-            }
-            case UPPER_DOMINATION -> {
-                numContraintsIneq = 4*N;
+                break;
+            case CONNECTED_DOMINATION:
+                numContraintsIneq = 3 * N + 4 * M + 1;
+                numContraintsEq = 2 * N + 2;
+                break;
+            case UPPER_DOMINATION:
+                numContraintsIneq = 4 * N;
                 numContraintsEq = 0;
-            }
-            case UPPER_DOMINATION_ALT -> {
-                numContraintsIneq = 3*N + 2*M;
+                break;
+            case UPPER_DOMINATION_ALT:
+                numContraintsIneq = 3 * N + 2 * M;
                 numContraintsEq = 0;
-            }
-            default -> {
+                break;
+            default:
                 numContraintsIneq = N;
                 numContraintsEq = 0;
-            }
+                break;
         }
 
         constraints[0] = new IloRange[numContraintsIneq];
         constraints[1] = new IloRange[numContraintsEq];
 
-        switch (domType){
-            case SECURE_DOMINATION, WEAK_ROMAN_DOMINATION -> setSDConstraints(twoApartList);
-            case CONNECTED_DOMINATION -> setCDConstraints();
-            case UPPER_DOMINATION -> setUDConstraints();
-            case UPPER_DOMINATION_ALT -> setUDAConstraints();
-            default -> setDominationConstraints();
+        switch (domType) {
+            case SECURE_DOMINATION:
+            case WEAK_ROMAN_DOMINATION:
+                setSDConstraints(twoApartList);
+                break;
+            case CONNECTED_DOMINATION:
+                setCDConstraints();
+                break;
+            case UPPER_DOMINATION:
+                setUDConstraints();
+                break;
+            case UPPER_DOMINATION_ALT:
+                setUDAConstraints();
+                break;
+            default:
+                setDominationConstraints();
+                break;
         }
 
 
@@ -337,6 +354,7 @@ public class MILPRunner {
     }
 
     private void setCDConstraints(){
+
 
     }
 

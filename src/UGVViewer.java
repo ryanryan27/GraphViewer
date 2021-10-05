@@ -4348,7 +4348,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        validate();
                        repaint();
 
-                       runMILP(MILPRunner.ROMAN_DOMINATION);
+                       runMILP(MILPRunner.SECURE_DOMINATION);
 
                     }
 
