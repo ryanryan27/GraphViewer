@@ -1821,6 +1821,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    public void undo()
    {
+      cancelSpring();
       graph = undoState.undo(graph);
       parent.checkSave();
 

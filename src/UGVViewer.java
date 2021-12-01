@@ -85,7 +85,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       colorStrings[4] = "New edge colour";
       colorStrings[5] = "Edge deletion colour";
 
-
       loadSettings();
 
       setLocation(settings_locationX,settings_locationY);
@@ -4345,10 +4344,11 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        gp.setUndoState();
                        Graph g = gp.getGraph();
                        g.rescaleSelected(1.1);
+                       //g.alignToGrid(10);
                        validate();
                        repaint();
 
-                       runMILP(MILPRunner.SECURE_DOMINATION);
+                       //runMILP(MILPRunner.SECURE_DOMINATION);
 
                     }
 
