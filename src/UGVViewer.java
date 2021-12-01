@@ -4357,6 +4357,32 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       shrinkItem.setMnemonic(KeyEvent.VK_K);
       shrinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,InputEvent.CTRL_DOWN_MASK));
 
+      gridItem = new JMenuItem("Arrange Grid");
+      gridItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+                       Graph g = gp.getGraph();
+
+                       ArrangeGridDialog ad = new ArrangeGridDialog(parent);
+
+                       if(!ad.getCancelled())
+                       {
+                          gp.setUndoState();
+
+                          g.createGrid(ad.getGridSize(),ad.getVertical(),ad.getSpacing());
+                          fitToScreen();
+                       }
+
+                    }
+
+                 }
+              });
+      gridItem.setMnemonic(KeyEvent.VK_K);
+      gridItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G,InputEvent.CTRL_DOWN_MASK));
 
       editItem.add(copyItem);
       editItem.add(pasteItem);
@@ -4366,6 +4392,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
       editItem.add(growItem);
       editItem.add(shrinkItem);
+
+      editItem.add(gridItem);
 
       editItem.setMnemonic(KeyEvent.VK_E);
       undoEditItem.setEnabled(false);
@@ -4866,6 +4894,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JMenu windowItem;
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    JMenuItem growItem, shrinkItem;
+   JMenuItem gridItem;
 
    JPanel graphEditPane, buttonPane, bottomButtonPane, selectButtonPane;
    JLabel []labels;

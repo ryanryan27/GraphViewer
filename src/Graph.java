@@ -599,6 +599,31 @@ public class Graph
       }
    }
 
+   public void createGrid(int copies, boolean vertical, double spacing){
+
+      int width = copies;
+
+      if(vertical){
+         width = (int) Math.ceil((N*1.0)/copies);
+      }
+
+
+      for (int i = 0; i < N; i++) {
+         double x = (i % width)*spacing;
+         double y = (i/width)*spacing;
+
+         if(vertical){
+            nodePosX[i] = y;
+            nodePosY[i] = x;
+         } else {
+            nodePosY[i] = y;
+            nodePosX[i] = x;
+         }
+
+      }
+
+   }
+
    public boolean isConnected()
    {
       if(N == 0)
