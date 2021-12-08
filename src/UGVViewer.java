@@ -4325,7 +4325,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        repaint();
 
 
-                       runMILP(MILPRunner.DOMINATION);
+                       runMILP(MILPRunner.SECURE_DOMINATION, false);
                     }
 
                  }
@@ -4343,12 +4343,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
                        gp.setUndoState();
                        Graph g = gp.getGraph();
-                       g.rescaleSelected(1.1);
+                       //g.rescaleSelected(1.1);
                        //g.alignToGrid(10);
                        validate();
                        repaint();
 
-                       //runMILP(MILPRunner.SECURE_DOMINATION);
+                       runMILP(MILPRunner.SECURE_DOMINATION, true);
 
                     }
 
@@ -4836,12 +4836,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       }
    }
 
-   public void runMILP(int domType){
+   public void runMILP(int domType, boolean preserve){
       if(tabbedPane.getSelectedIndex() != -1) {
          GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
          Graph g = gp.getGraph();
 
-         MILPRunner runner = new MILPRunner(domType, g);
+         MILPRunner runner = new MILPRunner(domType, g, preserve);
          try {
             double[] solution = runner.run();
 

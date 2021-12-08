@@ -8,6 +8,8 @@ public class MILPRunner {
 
     private final Graph graph;
     private final int domType;
+    private final boolean preserveDom;
+    private int domcount = 0;
 
     public final static int DOMINATION = 1;
     public final static int TOTAL_DOMINATION = 2;
@@ -27,8 +29,13 @@ public class MILPRunner {
     private final int M;
 
     public MILPRunner(int domType, Graph graph){
+       this(domType, graph, false);
+    }
+
+    public MILPRunner(int domType, Graph graph, boolean preserveDom){
         this.graph = graph;
         this.domType = domType;
+        this.preserveDom = preserveDom;
 
         N= graph.getN();
         M = graph.getEdgeCount();
@@ -191,6 +198,24 @@ public class MILPRunner {
                 break;
         }
 
+        if(preserveDom){
+
+            //calculate number of verts with guards
+            int[] domset = graph.getDomset();
+
+            domcount = 0;
+
+            for (int i = 0; i < N; i++) {
+                if (domset[i] > 0){
+                    domcount++;
+                }
+            }
+
+            numContraintsEq += domcount;
+
+        }
+
+
         constraints[0] = new IloRange[numContraintsIneq];
         constraints[1] = new IloRange[numContraintsEq];
 
@@ -246,6 +271,25 @@ public class MILPRunner {
                 }
             }
             constraints[0][i] = model.addGe(constr, 1.0);
+
+        }
+
+        if(preserveDom){
+
+            //calculate number of verts with guards
+            int[] domset = graph.getDomset();
+
+            int count = 0;
+
+            for (int i = 0; i < N; i++) {
+                if (domset[i] > 0){
+
+                    IloNumExpr constr = model.prod(1, variables[0][i]);
+                    int index = constraints[1].length - domcount + count;
+                    constraints[1][index] = model.addEq(constr, domset[i]);
+                    count++;
+                }
+            }
 
         }
 
