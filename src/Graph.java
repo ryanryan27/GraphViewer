@@ -1161,6 +1161,15 @@ public class Graph
       return domset;
    }
 
+   public int getDomSize(){
+      int count = 0;
+      for (int i = 0; i < N; i++) {
+         count += domset[i];
+      }
+      return count;
+
+   }
+
    public void setDomset(int []ds)
    {
       domset = ds;

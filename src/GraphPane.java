@@ -1119,10 +1119,12 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             g.setFont(g.getFont().deriveFont((float)(20/xScale)));
             int ud = 0;
             for(int i=0; i<dv.length; i++)
-               if(!dv[i])
+               if(!dv[i]) {
                   ud++;
+               }
 
-            g.drawString(("Undominated Vertices: " + ud),(int)Math.round((getWidth()-300)/xScale),(int)Math.round(20/xScale));
+
+            g.drawString(("Undominated Vertices: " + ud + " ("+graph.getDomSize()+")"),(int)Math.round((getWidth()-300)/xScale),(int)Math.round(20/xScale));
             String domstring = "";
             if(domTotal) {
                if(domstring.length() == 0) domstring = "(";
