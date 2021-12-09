@@ -4384,6 +4384,34 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       gridItem.setMnemonic(KeyEvent.VK_K);
       gridItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G,InputEvent.CTRL_DOWN_MASK));
 
+      domsetItem = new JMenuItem("Edit Dominating Set");
+      domsetItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+                       Graph g = gp.getGraph();
+
+                       DominationDialog dd = new DominationDialog(parent, g.getDomset());
+
+                       if(!dd.getCancelled())
+                       {
+                          gp.setUndoState();
+
+                          g.setDomset(dd.getDomset());
+                          validate();
+                          repaint();
+                       }
+
+                    }
+
+                 }
+              });
+      domsetItem.setMnemonic(KeyEvent.VK_D);
+      domsetItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,InputEvent.CTRL_DOWN_MASK));
+
       editItem.add(copyItem);
       editItem.add(pasteItem);
       editItem.add(undoEditItem);
@@ -4394,6 +4422,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       editItem.add(shrinkItem);
 
       editItem.add(gridItem);
+      editItem.add(domsetItem);
 
       editItem.setMnemonic(KeyEvent.VK_E);
       undoEditItem.setEnabled(false);
@@ -4430,8 +4459,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                   }
                }
             });
-      displayVertexLabelsItem.setMnemonic(KeyEvent.VK_D);
-      displayVertexLabelsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,InputEvent.CTRL_DOWN_MASK));
+      displayVertexLabelsItem.setMnemonic(KeyEvent.VK_B);
+      displayVertexLabelsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B,InputEvent.CTRL_DOWN_MASK));
 
       JMenuItem colourSettingsItem = new JMenuItem("Colour settings...");
       colourSettingsItem.addActionListener(
@@ -4894,7 +4923,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JMenu windowItem;
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    JMenuItem growItem, shrinkItem;
-   JMenuItem gridItem;
+   JMenuItem gridItem, domsetItem;
 
    JPanel graphEditPane, buttonPane, bottomButtonPane, selectButtonPane;
    JLabel []labels;
