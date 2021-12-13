@@ -284,9 +284,9 @@ public class MILPRunner {
             for (int i = 0; i < N; i++) {
                 if (domset[i] > 0){
 
-                    IloNumExpr constr = model.prod(1, variables[0][i]);
+                    IloNumExpr constr = model.prod(1, variables[0][i + N*(domset[i]-1)]);
                     int index = constraints[1].length - domcount + count;
-                    constraints[1][index] = model.addEq(constr, domset[i]);
+                    constraints[1][index] = model.addEq(constr, 1);
                     count++;
                 }
             }

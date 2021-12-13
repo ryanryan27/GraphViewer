@@ -4323,9 +4323,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        g.rescaleSelected(1.0/1.1);
                        validate();
                        repaint();
-
-
-                       runMILP(MILPRunner.SECURE_DOMINATION, false);
                     }
 
                  }
@@ -4343,12 +4340,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
                        gp.setUndoState();
                        Graph g = gp.getGraph();
-                       //g.rescaleSelected(1.1);
-                       //g.alignToGrid(10);
+                       g.rescaleSelected(1.1);
+
                        validate();
                        repaint();
-
-                       runMILP(MILPRunner.SECURE_DOMINATION, true);
 
                     }
 
@@ -4412,6 +4407,32 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       domsetItem.setMnemonic(KeyEvent.VK_D);
       domsetItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,InputEvent.CTRL_DOWN_MASK));
 
+      solverItem = new JMenuItem("Run Solver");
+      solverItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+                       SolverDialog sd = new SolverDialog(parent);
+
+                       if(!sd.getCancelled())
+                       {
+                          gp.setUndoState();
+
+                          runMILP(sd.getDomtype(), sd.getPreserve());
+                          validate();
+                          repaint();
+                       }
+
+                    }
+
+                 }
+              });
+      solverItem.setMnemonic(KeyEvent.VK_D);
+      solverItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+
       editItem.add(copyItem);
       editItem.add(pasteItem);
       editItem.add(undoEditItem);
@@ -4423,6 +4444,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
       editItem.add(gridItem);
       editItem.add(domsetItem);
+      editItem.add(solverItem);
 
       editItem.setMnemonic(KeyEvent.VK_E);
       undoEditItem.setEnabled(false);
@@ -4923,7 +4945,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JMenu windowItem;
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    JMenuItem growItem, shrinkItem;
-   JMenuItem gridItem, domsetItem;
+   JMenuItem gridItem, domsetItem, solverItem;
 
    JPanel graphEditPane, buttonPane, bottomButtonPane, selectButtonPane;
    JLabel []labels;
