@@ -462,14 +462,25 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          {
             if(nodeSelectedForErasing == nodeHighlighted && nodeSelectedForErasing != -1)
             {
-               setUndoState();
 
-               graph.deleteVertex(nodeHighlighted+1);
+               if(graph.isSelected(nodeHighlighted)){
+                  setUndoState();
+                  for (int i = graph.getN() -1; i >= 0; i--) {
+                     if(graph.isSelected(i)){
+                        graph.deleteVertex(i+1);
+                     }
+                  }
+               } else {
+                  setUndoState();
+
+
+                  graph.deleteVertex(nodeHighlighted + 1);
+
+               }
                nodeSelectedForErasing = -1;
                nodeHighlighted = -1;
 
                repaint();
-
 
             }
          }
@@ -540,9 +551,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             {
 
                setUndoState();
+               if(graph.isSelected(nodeSelectedForDom)){
+                  graph.toggleDom(nodeSelectedForDom);
+                  int val = graph.inDomset(nodeSelectedForDom+1);
+                  for (int i = 0; i < graph.getN(); i++) {
+                     if(graph.isSelected(i)){
+                        graph.setDomValue(i, val);
 
-               graph.toggleDom(nodeSelectedForDom);
-
+                     }
+                  }
+               } else {
+                  graph.toggleDom(nodeSelectedForDom);
+               }
                repaint();
             }
          }
@@ -669,31 +689,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
          }
       }
-      /*if(selectedOption == ERASER_OPTION)
-      {
-         int xPos = (e.getX()-mouseOffsetX);
-         int yPos = (e.getY()-mouseOffsetY);
-         //System.out.println("Mouse moved, pos: (" + xPos + "," + yPos + ")");
 
-
-
-         boolean vertexFound = false;
-         for(int i=0; i<graph.getN(); i++)
-            //if(Math.pow(Math.pow(xPos + xTopLeft*xScale - graph.getXPos(i)*xScale - radius*xScale,2) + Math.pow(yPos + yTopLeft*yScale - graph.getYPos(i)*yScale - radius*yScale,2),0.5) <= radius*Math.min(xScale,yScale))
-            if(Math.pow(Math.pow(xPos + xTopLeft*xScale - graph.getXPos(i)*xScale,2) + Math.pow(yPos + yTopLeft*yScale - graph.getYPos(i)*yScale,2),0.5) <= radius*Math.min(xScale,yScale))
-            {
-               nodeHighlighted = i;
-               vertexFound = true;
-               repaint();
-               break;
-            }
-
-         if(!vertexFound && nodeHighlighted != -1)
-         {
-            nodeHighlighted = -1;
-            repaint();
-         }
-      }  */
       if(selectedOption == SCISSORS_OPTION)
       {
          int xPos = (e.getX()-mouseOffsetX);

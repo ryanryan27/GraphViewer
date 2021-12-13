@@ -9,12 +9,10 @@ public class DominationDialog extends JDialog implements ActionListener
    JFrame parent;
    int[] domsetorig;
    int[] domset;
-   boolean overwrite;
 
 
    JScrollPane scrollPane;
    JTextArea domsetArea;
-   JCheckBoxMenuItem overwriteBox;
    JButton okButton, cancelButton;
 
    boolean cancelled = true;
@@ -28,7 +26,7 @@ public class DominationDialog extends JDialog implements ActionListener
 
       this.domsetorig = domset.clone();
 
-      setSize(550,220);
+      setSize(550,200);
       setResizable(false);
       setLocationRelativeTo(parent);
 
@@ -45,7 +43,6 @@ public class DominationDialog extends JDialog implements ActionListener
 
       domsetArea = new JTextArea(domstring.toString(), 5, 40);
       scrollPane = new JScrollPane(domsetArea);
-      overwriteBox = new JCheckBoxMenuItem("Clear first?", false);
 
       okButton = new JButton("OK");
       okButton.addActionListener(this);
@@ -63,7 +60,6 @@ public class DominationDialog extends JDialog implements ActionListener
 
       arrangePanel.add(new JLabel("Edit dominating set below"));
       arrangePanel.add(scrollPane);
-      arrangePanel.add(overwriteBox);
       arrangePanel.add(buttonPane);
 
       getContentPane().add(arrangePanel);
@@ -79,15 +75,9 @@ public class DominationDialog extends JDialog implements ActionListener
 
          try{
 
-            overwrite = overwriteBox.getState();
-            int N = domsetorig.length;
-            if(overwrite){
-               domset = new int[N];
-            } else {
-               domset = domsetorig.clone();
-            }
+            domset = new int[domsetorig.length];
 
-            String[] verts = domsetArea.getText().split("\s");
+            String[] verts = domsetArea.getText().split("\\s+");
 
             for (int i = 0; i < verts.length; i++) {
                int v = Integer.parseInt(verts[i]);
