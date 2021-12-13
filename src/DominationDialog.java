@@ -3,6 +3,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 
 public class DominationDialog extends JDialog implements ActionListener
 {
@@ -77,12 +78,17 @@ public class DominationDialog extends JDialog implements ActionListener
 
             domset = new int[domsetorig.length];
 
+
             String[] verts = domsetArea.getText().split("\\s+");
 
             for (int i = 0; i < verts.length; i++) {
+
+               if(Objects.equals(verts[i], "")) {
+                  continue;
+               }
                int v = Integer.parseInt(verts[i]);
 
-               domset[v-1] = 1;
+               domset[v - 1] = 1;
             }
 
             cancelled = false;

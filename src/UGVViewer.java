@@ -1136,12 +1136,17 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
    public GraphPane makeGraphPanel()
    {
+      return makeGraphPanel(graph);
+   }
+
+   public GraphPane makeGraphPanel(Graph g)
+   {
       GraphPane graphPanel = new GraphPane(this);
       graphPanel.setBackground(Color.WHITE);
       graphPanel.setSize(5000,5000);
 
-                     //graphPanel.setGraph(graphs.get(graphs.getNumber()));
-      graphPanel.setGraph(graph);
+      //graphPanel.setGraph(graphs.get(graphs.getNumber()));
+      graphPanel.setGraph(g);
       graphPanel.setSelectedOption(selectedOption);
       graphPanel.setDefaultCursor(defaultCursor);
 
@@ -1154,8 +1159,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
       return graphPanel;
    }
-
-
 
 
 
@@ -2388,7 +2391,25 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    }
 
 
+   public void openGraphGML(File file){
+      FileParser fp = new FileParser();
+      Graph[] graphs = fp.parseGML(file);
 
+      for (int i = 0; i < graphs.length; i++) {
+         Graph g = graphs[i];
+         GraphPane gpane = makeGraphPanel(g);
+
+         tabbedPane.add(gpane, (file.getName() + " #" + (i+1)));
+         tabbedPane.setSelectedIndex(tabbedPane.getTabCount()-1);
+         createWindowItem(gpane,file.getName() + " #" + (i+1));
+
+
+         validate();
+         fitToScreen();
+      }
+
+
+   }
 
 
    public void buildNewGraph()
@@ -3734,14 +3755,16 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                   String scdName = "GENREG SCD Format (*.scd)";
                   String edgeListName = "Edge List Format (*.txt)";
                   String ugvName = "UGV Format (*.ugv)";
+                  String gmlName = "GML Format (*.gml)";
 
-                  FileNameExtensionFilter []extensions = new FileNameExtensionFilter[6];
+                  FileNameExtensionFilter []extensions = new FileNameExtensionFilter[7];
                   extensions[0] = new FileNameExtensionFilter(ascName,"asc");
                   extensions[1] = new FileNameExtensionFilter(graph6Name,"g6");
                   extensions[2] = new FileNameExtensionFilter(hcpName,"hcp");
                   extensions[3] = new FileNameExtensionFilter(scdName,"scd");
                   extensions[4] = new FileNameExtensionFilter(edgeListName,"txt");
                   extensions[5] = new FileNameExtensionFilter(ugvName,"ugv");
+                  extensions[6] = new FileNameExtensionFilter(gmlName, "gml");
 
                   for(int i=0; i<extensions.length; i++)
                   {
@@ -3788,6 +3811,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                      {
                         settings_loadFilter = 5;
                         openGraphUGV(file);
+                     }
+                     else if (extensionName.equals(gmlName)){
+                        settings_loadFilter = 6;
+                        openGraphGML(file);
                      }
 
                      saveSettings();
@@ -4678,6 +4705,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       menuBar.add(windowItem);
 
       setJMenuBar(menuBar);
+
+
+
+
+
+
    }
 
    public void setUndoAvailable(boolean available)
