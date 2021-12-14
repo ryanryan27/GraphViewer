@@ -32,6 +32,8 @@ public class EditEdgesDialog extends JDialog implements ActionListener
       setSize(350,520);
       setResizable(false);
       setLocationRelativeTo(parent);
+
+
    
       String edgeString = "";
       for(int i=0; i<nodes; i++)
@@ -77,6 +79,7 @@ public class EditEdgesDialog extends JDialog implements ActionListener
       editEdgesPanel.add(buttonPane);
    
       getContentPane().add(editEdgesPanel);
+      pack();
       setVisible(true);
    }
    
@@ -157,9 +160,9 @@ public class EditEdgesDialog extends JDialog implements ActionListener
             
          if(numberOfVertices < maximum)
          {
-            jop.showMessageDialog(this,("This edge list requires at least " + maximum + " vertices!"),"Not enough vertices",JOptionPane.ERROR_MESSAGE);
-            return;
-         
+            //jop.showMessageDialog(this,("This edge list requires at least " + maximum + " vertices!"),"Not enough vertices",JOptionPane.ERROR_MESSAGE);
+            //return;
+            numberOfVertices = maximum;
          }
       		
          newNodes = numberOfVertices;

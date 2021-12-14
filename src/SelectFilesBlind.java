@@ -62,7 +62,7 @@
       	
       	
          getContentPane().add(panel);
-      	
+      	 pack();
          setVisible(true);
          setLocationRelativeTo(frame); 
       }

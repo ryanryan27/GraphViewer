@@ -213,7 +213,7 @@
          propertiesPanel.add(bottomButtonPanel);
       
          getContentPane().add(propertiesPanel);
-      
+         pack();
          setVisible(true);
       
       }

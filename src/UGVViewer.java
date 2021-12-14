@@ -1091,7 +1091,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       }
       if(function == BOTTOM_EDITEDGES)
       {
-         GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
+
+         bottomFunctionEditEdges();
+         /*GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
          Graph gr = gp.getGraph();
          int N = gr.getN();
          EditEdgesDialog eed = new EditEdgesDialog(this,gr.getArcs(),gr.getDegrees(),N);
@@ -1108,7 +1110,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             }
             else
                gp.repaint();
-         }
+         }*/
       }
       if(function == BOTTOM_SPRING){
          GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
@@ -1132,6 +1134,27 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       labels[function].setIcon(icons[function][0]);
       repaint();
 
+   }
+
+   public void bottomFunctionEditEdges(){
+      GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
+      Graph gr = gp.getGraph();
+      int N = gr.getN();
+      EditEdgesDialog eed = new EditEdgesDialog(this,gr.getArcs(),gr.getDegrees(),N);
+
+      if(!eed.getCancelled())
+      {
+         gp.setUndoState();
+
+         gr.setArcs(eed.getArcs(),eed.getDegrees(),eed.getNodes(),true);
+         if(eed.getArrangeContour())
+         {
+            gr.createCircle();
+            fitToScreen();
+         }
+         else
+            gp.repaint();
+      }
    }
 
    public GraphPane makeGraphPanel()
@@ -3993,7 +4016,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                            if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".asc"))
                               filename = filename + ".asc";
 
-                           saveGraphASC(filename,graphPane);
+                           saveGraphASC(jfc.getSelectedFile().getParent() + "//" + filename,graphPane);
                         }
                         else if(extensionName.equals(graph6Name))
                         {
@@ -4003,7 +4026,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                               filename = filename + ".g6";
 
 
-                           saveGraph6(filename,graphPane);
+                           saveGraph6(jfc.getSelectedFile().getParent() + "//" + filename,graphPane);
                         }
                         else if(extensionName.equals(hcpName))
                         {
@@ -4012,7 +4035,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                            if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".hcp"))
                               filename = filename + ".hcp";
 
-                           saveGraphHCP(filename,graphPane);
+                           saveGraphHCP(jfc.getSelectedFile().getParent() + "//" + filename,graphPane);
 
                         }
                         else if(extensionName.equals(scdName))
@@ -4022,7 +4045,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                            if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".scd"))
                               filename = filename + ".scd";
 
-                           saveGraphSCD(filename,graphPane);
+                           saveGraphSCD(jfc.getSelectedFile().getParent() + "//" + filename,graphPane);
 
                         }
                         else if(extensionName.equals(edgeListName))
@@ -4032,7 +4055,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                            if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".txt"))
                               filename = filename + ".txt";
 
-                           saveGraphEdgeList(filename,graphPane);
+                           saveGraphEdgeList(jfc.getSelectedFile().getParent() + "//" + filename,graphPane);
 
                         }
                         else if(extensionName.equals(ugvName))
@@ -4041,14 +4064,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                            String filename = jfc.getSelectedFile().getName();
                            if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".ugv"))
                               filename = filename + ".ugv";
-                           saveGraphUGV(filename, graphPane);
+                           saveGraphUGV(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
                         }
                         else if (extensionName.equals(gmlName)){
                            settings_saveFilter = 6;
                            String filename = jfc.getSelectedFile().getName();
                            if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".gml"))
                               filename = filename + ".gml";
-                           saveGraphGML(filename, graphPane);
+                           saveGraphGML(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
                         }
 
                         graphPane.getUndoState().setLastSave();
@@ -4139,7 +4162,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                  if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".asc"))
                                     filename = filename + ".asc";
 
-                                 saveMultipleGraphsASC(filename,graphPanes);
+                                 saveMultipleGraphsASC(jfc.getSelectedFile().getParent() + "//" + filename,graphPanes);
                               }
                               else if(extensionName.equals(graph6Name))
                               {
@@ -4149,7 +4172,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                     filename = filename + ".g6";
 
 
-                                 saveMultipleGraphs6(filename,graphPanes);
+                                 saveMultipleGraphs6(jfc.getSelectedFile().getParent() + "//" + filename,graphPanes);
                               }
                               else if(extensionName.equals(scdName))
                               {
@@ -4158,7 +4181,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                  if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".scd"))
                                     filename = filename + ".scd";
 
-                                 saveMultipleGraphsSCD(filename,graphPanes);
+                                 saveMultipleGraphsSCD(jfc.getSelectedFile().getParent() + "//" + filename,graphPanes);
 
                               }
                               else if(extensionName.equals(ugvName))
@@ -4167,7 +4190,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                  String filename = jfc.getSelectedFile().getName();
                                  if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".ugv"))
                                     filename = filename + ".ugv";
-                                 saveMultipleGraphsUGV(filename, graphPanes);
+                                 saveMultipleGraphsUGV(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes);
                               }
                               else if(extensionName.equals(gmlName))
                               {
@@ -4175,7 +4198,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                  String filename = jfc.getSelectedFile().getName();
                                  if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".gml"))
                                     filename = filename + ".gml";
-                                 saveGraphGML(filename, graphPanes);
+                                 saveGraphGML(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes);
                               }
 
                               for(int i=0; i<graphPanes.length; i++)
@@ -4329,7 +4352,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                }
             });
       exportAsImageFileItem.setMnemonic(KeyEvent.VK_E);
-      exportAsImageFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,InputEvent.CTRL_DOWN_MASK));
+      exportAsImageFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
       exportAsImageFileItem.setEnabled(false);
 
       exitFileItem.addActionListener(
@@ -4521,6 +4544,23 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       domsetItem.setMnemonic(KeyEvent.VK_D);
       domsetItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,InputEvent.CTRL_DOWN_MASK));
 
+      editEdgeItem = new JMenuItem("Edit Edge List");
+      editEdgeItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       bottomFunctionEditEdges();
+
+                    }
+
+                 }
+              });
+      editEdgeItem.setMnemonic(KeyEvent.VK_E);
+      editEdgeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,InputEvent.CTRL_DOWN_MASK));
+
+
+
       solverItem = new JMenuItem("Run Solver");
       solverItem.addActionListener(
               new ActionListener(){
@@ -4549,15 +4589,18 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
       editItem.add(copyItem);
       editItem.add(pasteItem);
+      editItem.addSeparator();
       editItem.add(undoEditItem);
       editItem.add(redoEditItem);
-      editItem.add(checkCrossingsItem);
-
+      editItem.addSeparator();
       editItem.add(growItem);
       editItem.add(shrinkItem);
-
-      editItem.add(gridItem);
+      editItem.addSeparator();
+      //editItem.add(checkCrossingsItem);
+      //editItem.addSeparator();
+      editItem.add(editEdgeItem);
       editItem.add(domsetItem);
+      editItem.add(gridItem);
       editItem.add(solverItem);
 
       editItem.setMnemonic(KeyEvent.VK_E);
@@ -5065,7 +5108,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JMenu windowItem;
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    JMenuItem growItem, shrinkItem;
-   JMenuItem gridItem, domsetItem, solverItem;
+   JMenuItem gridItem, domsetItem, solverItem, editEdgeItem;
 
    JPanel graphEditPane, buttonPane, bottomButtonPane, selectButtonPane;
    JLabel []labels;

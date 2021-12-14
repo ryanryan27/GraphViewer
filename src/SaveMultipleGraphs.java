@@ -108,7 +108,7 @@
          panel.add(selectAllPane);
          panel.add(Box.createVerticalGlue());
       	
-         //firstButton = new JButton("«");
+         //firstButton = new JButton("ï¿½");
          firstButton = new JButton("<<");
          firstButton.setFont(firstButton.getFont().deriveFont(20f));
          firstButton.setText("<<");
@@ -133,7 +133,7 @@
          rightButton.setVerticalTextPosition(JButton.BOTTOM);
          rightButton.addActionListener(this);
       	
-         //lastButton = new JButton("»");
+         //lastButton = new JButton("ï¿½");
          lastButton = new JButton(">>");
          lastButton.setFont(lastButton.getFont().deriveFont(20f));
          lastButton.setText(">>");
@@ -184,6 +184,7 @@
          panel.add(buttonPane);
       
          getContentPane().add(panel);
+         pack();
          setVisible(true);
       }
    

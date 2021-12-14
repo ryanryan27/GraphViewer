@@ -78,6 +78,7 @@ public class SolverDialog extends JDialog implements ActionListener
       arrangePanel.add(buttonPane);
 
       getContentPane().add(arrangePanel);
+      pack();
       setVisible(true);
    }
 

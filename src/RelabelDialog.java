@@ -58,6 +58,7 @@
          relabelPanel.add(bottomPanel);
       	
          getContentPane().add(relabelPanel);
+         pack();
          setVisible(true);
       	
       }

@@ -69,6 +69,7 @@ public class ArrangeGridDialog extends JDialog implements ActionListener
       arrangePanel.add(buttonPane);
 
       getContentPane().add(arrangePanel);
+      pack();
       setVisible(true);
    }
 
