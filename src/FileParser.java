@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -52,9 +50,9 @@ public class FileParser {
                             vertices.get(vertices.size()-1).y = Double.parseDouble(tokens[1]);
                         }
                         break;
-                    case "z":
+                    case "weight":
                         if(!stack.empty() && stack.peek() == 'v'){
-                            vertices.get(vertices.size()-1).dominating = Integer.parseInt(tokens[1]);
+                            vertices.get(vertices.size()-1).dominating = (int)Double.parseDouble(tokens[1]);
                         }
                         break;
                     case "source":
@@ -103,6 +101,7 @@ public class FileParser {
                 g.addEdge(e.source+1, e.target+1);
             }
 
+            br.close();
             return graphs;
 
 
@@ -114,6 +113,78 @@ public class FileParser {
 
         return new Graph[0];
     }
+
+    public void saveGML(Graph[] graphs, File file, boolean append){
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, append));
+
+            for (Graph graph: graphs) {
+                int N = graph.getN();
+
+                writer.newLine();
+                writer.write("graph [");
+                writer.newLine();
+
+                for (int i = 0; i < N; i++) {
+                    writer.write(" node [");
+                    writer.newLine();
+
+                    writer.write("  id " + i);
+                    writer.newLine();
+
+                    writer.write("  x " + graph.getXPos(i));
+                    writer.newLine();
+
+                    writer.write("  y " + graph.getYPos(i));
+                    writer.newLine();
+
+                    writer.write("  weight " + graph.inDomset(i+1));
+                    writer.newLine();
+
+                    writer.write(" ]");
+                    writer.newLine();
+                }
+
+                for (int i = 0; i < N; i++) {
+                    int deg = graph.getDegrees()[i];
+
+                    for (int j = 0; j < deg; j++) {
+                        int target = graph.getArcs()[i][j]-1;
+
+                        if(target > i){
+                            writer.write( "edge [");
+                            writer.newLine();
+
+                            writer.write("  source " + i);
+                            writer.newLine();
+
+                            writer.write("  target " + target);
+                            writer.newLine();
+
+                            writer.write(" ]");
+                            writer.newLine();
+                        }
+                    }
+                }
+
+
+                writer.write("]");
+                writer.newLine();
+            }
+
+            writer.close();
+
+
+        } catch (Exception ex){
+            System.err.println(ex);
+            System.out.println("Bad file.");
+        }
+
+
+    }
+
+
 
     private class Edge {
         int graph;

@@ -1059,6 +1059,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          g.fill(new Rectangle(0,0,(int)Math.round(getSize().getWidth()), (int)Math.round(getSize().getHeight())));
       }
 
+      g.scale(xScale,yScale);
+
+      g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      //g.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+      g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+      g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+
       g.setPaint(defaultColor);
 
       g.setFont(g.getFont().deriveFont((float)textSize));
@@ -1068,7 +1076,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       //Graphics2D g= (Graphics2D)gra;
 
       //	Graphics2D g = new Graphics2D();
-      g.scale(xScale,yScale);
+
 
       //super.paintComponent(g);
 

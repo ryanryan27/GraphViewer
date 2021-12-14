@@ -1063,6 +1063,10 @@ public class Graph
    }
 
    public void setDomValue(int node, int domValue){
+
+      if(domValue > 2) domValue = 0;
+      if(domValue < 0) domValue = 0;
+
       domset[node] = domValue;
    }
 

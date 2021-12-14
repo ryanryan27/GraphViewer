@@ -2395,13 +2395,34 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       FileParser fp = new FileParser();
       Graph[] graphs = fp.parseGML(file);
 
+      boolean[] openGraph = null;
+
+      if(graphs.length > 1) {
+         SelectFiles sf = new SelectFiles(this, file.getName(), graphs.length);
+
+         if (sf.getCancelled())
+            return;
+
+         openGraph = sf.getOpenGraphs();
+      }
       for (int i = 0; i < graphs.length; i++) {
+
+         if(graphs.length > 1 && !openGraph[i]){
+            continue;
+         }
+
          Graph g = graphs[i];
          GraphPane gpane = makeGraphPanel(g);
 
-         tabbedPane.add(gpane, (file.getName() + " #" + (i+1)));
+         String name = file.getName();
+
+         if(graphs.length > 1){
+            name = name + " #" + (i+1);
+         }
+
+         tabbedPane.add(gpane, name);
          tabbedPane.setSelectedIndex(tabbedPane.getTabCount()-1);
-         createWindowItem(gpane,file.getName() + " #" + (i+1));
+         createWindowItem(gpane,name);
 
 
          validate();
@@ -3718,6 +3739,53 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    }
 
 
+   public void saveGraphGML(String filename, GraphPane gp){
+      GraphPane[] gps = new GraphPane[1];
+      gps[0] = gp;
+      saveGraphGML(filename, gps);
+
+   }
+
+   public void saveGraphGML(String filename, GraphPane[] graphPanes){
+
+      File file = new File(filename);
+
+      boolean save = true;
+      boolean append = false;
+
+      if(file.exists())
+      {
+         String []options = new String[3];
+         options[0] = "Overwrite";
+         options[1] = "Append";
+         options[2] = "Cancel";
+
+         JOptionPane jop = new JOptionPane("",JOptionPane.WARNING_MESSAGE);
+         int option = jop.showOptionDialog(parent,"File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?","WARNING: File already exists!",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE,jop.getIcon(),options,options[2]);
+         if(option == JOptionPane.NO_OPTION)
+            append = true;
+         if(option == JOptionPane.CANCEL_OPTION)
+            save = false;
+
+
+      }
+
+      if(!save){
+         return;
+      }
+
+      Graph[] graphs = new Graph[graphPanes.length];
+
+      for (int i = 0; i < graphPanes.length; i++) {
+         graphs[i] = graphPanes[i].getGraph();
+      }
+
+      FileParser fp = new FileParser();
+
+      fp.saveGML(graphs, file, append);
+
+   }
+
 
    public void createMenuBar()
    {
@@ -3885,14 +3953,16 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                      String scdName = "GENREG SCD Format (*.scd)";
                      String edgeListName = "Edge List Format (*.txt)";
                      String ugvName = "UGV Format (*.ugv)";
+                     String gmlName = "GML Format (*.gml)";
 
-                     FileNameExtensionFilter []extensions = new FileNameExtensionFilter[6];
+                     FileNameExtensionFilter []extensions = new FileNameExtensionFilter[7];
                      extensions[0] = new FileNameExtensionFilter(ascName,"asc");
                      extensions[1] = new FileNameExtensionFilter(graph6Name,"g6");
                      extensions[2] = new FileNameExtensionFilter(hcpName,"hcp");
                      extensions[3] = new FileNameExtensionFilter(scdName,"scd");
                      extensions[4] = new FileNameExtensionFilter(edgeListName,"txt");
                      extensions[5] = new FileNameExtensionFilter(ugvName,"ugv");
+                     extensions[6] = new FileNameExtensionFilter(gmlName, "gml");
 
                      /*for(int i=0; i<extensions.length; i++)
                         jfc.setFileFilter(extensions[i]);*/
@@ -3973,6 +4043,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                               filename = filename + ".ugv";
                            saveGraphUGV(filename, graphPane);
                         }
+                        else if (extensionName.equals(gmlName)){
+                           settings_saveFilter = 6;
+                           String filename = jfc.getSelectedFile().getName();
+                           if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".gml"))
+                              filename = filename + ".gml";
+                           saveGraphGML(filename, graphPane);
+                        }
 
                         graphPane.getUndoState().setLastSave();
                         checkSave(tabbedPane.getSelectedIndex());
@@ -4022,12 +4099,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                            String graph6Name = "Graph6 Format (*.g6)";
                            String scdName = "GENREG SCD Format (*.scd)";
                            String ugvName = "UGV Format (*.ugv)";
+                           String gmlName = "GML Format (*.gml)";
 
-                           FileNameExtensionFilter []extensions = new FileNameExtensionFilter[4];
+                           FileNameExtensionFilter []extensions = new FileNameExtensionFilter[5];
                            extensions[0] = new FileNameExtensionFilter(ascName,"asc");
                            extensions[1] = new FileNameExtensionFilter(graph6Name,"g6");
                            extensions[2] = new FileNameExtensionFilter(scdName,"scd");
                            extensions[3] = new FileNameExtensionFilter(ugvName,"ugv");
+                           extensions[4] = new FileNameExtensionFilter(gmlName, "gml");
 
                         /*for(int i=0; i<extensions.length; i++)
                         jfc.setFileFilter(extensions[i]);*/
@@ -4089,6 +4168,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                  if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".ugv"))
                                     filename = filename + ".ugv";
                                  saveMultipleGraphsUGV(filename, graphPanes);
+                              }
+                              else if(extensionName.equals(gmlName))
+                              {
+                                 settings_saveFilter = 6;
+                                 String filename = jfc.getSelectedFile().getName();
+                                 if(filename.length() < 4 || !filename.substring(filename.length()-4).equals(".gml"))
+                                    filename = filename + ".gml";
+                                 saveGraphGML(filename, graphPanes);
                               }
 
                               for(int i=0; i<graphPanes.length; i++)
