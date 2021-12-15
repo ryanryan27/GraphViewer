@@ -4569,13 +4569,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                     if(tabbedPane.getSelectedIndex() != -1){
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
 
-                       SolverDialog sd = new SolverDialog(parent);
+                       SolverDialog sd = new SolverDialog(parent, gp.getGraph());
 
                        if(!sd.getCancelled())
                        {
                           gp.setUndoState();
 
-                          runMILP(sd.getDomtype(), sd.getPreserve());
+                          runMILP(sd.getDomtype(), sd.getFixed());
                           validate();
                           repaint();
                        }
@@ -5051,11 +5051,28 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    }
 
    public void runMILP(int domType, boolean preserve){
+      runMILP(domType, preserve, null);
+   }
+
+   public void runMILP(int domType, int[] fixed){
+      runMILP(domType, false, fixed);
+   }
+
+   public void runMILP(int domType, boolean preserve, int[] fixed){
       if(tabbedPane.getSelectedIndex() != -1) {
          GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
          Graph g = gp.getGraph();
 
-         MILPRunner runner = new MILPRunner(domType, g, preserve);
+         MILPRunner runner;
+
+         if(fixed != null){
+            runner = new MILPRunner(domType, g, fixed);
+         } else if (preserve) {
+            runner = new MILPRunner(domType, g, true);
+         } else {
+            runner = new MILPRunner(domType,g);
+         }
+
          try {
             double[] solution = runner.run();
 

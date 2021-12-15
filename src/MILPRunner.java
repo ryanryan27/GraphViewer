@@ -21,6 +21,8 @@ public class MILPRunner {
     public final static int UPPER_DOMINATION_ALT = 8;
 
 
+    private final int[] fixed;
+
     private IloCplex model;
     private IloNumVar[][] variables;
     private IloRange[][] constraints;
@@ -36,8 +38,19 @@ public class MILPRunner {
         this.graph = graph;
         this.domType = domType;
         this.preserveDom = preserveDom;
+        this.fixed = null;
 
         N= graph.getN();
+        M = graph.getEdgeCount();
+    }
+
+    public MILPRunner(int domType, Graph graph, int[] fixed){
+        this.graph = graph;
+        this.domType = domType;
+        this.fixed = fixed;
+        this.preserveDom = false;
+
+        N = graph.getN();
         M = graph.getEdgeCount();
     }
 
@@ -214,6 +227,20 @@ public class MILPRunner {
             numContraintsEq += domcount;
 
         }
+        else if(fixed != null){
+            domcount = 0;
+
+            for (int i = 0; i < N; i++) {
+                if(fixed[i] == 1 || fixed[i] == -1) {
+                    domcount++;
+                }
+                if((domType == ROMAN_DOMINATION || domType == WEAK_ROMAN_DOMINATION) && (fixed[i] == 2 || fixed[i] == -1)){
+                    domcount++;
+                }
+            }
+
+            numContraintsEq += domcount;
+        }
 
 
         constraints[0] = new IloRange[numContraintsIneq];
@@ -295,6 +322,42 @@ public class MILPRunner {
                 }
             }
 
+        } else if(fixed != null){
+            int count = 0;
+            for (int i = 0; i < N; i++) {
+                if (fixed[i] == 0) {
+                    continue;
+                }
+
+                if(fixed[i] == 2 && !(domType == ROMAN_DOMINATION || domType == WEAK_ROMAN_DOMINATION)){
+                    continue;
+                }
+
+                int vindex = i;
+                int val = fixed[i];
+
+                if(fixed[i] == 2 && (domType == ROMAN_DOMINATION || domType == WEAK_ROMAN_DOMINATION)){
+                    vindex = i + N;
+                }
+
+                if(fixed[i] == -1){
+                    val = 0;
+
+                }
+
+                IloNumExpr constr = model.prod(1, variables[0][vindex]);
+                int index = constraints[1].length - domcount + count;
+                constraints[1][index] = model.addEq(constr, val);
+                count++;
+
+                if(fixed[i] == -1 && (domType == ROMAN_DOMINATION || domType == WEAK_ROMAN_DOMINATION)){
+                    constr = model.prod(1, variables[0][vindex+N]);
+                    index = constraints[1].length - domcount + count;
+                    constraints[1][index] = model.addEq(constr, 0);
+                    count++;
+                }
+
+            }
         }
 
     }

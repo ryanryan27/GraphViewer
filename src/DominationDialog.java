@@ -34,8 +34,11 @@ public class DominationDialog extends JDialog implements ActionListener
       StringBuilder domstring = new StringBuilder();
 
       for (int i = 0; i < domsetorig.length; i++) {
-         if(domset[i] > 0) {
+         if(domset[i] == 1) {
             domstring.append(i + 1);
+            domstring.append(" ");
+         } else if(domset[i] == 2){
+            domstring.append(-1*(i+1));
             domstring.append(" ");
          }
       }
@@ -59,7 +62,7 @@ public class DominationDialog extends JDialog implements ActionListener
       JPanel arrangePanel = new JPanel();
       arrangePanel.setLayout(new VerticalLayout(0));
 
-      arrangePanel.add(new JLabel("Edit dominating set below"));
+      arrangePanel.add(new JLabel("Edit dominating set below. A negative index indicates two guards at a vertex."));
       arrangePanel.add(scrollPane);
       arrangePanel.add(buttonPane);
 
@@ -89,7 +92,11 @@ public class DominationDialog extends JDialog implements ActionListener
                }
                int v = Integer.parseInt(verts[i]);
 
-               domset[v - 1] = 1;
+               if(v < 0){
+                  domset[v*-1 -1] = 2;
+               } else {
+                  domset[v - 1] = 1;
+               }
             }
 
             cancelled = false;
