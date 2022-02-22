@@ -1621,6 +1621,28 @@ public class Graph
 
    }
 
+   public double[] getBottomRight(){
+      if(N == 0) return new double[2];
+
+      double[] bottomRight = {-1*Integer.MAX_VALUE, -1*Integer.MAX_VALUE};
+
+      for (int i = 0; i < N; i++) {
+         if(nodePosX[i] > bottomRight[0]){
+            bottomRight[0] = nodePosX[i];
+
+         }
+         if(nodePosY[i] > bottomRight[1]){
+            bottomRight[1] = nodePosY[i];
+         }
+
+      }
+
+
+      return bottomRight;
+
+
+   }
+
    public void rescale(double scale){
 
       for (int i = 0; i < N; i++) {

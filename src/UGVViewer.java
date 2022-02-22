@@ -882,7 +882,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
       //cancel spring timer here
       GraphPane gp = ((GraphPane)tabbedPane.getSelectedComponent());
-      gp.cancelSpring();
+      if(gp != null) {
+         gp.cancelSpring();
+      }
    }
 
    public void mouseReleased(MouseEvent e)
@@ -4355,6 +4357,29 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       exportAsImageFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
       exportAsImageFileItem.setEnabled(false);
 
+
+      texItem = new JMenuItem("Export to Tex");
+      texItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1)
+                    {
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+                       Graph g = gp.getGraph();
+
+                       TexDialog td = new TexDialog(parent, g);
+                    }
+                 }
+              });
+      texItem.setMnemonic(KeyEvent.VK_T);
+      texItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,InputEvent.CTRL_DOWN_MASK));
+
+
+
+
+
       exitFileItem.addActionListener(
             new ActionListener(){
                public void actionPerformed(ActionEvent e)
@@ -4374,6 +4399,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       fileItem.add(saveMultipleGraphsFileItem);
       fileItem.addSeparator();
       fileItem.add(exportAsImageFileItem);
+      fileItem.add(texItem);
       fileItem.addSeparator();
       fileItem.add(exitFileItem);
       fileItem.setMnemonic(KeyEvent.VK_F);
@@ -5123,6 +5149,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JCheckBoxMenuItem domRomanItem;
    JCheckBoxMenuItem domWeakRomanItem;
    JMenu windowItem;
+   JMenuItem texItem;
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    JMenuItem growItem, shrinkItem;
    JMenuItem gridItem, domsetItem, solverItem, editEdgeItem;
