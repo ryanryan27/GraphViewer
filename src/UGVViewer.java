@@ -4503,8 +4503,11 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
                        gp.setUndoState();
                        Graph g = gp.getGraph();
-                       g.rescaleSelected(1.1);
+                       //g.rescaleSelected(1.1);
 
+                       double[] gridData = gp.getGridData();
+
+                       g.alignToGrid(gridData[0], gridData[1], gridData[2]);
                        validate();
                        repaint();
 

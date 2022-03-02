@@ -1692,23 +1692,32 @@ public class Graph
 
    }
 
-   public void alignToGrid(int spacing){
+   public void alignToGrid(double spacing){
       boolean[] all = new boolean[N];
       Arrays.fill(all, true);
 
-      alignToGrid(spacing, all);
+      alignToGrid(spacing, all, 0, 0);
    }
 
-   public void alignToGrid(int spacing, boolean[] toAlign){
+   public void alignToGrid(double spacing, double offsetX, double offsetY){
+      boolean[] all = new boolean[N];
+      Arrays.fill(all, true);
+
+      alignToGrid(spacing, all, offsetX, offsetY);
+   }
+
+   public void alignToGrid(double spacing, boolean[] toAlign, double offsetX, double offsetY){
 
       for (int i = 0; i < N; i++) {
          if(toAlign[i]){
-            nodePosX[i] = Math.round(nodePosX[i]/spacing)*spacing;
-            nodePosY[i] = Math.round(nodePosY[i]/spacing)*spacing;
+            nodePosX[i] = Math.round((nodePosX[i]-offsetX)/spacing)*spacing + offsetX;
+            nodePosY[i] = Math.round((nodePosY[i]-offsetX)/spacing)*spacing + offsetY;
          }
       }
 
 
    }
+
+
 
 }

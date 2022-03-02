@@ -23,7 +23,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    int mouseOffsetY = 53; //53
 
    //this affects the drawing position when you are creating edges or vertices
-   int mouseOffsetX2 = 2;
+   int mouseOffsetX2 = 4;
    int mouseOffsetY2 = 2;
 
    UndoRedo undoState;
@@ -120,6 +120,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    boolean displayVertexLabels = true;
 
+
+
+   boolean snapToGrid = false;
+   boolean showGridlines = true;
+   double gridSpacing = 50;
+   double gridOffsetX = 10;
+   double gridOffsetY = 5;
+
    //
 
    UGVViewer parent;
@@ -176,6 +184,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                	yScale = 10;*/
 
 
+                    //int mouseX = (int)Math.round((MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2)/xScale);
+                    //int mouseY = (int)Math.round((MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2)/yScale);
 
                     xTopLeft = xTopLeft + (int)Math.round((e.getX()-mouseOffsetX)/oldxScale - (e.getX()-mouseOffsetX)/xScale);
                     yTopLeft = yTopLeft + (int)Math.round((e.getY()-mouseOffsetY)/oldyScale - (e.getY()-mouseOffsetY)/yScale);
@@ -421,8 +431,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                graph.setN(graph.getN()+1);
                             /*graph.setXPos(graph.getN()-1,(int)Math.round((e.getX()-mouseOffsetX)/xScale + xTopLeft - radius));
                            graph.setYPos(graph.getN()-1,(int)Math.round((e.getY()-mouseOffsetY)/yScale + yTopLeft - radius));*/
-               graph.setXPos(graph.getN()-1,((e.getX()-mouseOffsetX)/xScale + xTopLeft));
-               graph.setYPos(graph.getN()-1,((e.getY()-mouseOffsetY)/yScale + yTopLeft));
+
+               double vertX = ((e.getX()-mouseOffsetX)/xScale + xTopLeft);
+               double vertY = ((e.getY()-mouseOffsetY)/yScale + yTopLeft);
+
+               if(snapToGrid){
+                  vertX = Math.round((vertX-gridOffsetX)/gridSpacing)*gridSpacing + gridOffsetX;
+                  vertY = Math.round((vertY-gridOffsetY)/gridSpacing)*gridSpacing + gridOffsetY;
+               }
+
+
+               graph.setXPos(graph.getN()-1,vertX);
+               graph.setYPos(graph.getN()-1,vertY);
 
 
 
@@ -648,6 +668,13 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                double newX = xTopLeft +  ((e.getX()-mouseOffsetX)/xScale-offsetX);
                double newY = yTopLeft +  ((e.getY()-mouseOffsetY)/yScale-offsetY);
 
+               if(snapToGrid){
+
+                  newX = Math.round((newX-gridOffsetX)/gridSpacing)*gridSpacing + gridOffsetX;
+                  newY = Math.round((newY-gridOffsetY)/gridSpacing)*gridSpacing + gridOffsetY;
+               }
+
+
                graph.setXPos(nodeSelected, newX);
                graph.setYPos(nodeSelected, newY);
 
@@ -662,8 +689,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             {
                boolean []newSelected = new boolean[graph.getN()];
                graph.setSelected(newSelected);
-               graph.setXPos(nodeSelected, xTopLeft + ( (e.getX()-mouseOffsetX)/xScale-offsetX));
-               graph.setYPos(nodeSelected, yTopLeft + ( (e.getY()-mouseOffsetY)/yScale-offsetY));
+
+               double newX = xTopLeft +  ((e.getX()-mouseOffsetX)/xScale-offsetX);
+               double newY = yTopLeft +  ((e.getY()-mouseOffsetY)/yScale-offsetY);
+
+               if(snapToGrid){
+
+                  newX = Math.round((newX-gridOffsetX)/gridSpacing)*gridSpacing + gridOffsetX;
+                  newY = Math.round((newY-gridOffsetY)/gridSpacing)*gridSpacing + gridOffsetY;
+               }
+
+               graph.setXPos(nodeSelected, newX);
+               graph.setYPos(nodeSelected, newY);
             }
          }
       }
@@ -1083,6 +1120,37 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
       if(graph != null)
       {
+
+
+         //draw the gridlines here
+
+         if(showGridlines) {
+
+            //find boundary af drawn area
+
+            Rectangle boundingBox = new Rectangle(0, 0, (int) (getSize().getWidth()/xScale ), (int) (getSize().getHeight()/xScale ));
+
+
+
+            //find where first vertical line goes, and how many
+            double startX = boundingBox.x - gridSpacing - (boundingBox.x - gridOffsetX + xTopLeft) % (gridSpacing);
+            int numLinesX =  3 + (int) Math.floor((boundingBox.x + boundingBox.width) / gridSpacing) - (int) Math.floor(boundingBox.x / gridSpacing);
+
+            //find where first horizontal line goes, and how many
+            double startY = boundingBox.y -gridSpacing - (boundingBox.y - gridOffsetY + yTopLeft) % (gridSpacing);
+            int numLinesY = 3 + (int) Math.floor((boundingBox.y + boundingBox.height) / gridSpacing) - (int) Math.floor(boundingBox.y / gridSpacing);
+
+            //draw the lines
+            g.setColor(Color.lightGray);
+            for (int i = 0; i < numLinesX; i++) {
+               g.drawLine((int) (startX + i * gridSpacing), boundingBox.y - (int)gridSpacing, (int) (startX + i * gridSpacing), boundingBox.y + boundingBox.height + (int)gridSpacing);
+            }
+            for (int i = 0; i < numLinesY; i++) {
+               g.drawLine(boundingBox.x - (int)gridSpacing, (int) (startY + i * gridSpacing), boundingBox.x + boundingBox.width + (int)gridSpacing, (int) (startY + i * gridSpacing));
+            }
+
+         }
+
 
 
 
@@ -1519,9 +1587,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          }
 
 
-         if(startedCreatingVertex)
-            g.drawOval(Math.round(mouseX - radius),Math.round(mouseY - radius),2*radius,2*radius);
+         if(startedCreatingVertex) {
 
+            double newVertX = mouseX -radius;
+            double newVertY = mouseY - radius;
+
+            if(snapToGrid){
+               newVertX = Math.round((newVertX-gridOffsetX)/gridSpacing)*gridSpacing + gridOffsetX;
+               newVertY = Math.round((newVertY-gridOffsetY)/gridSpacing)*gridSpacing + gridOffsetY;
+            }
+
+            g.drawOval((int)Math.round(newVertX), (int)Math.round(newVertY), 2 * radius, 2 * radius);
+         }
          if(edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1)
          {
             //System.out.println("Got here " + edgeHighlighted[0] + " " +edgeHighlighted[1]);
@@ -2102,6 +2179,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       setUndoState();
       graph.addSubgraph(g, xTopLeft+2*radius, yTopLeft+2*radius, 1);
 
+   }
+
+   public double[] getGridData(){
+
+      return new double[] {gridSpacing, gridOffsetX, gridOffsetY};
    }
 
 
