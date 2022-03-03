@@ -23,8 +23,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    int mouseOffsetY = 53; //53
 
    //this affects the drawing position when you are creating edges or vertices
-   int mouseOffsetX2 = 4;
-   int mouseOffsetY2 = 2;
+   int mouseOffsetX2 = 0;
+   int mouseOffsetY2 = 0;
 
    UndoRedo undoState;
 
@@ -92,8 +92,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    final int SCISSORS_OPTION = 3;
    final int RELABEL_OPTION = 4;
    final int DOM_OPTION = 5;
-   final int SELECT_OPTION = 10;
-   final int ROTATE_OPTION = 11;
+   final int GRID_OPTION = 6;
+   final int SELECT_OPTION = 11;
+   final int ROTATE_OPTION = 12;
 
 
    final int SCISSORS_DISTANCE = 15;
@@ -123,10 +124,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
    boolean snapToGrid = false;
-   boolean showGridlines = true;
+   boolean showGridlines = false;
    double gridSpacing = 50;
-   double gridOffsetX = 10;
-   double gridOffsetY = 5;
+   double gridOffsetX = 0;
+   double gridOffsetY = 0;
 
    //
 
@@ -157,39 +158,33 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       addMouseListener(this);
 
       addMouseWheelListener(
-              new MouseWheelListener(){
-                 public void mouseWheelMoved(MouseWheelEvent e)
-                 {
+              new MouseWheelListener() {
+                 public void mouseWheelMoved(MouseWheelEvent e) {
                     int rotation = e.getWheelRotation();
-                  
-                  /*
-               	xScale -= rotation/10.0;
-                  yScale -= rotation/10.0;
-                  */
 
-                    double oldxScale = xScale;
-                    double oldyScale = yScale;
-
-                    xScale *= (1 - rotation/6.0);
-                    yScale *= (1 - rotation/6.0);
-                  
-               	/*if(xScale < 0.1)
-               	xScale = 0.1;
-               	if(yScale < 0.5)
-               	yScale = 0.1;
-               	
-               	if(xScale > 10)
-               	xScale = 10;
-               	if(yScale > 10)
-               	yScale = 10;*/
+                    if(selectedOption == GRID_OPTION) {
 
 
-                    //int mouseX = (int)Math.round((MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2)/xScale);
-                    //int mouseY = (int)Math.round((MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2)/yScale);
 
-                    xTopLeft = xTopLeft + (int)Math.round((e.getX()-mouseOffsetX)/oldxScale - (e.getX()-mouseOffsetX)/xScale);
-                    yTopLeft = yTopLeft + (int)Math.round((e.getY()-mouseOffsetY)/oldyScale - (e.getY()-mouseOffsetY)/yScale);
+                       gridSpacing = Math.max(gridSpacing*(1 - rotation / 6.0), 5.0);
+                       gridSpacing = Math.min(gridSpacing, 500);
 
+
+                    }
+                    else{
+                       double oldxScale = xScale;
+                       double oldyScale = yScale;
+
+                       xScale *= (1 - rotation / 6.0);
+                       yScale *= (1 - rotation / 6.0);
+
+
+                       int mouseX = (int) Math.round((MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2));
+                       int mouseY = (int) Math.round((MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - mouseOffsetY2));
+
+                       xTopLeft = xTopLeft + (int) Math.round(mouseX / oldxScale - (mouseX) / xScale);
+                       yTopLeft = yTopLeft + (int) Math.round((mouseY) / oldyScale - (mouseY) / yScale);
+                    }
 
                     repaint();
                  }
@@ -277,8 +272,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          leftButtonPressed = true;
          if(rightButtonPressed && nodeSelected == -1)
             setCursor(new Cursor(Cursor.MOVE_CURSOR));
-         xClicked = (e.getX()-mouseOffsetX);
-         yClicked = (e.getY()-mouseOffsetY);
+
+         xClicked = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2);//(e.getX()-mouseOffsetX);
+         yClicked = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2);//(e.getY()-mouseOffsetY);
          //System.out.println("Button 1 pressed");
       }
       if(e.getButton() == MouseEvent.BUTTON3)
@@ -287,14 +283,19 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          rightButtonPressed = true;
          if(leftButtonPressed && nodeSelected == -1)
             setCursor(new Cursor(Cursor.MOVE_CURSOR));
-         xClicked = (e.getX()-mouseOffsetX);
-         yClicked = (e.getY()-mouseOffsetY);
+         xClicked = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2);//(e.getX()-mouseOffsetX);
+         yClicked = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2);//(e.getY()-mouseOffsetY);
          //System.out.println("Button 2 pressed");
+
+
+
       }
       if(graph != null)
       {
-         int xPos = (e.getX()-mouseOffsetX);
-         int yPos = (e.getY()-mouseOffsetY);
+
+
+         int xPos = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2);//(e.getX()-mouseOffsetX);
+         int yPos = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2);//(e.getY()-mouseOffsetY);
 
          if(e.getButton() == MouseEvent.BUTTON1)
          {
@@ -359,8 +360,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                           @Override
                           public void run() {
                              //System.out.println("Testing"+e.getX());
-                             rotateX = ((e.getX()-mouseOffsetX)/xScale + xTopLeft);
-                             rotateY = ((e.getY()-mouseOffsetY)/yScale + yTopLeft);
+
+
+
+                             rotateX = (xPos/xScale + xTopLeft);
+                             rotateY = (yPos/yScale + yTopLeft);
                              rotate();
                           }
                        },0,1);
@@ -412,6 +416,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
       if(e.getButton() == MouseEvent.BUTTON1)
       {
+
+         int xPos = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2);//(e.getX()-mouseOffsetX);
+         int yPos = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2);//(e.getY()-mouseOffsetY);
+
          if(selectedOption == DEFAULT_OPTION)
          {
             if(nodeSelected != -1)
@@ -432,8 +440,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                             /*graph.setXPos(graph.getN()-1,(int)Math.round((e.getX()-mouseOffsetX)/xScale + xTopLeft - radius));
                            graph.setYPos(graph.getN()-1,(int)Math.round((e.getY()-mouseOffsetY)/yScale + yTopLeft - radius));*/
 
-               double vertX = ((e.getX()-mouseOffsetX)/xScale + xTopLeft);
-               double vertY = ((e.getY()-mouseOffsetY)/yScale + yTopLeft);
+               double vertX = (xPos/xScale + xTopLeft);
+               double vertY = (yPos/yScale + yTopLeft);
 
                if(snapToGrid){
                   vertX = Math.round((vertX-gridOffsetX)/gridSpacing)*gridSpacing + gridOffsetX;
@@ -591,7 +599,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             if(startedSelection)
             {
                int leftX = (int)Math.round(xTopLeft + (xClicked)/xScale);
-               int rightX = (int)Math.round(xTopLeft + (e.getX()-mouseOffsetX)/xScale);
+               int rightX = (int)Math.round(xTopLeft + (xPos)/xScale);
                if(leftX > rightX)
                {
                   int temp = leftX;
@@ -600,7 +608,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                }
 
                int bottomY = (int)Math.round(yTopLeft + (yClicked)/yScale);
-               int topY = (int)Math.round(yTopLeft + (e.getY()-mouseOffsetY)/yScale);
+               int topY = (int)Math.round(yTopLeft + (yPos)/yScale);
                if(bottomY > topY)
                {
                   int temp = bottomY;
@@ -654,6 +662,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
    public void mouseDragged(MouseEvent e)
    {
+
+      int xPos = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2);//(e.getX()-mouseOffsetX);
+      int yPos = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2);//(e.getY()-mouseOffsetY);
+
       if(selectedOption == DEFAULT_OPTION)
       {
          if(nodeSelected != -1)
@@ -665,8 +677,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                double origX = graph.getXPos(nodeSelected);
                double origY = graph.getYPos(nodeSelected);
 
-               double newX = xTopLeft +  ((e.getX()-mouseOffsetX)/xScale-offsetX);
-               double newY = yTopLeft +  ((e.getY()-mouseOffsetY)/yScale-offsetY);
+               double newX = xTopLeft +  ((xPos)/xScale-offsetX);
+               double newY = yTopLeft +  ((yPos)/yScale-offsetY);
 
                if(snapToGrid){
 
@@ -690,8 +702,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                boolean []newSelected = new boolean[graph.getN()];
                graph.setSelected(newSelected);
 
-               double newX = xTopLeft +  ((e.getX()-mouseOffsetX)/xScale-offsetX);
-               double newY = yTopLeft +  ((e.getY()-mouseOffsetY)/yScale-offsetY);
+               double newX = xTopLeft +  ((xPos)/xScale-offsetX);
+               double newY = yTopLeft +  ((yPos)/yScale-offsetY);
 
                if(snapToGrid){
 
@@ -708,8 +720,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       {
          if(nodeSelectedForEdge != -1)
          {
-            int xPos = (e.getX()-mouseOffsetX);
-            int yPos = (e.getY()-mouseOffsetY);
+            //int xPos = (e.getX()-mouseOffsetX);
+            //int yPos = (e.getY()-mouseOffsetY);
             //System.out.println("Mouse moved, pos: (" + xPos + "," + yPos + ")");
 
             nodeHighlighted = -1;
@@ -729,8 +741,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
       if(selectedOption == SCISSORS_OPTION)
       {
-         int xPos = (e.getX()-mouseOffsetX);
-         int yPos = (e.getY()-mouseOffsetY);
+         //int xPos = (e.getX()-mouseOffsetX);
+         //int yPos = (e.getY()-mouseOffsetY);
          double xScreen = xPos/xScale + xTopLeft;
          double yScreen = yPos/yScale + yTopLeft;
 
@@ -838,8 +850,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                     new TimerTask() {
                        @Override
                        public void run() {
-                          rotateX = ((e.getX()-mouseOffsetX)/xScale + xTopLeft);
-                          rotateY = ((e.getY()-mouseOffsetY)/yScale + yTopLeft);
+                          rotateX = ((xPos)/xScale + xTopLeft);
+                          rotateY = ((yPos)/yScale + yTopLeft);
                           rotate();
                        }
                     },0,1);
@@ -850,13 +862,20 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
          }
 
 
-      if(leftButtonPressed && rightButtonPressed)
+      if(selectedOption == GRID_OPTION){
+         gridOffsetX = gridOffsetX + (int)Math.round(1*((xPos)/xScale - xClicked/xScale));
+         gridOffsetY = gridOffsetY + (int)Math.round(1*((yPos)/yScale - yClicked/yScale));
+         xClicked = (xPos);
+         yClicked = (yPos);
+      }
+
+      if((leftButtonPressed && rightButtonPressed) || (selectedOption == DEFAULT_OPTION && nodeSelected == -1))
       {
 
-         xTopLeft = xTopLeft - (int)Math.round(1*((e.getX()-mouseOffsetX)/xScale - xClicked/xScale));
-         yTopLeft = yTopLeft - (int)Math.round(1*((e.getY()-mouseOffsetY)/yScale - yClicked/yScale));
-         xClicked = (e.getX()-mouseOffsetX);
-         yClicked = (e.getY()-mouseOffsetY);
+         xTopLeft = xTopLeft - (int)Math.round(1*((xPos)/xScale - xClicked/xScale));
+         yTopLeft = yTopLeft - (int)Math.round(1*((yPos)/yScale - yClicked/yScale));
+         xClicked = (xPos);
+         yClicked = (yPos);
       }
       mouseMoved(e);
       repaint();
@@ -867,8 +886,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
       if(selectedOption == DEFAULT_OPTION || selectedOption == EDGE_OPTION || selectedOption == ERASER_OPTION || selectedOption == RELABEL_OPTION || selectedOption == DOM_OPTION)
       {
-         int xPos = (e.getX()-mouseOffsetX);
-         int yPos = (e.getY()-mouseOffsetY);
+         int xPos = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2);//(e.getX()-mouseOffsetX);
+         int yPos = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2);//(e.getY()-mouseOffsetY);
          //System.out.println("Mouse moved, pos: (" + xPos + "," + yPos + ")");
 
 
@@ -893,8 +912,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
       }
       if(selectedOption == SCISSORS_OPTION)
       {
-         int xPos = (e.getX()-mouseOffsetX);
-         int yPos = (e.getY()-mouseOffsetY);
+         int xPos = (MouseInfo.getPointerInfo().getLocation().x-getLocationOnScreen().x-mouseOffsetX2);//(e.getX()-mouseOffsetX);
+         int yPos = (MouseInfo.getPointerInfo().getLocation().y-getLocationOnScreen().y-mouseOffsetY2);//(e.getY()-mouseOffsetY);
          double xScreen = xPos/xScale + xTopLeft;
          double yScreen = yPos/yScale + yTopLeft;
 
@@ -1589,15 +1608,15 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
          if(startedCreatingVertex) {
 
-            double newVertX = mouseX -radius;
-            double newVertY = mouseY - radius;
+            double newVertX = mouseX;
+            double newVertY = mouseY;
 
             if(snapToGrid){
-               newVertX = Math.round((newVertX-gridOffsetX)/gridSpacing)*gridSpacing + gridOffsetX;
-               newVertY = Math.round((newVertY-gridOffsetY)/gridSpacing)*gridSpacing + gridOffsetY;
+               newVertX = Math.round((newVertX + xTopLeft -gridOffsetX)/gridSpacing)*gridSpacing + gridOffsetX -xTopLeft;
+               newVertY = Math.round((newVertY + yTopLeft -gridOffsetY)/gridSpacing)*gridSpacing + gridOffsetY -yTopLeft;
             }
 
-            g.drawOval((int)Math.round(newVertX), (int)Math.round(newVertY), 2 * radius, 2 * radius);
+            g.drawOval((int)Math.round(newVertX)-radius, (int)Math.round(newVertY)-radius, 2 * radius, 2 * radius);
          }
          if(edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1)
          {
@@ -2184,6 +2203,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    public double[] getGridData(){
 
       return new double[] {gridSpacing, gridOffsetX, gridOffsetY};
+   }
+
+   public void setGridlines(boolean gridlines){
+      showGridlines = gridlines;
+   }
+
+   public void setSnapToGrid(boolean snap){
+      snapToGrid = snap;
    }
 
 

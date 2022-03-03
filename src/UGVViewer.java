@@ -275,12 +275,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       toolTipsForLabels[3] = "Delete edge";
       toolTipsForLabels[4] = "Relabel vertex";
       toolTipsForLabels[5] = "Toggle dominating set";
-      toolTipsForLabels[6] = "Arrange vertices into a circle";
-      toolTipsForLabels[7] = "Check graph properties";
-      toolTipsForLabels[8] = "Edit edge list";
-      toolTipsForLabels[9] = "Spring layout";
-      toolTipsForLabels[10] = "Select vertices";
-      toolTipsForLabels[11] = "Rotate vertices";
+      toolTipsForLabels[6] = "Modify Gridlines";
+      toolTipsForLabels[7] = "Arrange vertices into a circle";
+      toolTipsForLabels[8] = "Check graph properties";
+      toolTipsForLabels[9] = "Edit edge list";
+      toolTipsForLabels[10] = "Spring layout";
+      toolTipsForLabels[11] = "Select vertices";
+      toolTipsForLabels[12] = "Rotate vertices";
 
 
       icons = new ImageIcon[choices+bottomChoices+selectChoices][4];
@@ -317,35 +318,40 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       icons[5][2] = new ImageIcon("pics/dom_select.png");
       icons[5][3] = new ImageIcon("pics/dom_chosen.png");
 
-      icons[6][0] = new ImageIcon("pics/arrange.png");
-      icons[6][1] = new ImageIcon("pics/arrange_highlight.png");
-      icons[6][2] = new ImageIcon("pics/arrange_select.png");
-      icons[6][3] = new ImageIcon("pics/arrange_chosen.png");
+      icons[6][0] = new ImageIcon("pics/grid.png");
+      icons[6][1] = new ImageIcon("pics/grid_highlight.png");
+      icons[6][2] = new ImageIcon("pics/grid_select.png");
+      icons[6][3] = new ImageIcon("pics/grid_chosen.png");
 
-      icons[7][0] = new ImageIcon("pics/properties.png");
-      icons[7][1] = new ImageIcon("pics/properties_highlight.png");
-      icons[7][2] = new ImageIcon("pics/properties_select.png");
-      icons[7][3] = new ImageIcon("pics/properties_chosen.png");
+      icons[7][0] = new ImageIcon("pics/arrange.png");
+      icons[7][1] = new ImageIcon("pics/arrange_highlight.png");
+      icons[7][2] = new ImageIcon("pics/arrange_select.png");
+      icons[7][3] = new ImageIcon("pics/arrange_chosen.png");
 
-      icons[8][0] = new ImageIcon("pics/editedges.png");
-      icons[8][1] = new ImageIcon("pics/editedges_highlight.png");
-      icons[8][2] = new ImageIcon("pics/editedges_select.png");
-      icons[8][3] = new ImageIcon("pics/editedges_chosen.png");
+      icons[8][0] = new ImageIcon("pics/properties.png");
+      icons[8][1] = new ImageIcon("pics/properties_highlight.png");
+      icons[8][2] = new ImageIcon("pics/properties_select.png");
+      icons[8][3] = new ImageIcon("pics/properties_chosen.png");
 
-      icons[9][0] = new ImageIcon("pics/spring.png");
-      icons[9][1] = new ImageIcon("pics/spring_highlight.png");
-      icons[9][2] = new ImageIcon("pics/spring_select.png");
-      icons[9][3] = new ImageIcon("pics/spring_chosen.png");
+      icons[9][0] = new ImageIcon("pics/editedges.png");
+      icons[9][1] = new ImageIcon("pics/editedges_highlight.png");
+      icons[9][2] = new ImageIcon("pics/editedges_select.png");
+      icons[9][3] = new ImageIcon("pics/editedges_chosen.png");
 
-      icons[10][0] = new ImageIcon("pics/select.png");
-      icons[10][1] = new ImageIcon("pics/select_highlight.png");
-      icons[10][2] = new ImageIcon("pics/select_select.png");
-      icons[10][3] = new ImageIcon("pics/select_chosen.png");
+      icons[10][0] = new ImageIcon("pics/spring.png");
+      icons[10][1] = new ImageIcon("pics/spring_highlight.png");
+      icons[10][2] = new ImageIcon("pics/spring_select.png");
+      icons[10][3] = new ImageIcon("pics/spring_chosen.png");
 
-      icons[11][0] = new ImageIcon("pics/rotate.png");
-      icons[11][1] = new ImageIcon("pics/rotate_highlight.png");
-      icons[11][2] = new ImageIcon("pics/rotate_select.png");
-      icons[11][3] = new ImageIcon("pics/rotate_chosen.png");
+      icons[11][0] = new ImageIcon("pics/select.png");
+      icons[11][1] = new ImageIcon("pics/select_highlight.png");
+      icons[11][2] = new ImageIcon("pics/select_select.png");
+      icons[11][3] = new ImageIcon("pics/select_chosen.png");
+
+      icons[12][0] = new ImageIcon("pics/rotate.png");
+      icons[12][1] = new ImageIcon("pics/rotate_highlight.png");
+      icons[12][2] = new ImageIcon("pics/rotate_select.png");
+      icons[12][3] = new ImageIcon("pics/rotate_chosen.png");
 
       highlighted = new boolean[choices+bottomChoices+selectChoices];
       pressed = new boolean[choices+bottomChoices+selectChoices];
@@ -4503,11 +4509,11 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
                        gp.setUndoState();
                        Graph g = gp.getGraph();
-                       //g.rescaleSelected(1.1);
+                       g.rescaleSelected(1.1);
 
-                       double[] gridData = gp.getGridData();
+                       //double[] gridData = gp.getGridData();
+                       //g.alignToGrid(gridData[0], gridData[1], gridData[2]);
 
-                       g.alignToGrid(gridData[0], gridData[1], gridData[2]);
                        validate();
                        repaint();
 
@@ -4517,6 +4523,29 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
               });
       shrinkItem.setMnemonic(KeyEvent.VK_K);
       shrinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,InputEvent.CTRL_DOWN_MASK));
+
+      snapGridItem = new JMenuItem("Snap to Grid");
+      snapGridItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                       gp.setUndoState();
+                       Graph g = gp.getGraph();
+
+
+                       double[] gridData = gp.getGridData();
+                       g.alignToGrid(gridData[0], gridData[1], gridData[2]);
+
+                       validate();
+                       repaint();
+
+                    }
+
+                 }
+              });
+      snapGridItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH,InputEvent.CTRL_DOWN_MASK));
 
       gridItem = new JMenuItem("Arrange Grid");
       gridItem.addActionListener(
@@ -4624,6 +4653,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       editItem.addSeparator();
       editItem.add(growItem);
       editItem.add(shrinkItem);
+      editItem.add(snapGridItem);
       editItem.addSeparator();
       //editItem.add(checkCrossingsItem);
       //editItem.addSeparator();
@@ -4806,6 +4836,36 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       domRomanItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5,InputEvent.CTRL_DOWN_MASK));
 
 
+
+      gridlinesItem = new JCheckBoxMenuItem("Show Gridlines");
+      gridlinesItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1)
+                    {
+                       ((GraphPane)tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
+                       ((GraphPane)tabbedPane.getSelectedComponent()).repaint();
+                    }
+                 }
+              });
+      gridlinesItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD,InputEvent.CTRL_DOWN_MASK));
+
+      gridSnapItem = new JCheckBoxMenuItem("Snap vertices to gridlines");
+      gridSnapItem.addActionListener(
+              new ActionListener(){
+                 public void actionPerformed(ActionEvent e)
+                 {
+                    if(tabbedPane.getSelectedIndex() != -1)
+                    {
+                       ((GraphPane)tabbedPane.getSelectedComponent()).setSnapToGrid(gridSnapItem.getState());
+                       ((GraphPane)tabbedPane.getSelectedComponent()).repaint();
+                    }
+                 }
+              });
+      gridSnapItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA,InputEvent.CTRL_DOWN_MASK));
+
+
       displayDominationTypeMenu.add(domTotalItem);
       displayDominationTypeMenu.add(domConnectedItem);
       displayDominationTypeMenu.add(domSecureItem);
@@ -4815,6 +4875,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       viewItem.add(fitToScreenItem);
       viewItem.add(displayVertexLabelsItem);
       viewItem.add(colourSettingsItem);
+      viewItem.add(gridlinesItem);
+      viewItem.add(gridSnapItem);
       viewItem.add(displayCrossingsItem);
       viewItem.add(displayDominationItem);
       viewItem.add(displayDominationTypeMenu);
@@ -5156,6 +5218,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    JMenuItem growItem, shrinkItem;
    JMenuItem gridItem, domsetItem, solverItem, editEdgeItem;
+   JCheckBoxMenuItem gridlinesItem, gridSnapItem;
+   JMenuItem snapGridItem;
 
    JPanel graphEditPane, buttonPane, bottomButtonPane, selectButtonPane;
    JLabel []labels;
@@ -5163,7 +5227,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    boolean []highlighted;
    boolean []pressed;
    boolean []chosen;
-   int choices = 6;
+   int choices = 7;
    int bottomChoices = 4;
    int selectChoices = 2;
    int selectedOption = -1;

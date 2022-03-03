@@ -1328,6 +1328,27 @@ public class Graph
       //calculatingSpring = false;
    }
 
+   public double[] getMiddle(boolean[] vertices){
+
+      double x = 0;
+      double y = 0;
+
+      int count = 0;
+
+      for (int i = 0; i < N; i++) {
+         if(vertices[i]) {
+            count++;
+            x += nodePosX[i];
+            y += nodePosY[i];
+         }
+      }
+
+      x = x/count;
+      y = y/count;
+
+      return new double[]{x, y};
+   }
+
 
    public double[] getMiddle(){
       double x = 0;
@@ -1700,6 +1721,14 @@ public class Graph
    }
 
    public void alignToGrid(double spacing, double offsetX, double offsetY){
+
+      for (int i = 0; i < N; i++) {
+         if(selected[i]){
+            alignToGrid(spacing, selected, offsetX, offsetY);
+            return;
+         }
+      }
+
       boolean[] all = new boolean[N];
       Arrays.fill(all, true);
 
@@ -1711,7 +1740,7 @@ public class Graph
       for (int i = 0; i < N; i++) {
          if(toAlign[i]){
             nodePosX[i] = Math.round((nodePosX[i]-offsetX)/spacing)*spacing + offsetX;
-            nodePosY[i] = Math.round((nodePosY[i]-offsetX)/spacing)*spacing + offsetY;
+            nodePosY[i] = Math.round((nodePosY[i]-offsetY)/spacing)*spacing + offsetY;
          }
       }
 
