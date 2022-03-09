@@ -1502,7 +1502,7 @@ public class Graph
          }
          g.nodePosX[i] = nodePosX[vertices[i]];
          g.nodePosY[i] = nodePosY[vertices[i]];
-         g.domset[i] = domset[i];
+         g.domset[i] = domset[vertices[i]];
       }
 
       if(align) {
