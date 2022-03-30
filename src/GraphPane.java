@@ -1691,6 +1691,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
    public void setGraph(Graph gr)
    {
       graph = gr;
+      validate();
+      repaint();
    }
 
    public Graph getGraph()

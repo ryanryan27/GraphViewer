@@ -1,18 +1,22 @@
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
-public class PathFinder {
+public class PathFinder implements Runnable{
 
     static final double POSITION_TOLERANCE = 0.01;
 
-    private Graph obstacle_map;
+    static int id_counter = 0;
 
-    private PointList all_points;
+    GraphPane parent;
+    Graph graph;
 
 
-    public PathFinder(Graph inGraph){
-
+    PathFinder(GraphPane parent, Graph graph){
+        this.parent = parent;
+        this.graph = graph;
     }
+
 
 
     private EdgeList delaunayToMidpoints(Triangulation delaunay){
@@ -22,9 +26,12 @@ public class PathFinder {
     }
 
 
+    public Graph getTriangulation(Graph g) throws InterruptedException {
+        return ugvFromTriangulation(delaunayBW(pointListFromUGV(g)));
+    }
 
     //Bowyer-watson algorithm for triangulation
-    private Triangulation delaunayBW(PointList pointList){
+    private Triangulation delaunayBW(PointList pointList) throws InterruptedException {
 
         Triangulation triangulation = new Triangulation();
 
@@ -40,20 +47,25 @@ public class PathFinder {
                 }
             }
 
-            EdgeList polygon = badTriangles.getNonDuplicateEdges();
-
             for(Triangle t : badTriangles){
                 triangulation.remove(t);
             }
+
+            EdgeList polygon = badTriangles.getNonDuplicateEdges();
+
+
 
             for(Edge e : polygon){
                 Triangle t = new Triangle(e, p);
                 triangulation.add(t);
             }
+            //parent.setGraph(ugvFromTriangulation(triangulation));
 
         }
 
+
         triangulation.removeTemporaryPoints();
+        //parent.setGraph(ugvFromTriangulation(triangulation));
 
         return triangulation;
     }
@@ -67,31 +79,61 @@ public class PathFinder {
             points.add(p);
         }
 
+        
         return points;
     }
 
     Graph ugvFromTriangulation(Triangulation t){
         //TODO
 
+        EdgeList edges = t.getEdges();
+        PointList points = t.getPointList();
 
+        Graph g = new Graph(0,0);
 
-        return new Graph(0,0);
+        for(Point p : points){
+            g.addVertex(p.x,p.y);
+        }
+
+        for(Edge e : edges){
+            g.addArc(points.idToIndex(e.points[0].getID())+1, points.idToIndex(e.points[1].getID())+1);
+        }
+
+        return g;
+    }
+
+    int requestID(){
+        return id_counter++;
+    }
+
+    @Override
+    public void run() {
+        try {
+            getTriangulation(graph);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
-
     private class Point {
+        int id;
         double x;
         double y;
         double bearing;
         boolean temporary;
         int type; //start, obstacle, goal, temporary
+
+
         //TODO maybe add an ID?
 
         Point(double x, double y){
             this.x = x;
             this.y = y;
+            this.id = requestID();
+            this.temporary = false;
         }
+
 
         double dist(Point p){
             return Math.sqrt(Math.pow(this.x-p.x,2) + Math.pow(this.y-p.y,2));
@@ -125,15 +167,20 @@ public class PathFinder {
             return this.y;
         }
 
+        int getID(){
+            return this.id;
+        }
+
         void setTemporary(){
             this.temporary = true;
         }
 
         boolean same(Point a){
-            double diff_x = a.getX() - this.getX();
-            double diff_y = a.getY() - this.getY();
+            //double diff_x = a.getX() - this.getX();
+            //double diff_y = a.getY() - this.getY();
 
-            return (diff_x < POSITION_TOLERANCE && diff_y < POSITION_TOLERANCE);
+            //return (diff_x < POSITION_TOLERANCE && diff_y < POSITION_TOLERANCE);
+            return this.id == a.getID();
         }
 
     }
@@ -198,19 +245,37 @@ public class PathFinder {
             //get slopes of edges of triangle
             double m1 = points[0].slope(points[1]);
             double m2 = points[0].slope(points[2]);
-
             //get midpoints of the same edges of the triangle
             Point ab = points[0].midpoint(points[1]);
             Point ac = points[0].midpoint(points[2]);
+
+            if(m1 == Double.POSITIVE_INFINITY) m1 = Double.MAX_VALUE/8;
+            if(m1 == Double.NEGATIVE_INFINITY) m1 = -1*Double.MAX_VALUE/8;
+            if(m1 <0.001 && m1 > -0.001) m1 = 0.001;
+            if(m2 == Double.POSITIVE_INFINITY) m2 = Double.MAX_VALUE/8;
+            if(m2 == Double.NEGATIVE_INFINITY) m2 = -1*Double.MAX_VALUE/8;
+            if(m2 <0.001 && m2 > -0.001) m2 = 0.001;
+
+//            if(m1 == Double.NEGATIVE_INFINITY || m1 == Double.POSITIVE_INFINITY){
+//                m1 = points[2].slope(points[1]);
+//                ab = points[2].midpoint(points[1]);
+//            }
+//            if(m2 == Double.NEGATIVE_INFINITY || m2 == Double.POSITIVE_INFINITY){
+//                m2 = points[2].slope(points[1]);
+//                ac = points[2].midpoint(points[1]);
+//            }
 
             double x1 = ab.getX();
             double y1 = ab.getY();
             double x2 = ac.getX();
             double y2 = ac.getY();
 
+
+
             //get intersection of the lines generated from slopes and midpoints
             double circ_x = (1/(1/m2 - 1/m1))*(y2-y1 - (x1/m1) + (x2/m2));
             double circ_y = (-1/m2)*(circ_x - x2) + y2;
+
 
             double rad = points[0].dist(circ_x, circ_y);
 
@@ -242,6 +307,20 @@ public class PathFinder {
 
         void add(Point p){
             points.add(p);
+        }
+
+        int size(){
+            return points.size();
+        }
+
+        int idToIndex(int id){
+
+            for (int i = 0; i < points.size(); i++) {
+                if(points.get(i).getID() == id) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
 
@@ -284,6 +363,10 @@ public class PathFinder {
             triangles = new ArrayList<>();
         }
 
+        int size(){
+            return triangles.size();
+        }
+
         void addTemporaryHull(PointList points){
             double xmin = Double.POSITIVE_INFINITY;
             double xmax = Double.NEGATIVE_INFINITY;
@@ -322,7 +405,17 @@ public class PathFinder {
 
         void removeTemporaryPoints(){
             //TODO not sure if this works properly
-            triangles.removeIf(Triangle::hasTemporary);
+            ArrayList<Triangle> to_remove = new ArrayList<>();
+
+            for(Triangle t : triangles){
+                if(t.hasTemporary()){
+                    to_remove.add(t);
+                }
+            }
+
+            for (Triangle t : to_remove){
+                triangles.remove(t);
+            }
         }
 
 
@@ -333,6 +426,40 @@ public class PathFinder {
         void remove(Triangle t){
             //TODO not sure if this works how i want it to
             triangles.remove(t);
+        }
+
+        EdgeList getEdges(){
+            EdgeList edges = new EdgeList();
+
+            for(Triangle t : this){
+                Point a = t.getPoints()[0];
+                Point b = t.getPoints()[1];
+                Point c = t.getPoints()[2];
+
+                boolean ab = true;
+                boolean ac = true;
+                boolean bc = true;
+
+                for (Edge e : edges){
+                    if(e.same(a,b) ){
+                        ab = false;
+                    } else if(e.same(a,c)){
+                        ac = false;
+                    } else if(e.same(b,c)){
+                        bc = false;
+                    }
+                }
+
+                if(ab) edges.add(new Edge(a,b));
+                if(ac) edges.add(new Edge(a,c));
+                if(bc) edges.add(new Edge(b,c));
+            }
+
+            edges.removeMarked();
+
+            return edges;
+
+
         }
 
         EdgeList getNonDuplicateEdges(){
@@ -352,23 +479,54 @@ public class PathFinder {
                     if(e.same(a,b) ){
                         e.setRemove(true);
                         ab = false;
-                    } else if(e.same(a,c)){
+                    }
+                    if(e.same(a,c)){
                         e.setRemove(true);
                         ac = false;
-                    } else if(e.same(b,c)){
+                    }
+                    if(e.same(b,c)){
                         e.setRemove(true);
                         bc = false;
                     }
                 }
 
-                if(ab) edges.add(new Edge(a,b));
-                if(ac) edges.add(new Edge(a,c));
-                if(bc) edges.add(new Edge(b,c));
+                if(ab){
+                    edges.add(new Edge(a,b));
+
+                }
+                if(ac){
+                    edges.add(new Edge(a,c));
+                }
+                if(bc){
+                    edges.add(new Edge(b,c));
+                }
             }
 
             edges.removeMarked();
 
             return edges;
+        }
+
+        PointList getPointList(){
+            PointList points = new PointList();
+
+            for (Triangle t : this){
+                Point[] pts = t.points;
+
+                for (Point pt : pts){
+                    boolean exists = false;
+                    for(Point p : points){
+
+                        if(pt.same(p)){
+                            exists = true;
+                        }
+                    }
+                    if(!exists){
+                        points.add(pt);
+                    }
+                }
+            }
+            return points;
         }
 
 
