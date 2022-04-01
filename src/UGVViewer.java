@@ -4489,7 +4489,23 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
                        gp.setUndoState();
                        Graph g = gp.getGraph();
-                       g.rescaleSelected(1.0/1.1);
+                       //g.rescaleSelected(1.0/1.1);
+
+                       PathFinder pf = new PathFinder(gp, g);
+
+                       //new Thread(pf).start();
+                       Graph triangulation = null;
+                       try {
+                          triangulation = pf.getTriangulation(g,1);
+                       } catch (InterruptedException ex) {
+                          ex.printStackTrace();
+                       }
+
+
+                       gp.setGraph(triangulation);
+
+
+
                        validate();
                        repaint();
                     }
@@ -4516,13 +4532,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        //new Thread(pf).start();
                        Graph triangulation = null;
                        try {
-                          triangulation = pf.getTriangulation(g);
+                          triangulation = pf.getTriangulation(g,2);
                        } catch (InterruptedException ex) {
                           ex.printStackTrace();
                        }
 
 
-                       gp.setGraph(triangulation);
+                       //gp.setGraph(triangulation);
 
 
                        validate();
@@ -4545,9 +4561,17 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        gp.setUndoState();
                        Graph g = gp.getGraph();
 
+                       PathFinder pf = new PathFinder(gp, g);
 
-                       double[] gridData = gp.getGridData();
-                       g.alignToGrid(gridData[0], gridData[1], gridData[2]);
+                       //new Thread(pf).start();
+                       Graph path = null;
+                       path = pf.getPath(g);
+
+                       if(path != null) {
+                          gp.setGraph(path);
+                       }
+                       //double[] gridData = gp.getGridData();
+                       //g.alignToGrid(gridData[0], gridData[1], gridData[2]);
 
                        validate();
                        repaint();
