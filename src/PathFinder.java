@@ -21,19 +21,30 @@ public class PathFinder implements Runnable{
     }
 
 
-    Graph getPath(Graph g){
+    Graph getPath(Graph g, boolean trim){
         PointList points = pointListFromUGV(g);
         EdgeList edges = edgeListFromUGV(g, points);
 
         Triangulation delaunay = delaunayBW(points);
         Triangulation midpoints = delaunayToMidpoints(delaunay, edges);
 
-        PGraph graph = graphFromMidpoints(midpoints);
+        PGraph graph = graphFromMidpoints(midpoints, points, edges);
+
+        Path initial_path = graph.shortestPath();
+
 
 
         try {
+            Path trimmed_path = initial_path.trimToObstacles(points, edges);
             //return graph.toUGV();
-            return graph.shortestPath().toGraph().toUGV();
+            Path desired;
+
+            if(trim){
+                desired = trimmed_path;
+            } else {
+                desired = initial_path;
+            }
+            return desired.toGraph().toUGV();
         } catch (NullPointerException ex){
             System.out.println("no");
             return null;
@@ -57,32 +68,23 @@ public class PathFinder implements Runnable{
             Point ac = a.midpoint(c);
             Point bc = b.midpoint(c);
 
-            System.out.println("points----------------------------------------------------------------");
-            System.out.println(ab.getX() + ", " + ab.getY());
-            System.out.println(ac.getX() + ", " + ac.getY());
-            System.out.println(bc.getX() + ", " + bc.getY());
-            System.out.println("--");
             boolean add_ab = true;
             boolean add_ac = true;
             boolean add_bc = true;
             for(Point p: midpoints){
-                System.out.println(p.getX() + ", " + p.getY());
                 if(add_ab && p.same_spot(ab)){
                     ab = p;
                     add_ab = false;
-                    System.out.println("----------------------------------------------");
 
                 }
                 if(add_ac && p.same_spot(ac)){
                     ac = p;
                     add_ac = false;
-                    System.out.println("----------------------------------------------");
 
                 }
                 if(add_bc && p.same_spot(bc)){
                     bc = p;
                     add_bc = false;
-                    System.out.println("----------------------------------------------");
 
                 }
             }
@@ -91,17 +93,7 @@ public class PathFinder implements Runnable{
             if(add_ac) midpoints.add(ac);
             if(add_bc) midpoints.add(bc);
 
-            for(Edge e : block_list){
-                if(e.same(a,b)){
-                    ab.setType(Point.BLOCKED);
-                }
-                if(e.same(a,c)){
-                    ac.setType(Point.BLOCKED);
-                }
-                if(e.same(b,c)){
-                    bc.setType(Point.BLOCKED);
-                }
-            }
+
 
 
 
@@ -142,21 +134,41 @@ public class PathFinder implements Runnable{
                 bc.setTemporary();
             }
 
+            for(Edge e : block_list){
+                if(e.same(a,b)){
+                    ab.setType(Point.BLOCKED);
+                }
+                if(e.same(a,c)){
+                    ac.setType(Point.BLOCKED);
+                }
+                if(e.same(b,c)){
+                    bc.setType(Point.BLOCKED);
+                }
+            }
+
+            if(a.dist(b) < a.getRadius() + b.getRadius()){
+                ab.setType(Point.BLOCKED);
+            }
+            if(a.dist(c) < a.getRadius() + c.getRadius()){
+                ac.setType(Point.BLOCKED);
+            }
+            if(b.dist(c) < b.getRadius() + c.getRadius()){
+                bc.setType(Point.BLOCKED);
+            }
+
+
             Triangle new_t = new Triangle(ab, ac, bc);
             midpoint_triangulation.add(new_t);
 
 
         }
 
-        for (Point p : midpoints){
-            System.out.println("point: " + p.getX() + ", " + p.getY() + ", " + p.getID());
-        }
+        midpoint_triangulation.removeTemporaryPoints();
 
-        System.out.println("midpoints.size() = " + midpoints.size());
         return midpoint_triangulation;
     }
 
-    PGraph graphFromMidpoints(Triangulation t){
+    PGraph graphFromMidpoints(Triangulation t, PointList obstacles, EdgeList block_list){
 
         EdgeList edges = t.getEdges();
         PointList points = t.getPointList();
@@ -179,18 +191,26 @@ public class PathFinder implements Runnable{
 
         for(Point p : points){
             if(has_ends && p.getType() == Point.ENTRY){
-                g.add(new Edge(p,start));
+                if(!collides(p, start, block_list) && !collides(p, start, obstacles)) {
+                    g.add(new Edge(p, start));
+                }
             }
             if(has_ends && p.getType() == Point.EXIT){
-                g.add(new Edge(p,goal));
+                if(!collides(p, goal, block_list) && !collides(p, goal, obstacles)) {
+                    g.add(new Edge(p, goal));
+                }
             }
             g.add(p);
 
         }
 
 
+
         for(Edge e : edges){
-            g.add(e);
+            Point[] pts = e.getPoints();
+            if(!collides(pts[0], pts[1], block_list) && !collides(pts[0], pts[1], obstacles)) {
+                g.add(e);
+            }
         }
 
         return g;
@@ -206,6 +226,7 @@ public class PathFinder implements Runnable{
         if(level == 1){
             EdgeList block_list = edgeListFromUGV(g, points);
             t = delaunayToMidpoints(t, block_list);
+            return graphFromMidpoints(t, points,block_list).toUGV();
         }
         return ugvFromTriangulation(t);
 
@@ -246,7 +267,7 @@ public class PathFinder implements Runnable{
 
 
         triangulation.removeTemporaryPoints();
-        parent.setGraph(ugvFromTriangulation(triangulation));
+        //parent.setGraph(ugvFromTriangulation(triangulation));
 
         return triangulation;
     }
@@ -258,6 +279,9 @@ public class PathFinder implements Runnable{
         for (int i = 0; i < g.getN(); i++) {
             int type = g.getDomset()[i];
             Point p = new Point(g.getXPos(i), g.getYPos(i), type);
+
+            p.setRadius(parent.getRadius());
+
             points.add(p);
         }
 
@@ -323,6 +347,76 @@ public class PathFinder implements Runnable{
         return id_counter++;
     }
 
+
+    boolean collides(Point a, Point b, Edge wall){
+        Point c = wall.getPoints()[0];
+        Point d = wall.getPoints()[1];
+        double[] pt = new double[]{a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY(), d.getX(), d.getY()};
+        double determinant = (pt[2] - pt[0]) * (pt[7] - pt[5]) - (pt[6] - pt[4])*(pt[3] - pt[1]);
+
+        if(determinant == 0){
+            return false;
+        }
+
+        double lambda = ((pt[7] - pt[5])*(pt[6]-pt[0]) + (pt[4]-pt[6])*(pt[7]-pt[1]))/determinant;
+        double gamma = ((pt[1] - pt[3])*(pt[6]-pt[0]) + (pt[2]-pt[0])*(pt[7]-pt[1]))/determinant;
+
+        return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+    }
+
+    boolean collides(Point a, Point b, Point obstacle){
+
+        if(obstacle.getType() != Point.OBSTACLE){
+            return false;
+        }
+
+        double slope = 1/a.slope(b);
+        double rad = obstacle.getRadius();
+        double dir = Math.sqrt(1 + slope*slope);
+
+        double x1, y1, x2, y2;
+
+        if(slope == Double.POSITIVE_INFINITY || slope == Double.NEGATIVE_INFINITY){
+            x1 = obstacle.getX();
+            x2 = obstacle.getX();
+            y1 = obstacle.getY() + rad;
+            y2 = obstacle.getY() - rad;
+        } else if( -0.001 < slope && slope < 0.001){
+            x1 = obstacle.getX() + rad;
+            x2 = obstacle.getX() - rad;
+            y1 = obstacle.getY();
+            y2 = obstacle.getY();
+        } else{
+            x1 = obstacle.getX() + rad/dir;
+            y1 = obstacle.getY() + rad*slope/dir;
+            x2 = obstacle.getX() - rad/dir;
+            y2 = obstacle.getY() - rad*slope/dir;
+        }
+        Point temp = new Point(x1, y1, 0);
+        Point temp2 = new Point(x2, y2, 0);
+
+        return collides(a,b, new Edge(temp, temp2));
+    }
+
+    boolean collides(Point a, Point b, EdgeList walls){
+        for(Edge e: walls){
+            if (collides(a, b, e)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean collides(Point a, Point b, PointList obstacles){
+        for(Point p: obstacles){
+            if(collides(a, b, p)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     @Override
     public void run() {
         try {
@@ -340,6 +434,7 @@ public class PathFinder implements Runnable{
         double bearing;
         boolean temporary;
         int type;
+        double radius;
 
         static final int OBSTACLE = 0;
         static final int START = 1;
@@ -406,6 +501,14 @@ public class PathFinder implements Runnable{
 
         void setTemporary(){
             this.temporary = true;
+        }
+
+        public double getRadius() {
+            return radius;
+        }
+
+        public void setRadius(double radius) {
+            this.radius = radius;
         }
 
         boolean same(Point a){
@@ -991,12 +1094,57 @@ public class PathFinder implements Runnable{
         }
 
 
-        void trimToObstacles(PointList obstacles, EdgeList walls){
+        Path trimToObstacles(PointList obstacles, EdgeList walls){
+            Path trimmed = new Path();
+
+            Point curr = this.points.getFirst();
+            Point goal = this.points.getLast();
 
 
 
+            while(curr != goal){
 
+                Iterator<Point> back_iterator = points.descendingIterator();
+                Point mid = back_iterator.next();
+
+                trimmed.addLast(curr);
+
+                boolean changed = false;
+
+                while(mid != curr){
+                    if(!collides(curr, mid, obstacles) && !collides(curr, mid, walls)){
+                        curr = mid;
+                        changed = true;
+                        break;
+                    }
+                    mid = back_iterator.next();
+                }
+
+                if(!changed){
+                    System.out.println("No path exists");
+                    Iterator<Point> it = this.points.iterator();
+                    Point temp = it.next();
+                    while(temp != curr){
+                        temp = it.next();
+                    }
+
+                    while(it.hasNext()){
+                        trimmed.addLast(it.next());
+                    }
+
+                    return trimmed;
+                }
+
+            }
+            trimmed.addLast(goal);
+
+
+            return trimmed;
         }
+
+
+        //from stack overflow (sorry not sorry)
+
 
         PGraph toGraph(){
             PGraph graph = new PGraph();
