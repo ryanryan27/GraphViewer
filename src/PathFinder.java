@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.concurrent.TimeUnit;
 
 public class PathFinder implements Runnable{
 
@@ -32,7 +30,9 @@ public class PathFinder implements Runnable{
 
         Path initial_path = graph.shortestPath();
 
-
+        if(initial_path == null) {
+            return null;
+        }
 
         try {
             Path trimmed_path = initial_path.trimToObstacles(points, edges);
@@ -44,7 +44,12 @@ public class PathFinder implements Runnable{
             } else {
                 desired = initial_path;
             }
-            return desired.toGraph().toUGV();
+
+            PGraph path_graph = desired.toGraph();
+
+            if(path_graph == null) return null;
+
+            return path_graph.toUGV();
         } catch (NullPointerException ex){
             System.out.println("no");
             return null;
@@ -177,11 +182,7 @@ public class PathFinder implements Runnable{
 
         PGraph g = new PGraph();
 
-        boolean has_ends = true;
-
-        if(start == null || goal == null){
-            has_ends = false;
-        }
+        boolean has_ends = (start != null && goal != null);
 
         if(has_ends) {
             g.add(start);
@@ -191,12 +192,12 @@ public class PathFinder implements Runnable{
 
         for(Point p : points){
             if(has_ends && p.getType() == Point.ENTRY){
-                if(!collides(p, start, block_list) && !collides(p, start, obstacles)) {
+                if(no_collision(p, start, block_list) && no_collision(p, start, obstacles)) {
                     g.add(new Edge(p, start));
                 }
             }
             if(has_ends && p.getType() == Point.EXIT){
-                if(!collides(p, goal, block_list) && !collides(p, goal, obstacles)) {
+                if(no_collision(p, goal, block_list) && no_collision(p, goal, obstacles)) {
                     g.add(new Edge(p, goal));
                 }
             }
@@ -208,7 +209,7 @@ public class PathFinder implements Runnable{
 
         for(Edge e : edges){
             Point[] pts = e.getPoints();
-            if(!collides(pts[0], pts[1], block_list) && !collides(pts[0], pts[1], obstacles)) {
+            if(no_collision(pts[0], pts[1], block_list) && no_collision(pts[0], pts[1], obstacles)) {
                 g.add(e);
             }
         }
@@ -261,13 +262,13 @@ public class PathFinder implements Runnable{
                 Triangle t = new Triangle(e, p);
                 triangulation.add(t);
             }
-            //parent.setGraph(ugvFromTriangulation(triangulation));
+
 
         }
 
 
         triangulation.removeTemporaryPoints();
-        //parent.setGraph(ugvFromTriangulation(triangulation));
+
 
         return triangulation;
     }
@@ -398,22 +399,22 @@ public class PathFinder implements Runnable{
         return collides(a,b, new Edge(temp, temp2));
     }
 
-    boolean collides(Point a, Point b, EdgeList walls){
+    boolean no_collision(Point a, Point b, EdgeList walls){
         for(Edge e: walls){
             if (collides(a, b, e)){
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
-    boolean collides(Point a, Point b, PointList obstacles){
+    boolean no_collision(Point a, Point b, PointList obstacles){
         for(Point p: obstacles){
             if(collides(a, b, p)){
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
 
@@ -431,7 +432,7 @@ public class PathFinder implements Runnable{
         int id;
         double x;
         double y;
-        double bearing;
+        //double bearing;
         boolean temporary;
         int type;
         double radius;
@@ -512,10 +513,6 @@ public class PathFinder implements Runnable{
         }
 
         boolean same(Point a){
-            //double diff_x = a.getX() - this.getX();
-            //double diff_y = a.getY() - this.getY();
-
-            //return (diff_x < POSITION_TOLERANCE && diff_y < POSITION_TOLERANCE);
             return this.id == a.getID();
         }
 
@@ -532,7 +529,6 @@ public class PathFinder implements Runnable{
         Point[] points;
         boolean remove;
 
-        boolean blockade;
 
         Edge(Point a, Point b){
             points = new Point[2];
@@ -544,17 +540,12 @@ public class PathFinder implements Runnable{
             return points;
         }
 
-        Point midpoint(){
-            return points[0].midpoint(points[1]);
+
+        void setRemove(){
+            this.remove = true;
         }
 
-        void setRemove(boolean rem){
-            this.remove = rem;
-        }
 
-        boolean getRemove(){
-            return this.remove;
-        }
 
         boolean same(Point a, Point b){
 
@@ -571,11 +562,6 @@ public class PathFinder implements Runnable{
         PGraph(){
             this.edges = new EdgeList();
             this.points = new PointList();
-        }
-
-        PGraph(EdgeList edges, PointList points){
-            this.edges = edges;
-            this.points = points;
         }
 
         public void add(Edge e){
@@ -811,15 +797,6 @@ public class PathFinder implements Runnable{
             return -1;
         }
 
-        int indexToID(int index){
-            try {
-                return points.get(index).getID();
-            } catch (NullPointerException ex) {
-
-                return -1;
-            }
-        }
-
         Point getFromIndex(int index){
             try {
                 return points.get(index);
@@ -870,10 +847,6 @@ public class PathFinder implements Runnable{
 
         Triangulation(){
             triangles = new ArrayList<>();
-        }
-
-        int size(){
-            return triangles.size();
         }
 
         void addTemporaryHull(PointList points){
@@ -1001,15 +974,15 @@ public class PathFinder implements Runnable{
 
                 for (Edge e : edges){
                     if(e.same(a,b) ){
-                        e.setRemove(true);
+                        e.setRemove();
                         ab = false;
                     }
                     if(e.same(a,c)){
-                        e.setRemove(true);
+                        e.setRemove();
                         ac = false;
                     }
                     if(e.same(b,c)){
-                        e.setRemove(true);
+                        e.setRemove();
                         bc = false;
                     }
                 }
@@ -1041,8 +1014,9 @@ public class PathFinder implements Runnable{
                     boolean exists = false;
                     for(Point p : points){
 
-                        if(pt.same(p)){//TODO add same_spot, and then fix edge issues
+                        if (pt.same(p)) {
                             exists = true;
+                            break;
                         }
                     }
                     if(!exists){
@@ -1112,7 +1086,7 @@ public class PathFinder implements Runnable{
                 boolean changed = false;
 
                 while(mid != curr){
-                    if(!collides(curr, mid, obstacles) && !collides(curr, mid, walls)){
+                    if(no_collision(curr, mid, obstacles) && no_collision(curr, mid, walls)){
                         curr = mid;
                         changed = true;
                         break;
@@ -1143,7 +1117,6 @@ public class PathFinder implements Runnable{
         }
 
 
-        //from stack overflow (sorry not sorry)
 
 
         PGraph toGraph(){
