@@ -1460,7 +1460,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             new TimerTask() {
                 @Override
                 public void run() {
-
                     graph.springLayout(radius);
                     validate();
                     repaint();

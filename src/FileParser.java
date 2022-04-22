@@ -17,7 +17,6 @@ public class FileParser {
 
             while(br.ready()){
                 String[] tokens = br.readLine().trim().split("\\s+");
-                System.out.println(tokens[0]);
                 switch (tokens[0]){
                     case "graph":
                         if(stack.empty()) {

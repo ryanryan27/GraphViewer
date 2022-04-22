@@ -4511,9 +4511,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        Graph g = gp.getGraph();
                        g.rescaleSelected(1.1);
 
-                       //double[] gridData = gp.getGridData();
-                       //g.alignToGrid(gridData[0], gridData[1], gridData[2]);
-
                        validate();
                        repaint();
 
@@ -4534,9 +4531,17 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                        gp.setUndoState();
                        Graph g = gp.getGraph();
 
+                       PathFinder pf = new PathFinder(gp, g);
 
-                       double[] gridData = gp.getGridData();
-                       g.alignToGrid(gridData[0], gridData[1], gridData[2]);
+                       //new Thread(pf).start();
+                       Graph path = null;
+                       path = pf.getPath(g, false);
+
+                       if(path != null) {
+                          gp.setGraph(path);
+                       }
+                       //double[] gridData = gp.getGridData();
+                       //g.alignToGrid(gridData[0], gridData[1], gridData[2]);
 
                        validate();
                        repaint();
@@ -4842,10 +4847,31 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
               new ActionListener(){
                  public void actionPerformed(ActionEvent e)
                  {
-                    if(tabbedPane.getSelectedIndex() != -1)
-                    {
-                       ((GraphPane)tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
-                       ((GraphPane)tabbedPane.getSelectedComponent()).repaint();
+//                    if(tabbedPane.getSelectedIndex() != -1)
+//                    {
+//                       ((GraphPane)tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
+//                       ((GraphPane)tabbedPane.getSelectedComponent()).repaint();
+//                    }
+                    if(tabbedPane.getSelectedIndex() != -1){
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                       gp.setUndoState();
+                       Graph g = gp.getGraph();
+
+                       PathFinder pf = new PathFinder(gp, g);
+
+                       //new Thread(pf).start();
+                       Graph path = null;
+                       path = pf.getPath(g, true);
+
+                       if(path != null) {
+                          gp.setGraph(path);
+                       }
+                       //double[] gridData = gp.getGridData();
+                       //g.alignToGrid(gridData[0], gridData[1], gridData[2]);
+
+                       validate();
+                       repaint();
+
                     }
                  }
               });
