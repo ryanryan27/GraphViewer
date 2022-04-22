@@ -81,5 +81,57 @@ public class GraphBuilder {
         return g;
     }
 
+    static Graph complete_multipartite(int[] subsets){
+        //TODO implement this
+
+        return new Graph(0,0);
+    }
+
+    static Graph flower_snark(int n){
+        Graph flower = new Graph(0,0);
+
+        for (int i = 0; i < n; i++) {
+            Graph star = star(4);
+
+            star.swapVertices(3,4);
+
+            flower.addSubgraph(star);
+        }
+
+        for (int i = 0; i < n-1; i++) {
+
+            flower.addArc(i*4 + 1, i*4 + 5);
+            flower.addArc(i*4 + 2, i*4 + 6);
+            flower.addArc(i*4 + 4, i*4 + 8);
+        }
+
+        flower.addArc(1, 4*n-2);
+        flower.addArc(2, 4*n-3);
+        flower.addArc(4, 4*n);
+
+
+        flower.createGrid(n,true, 100);
+
+        return flower;
+    }
+
+
+
+
+
+    static Graph star(int n){
+        Graph g = new Graph(n-1,0);
+        g.createCircle();
+        double[] mid = g.getMiddle();
+        g.addVertex(mid[0],mid[1]);
+
+        for (int i = 1; i < n; i++) {
+            g.addArc(i,n);
+        }
+
+
+        return g;
+    }
+
 
 }
