@@ -108,10 +108,18 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
    private void buildLeftPanel(){
       buildChoiceList();
       leftPanel = new JPanel();
-      leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
-      leftPanel.add(new JLabel("Graph Type"));
-      leftPanel.add(new JScrollPane(choiceList));
+      leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+
+      JLabel lb = new JLabel("Graph Type");
+      lb.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+
+      JScrollPane jsp = new JScrollPane(choiceList);
+      jsp.setAlignmentX(JScrollPane.LEFT_ALIGNMENT);
+
+      leftPanel.add(lb);
+      leftPanel.add(jsp);
       leftPanel.setPreferredSize(new Dimension(400, 400));
+
 
    }
 
@@ -129,10 +137,9 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       buttonPanel.add(confirmButton);
       buttonPanel.add(cancelButton);
 
-      rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
-      rightPanel.add(new JLabel("Inputs"));
-      rightPanel.add(inputPanel);
-      rightPanel.add(buttonPanel);
+      rightPanel.setLayout(new BorderLayout());
+      rightPanel.add(inputPanel, BorderLayout.NORTH);
+      rightPanel.add(buttonPanel, BorderLayout.SOUTH);
       rightPanel.setPreferredSize(new Dimension(400,400));
 
    }
@@ -172,14 +179,16 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       intInputOne.add(new JLabel("Input 1:"));
       intInputOne.add(intOneValue);
       intInputOne.setVisible(false);
+      intInputOne.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
       intTwoValue = new JTextField();
       intTwoValue.setColumns(8);
       intInputTwo = new JPanel();
       intInputTwo.setLayout(new FlowLayout(FlowLayout.LEFT));
-      intInputTwo.add(new JLabel("Input 1:"));
+      intInputTwo.add(new JLabel("Input 2:"));
       intInputTwo.add(intTwoValue);
       intInputTwo.setVisible(false);
+      intInputTwo.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
       graphOneName = new JTextField();
       graphOneName.setEditable(false);
@@ -194,6 +203,7 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       graphInputOne.add(graphOneBuildButton);
       graphInputOne.add(graphOneSelectButton);
       graphInputOne.setVisible(false);
+      graphInputOne.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
       graphTwoName = new JTextField();
       graphTwoName.setEditable(false);
@@ -208,7 +218,11 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       graphInputTwo.add(graphTwoBuildButton);
       graphInputTwo.add(graphTwoSelectButton);
       graphInputTwo.setVisible(false);
+      graphInputTwo.setAlignmentX(JPanel.LEFT_ALIGNMENT);
 
+      JLabel lb = new JLabel("Inputs");
+      lb.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+      inputPanel.add(lb);
       inputPanel.add(intInputOne);
       inputPanel.add(intInputTwo);
       inputPanel.add(graphInputOne);
