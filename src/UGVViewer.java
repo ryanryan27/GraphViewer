@@ -4607,6 +4607,32 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       domsetItem.setMnemonic(KeyEvent.VK_D);
       domsetItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,InputEvent.CTRL_DOWN_MASK));
 
+      generateItem = new JMenuItem("Generate New Graph");
+      generateItem.addActionListener(
+              new ActionListener() {
+                 @Override
+                 public void actionPerformed(ActionEvent e) {
+
+                    if(tabbedPane.getSelectedIndex() == -1) buildNewGraph();
+
+                    GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                    gp.setUndoState();
+
+                    GraphBuilderDialog gbd = new GraphBuilderDialog(parent);
+
+                    if(!gbd.cancelled()){
+                       gp.setGraph(gbd.getGraph());
+                       fitToScreen();
+                    }
+
+
+                    validate();
+                    repaint();
+                 }
+              }
+      );
+      generateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+
       editEdgeItem = new JMenuItem("Edit Edge List");
       editEdgeItem.addActionListener(
               new ActionListener(){
@@ -4662,6 +4688,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
       editItem.addSeparator();
       //editItem.add(checkCrossingsItem);
       //editItem.addSeparator();
+      editItem.add(generateItem);
       editItem.add(editEdgeItem);
       editItem.add(domsetItem);
       editItem.add(gridItem);
@@ -4847,32 +4874,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
               new ActionListener(){
                  public void actionPerformed(ActionEvent e)
                  {
-//                    if(tabbedPane.getSelectedIndex() != -1)
-//                    {
-//                       ((GraphPane)tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
-//                       ((GraphPane)tabbedPane.getSelectedComponent()).repaint();
-//                    }
-                    if(tabbedPane.getSelectedIndex() != -1){
-                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                       gp.setUndoState();
-                       Graph g = gp.getGraph();
-
-                       PathFinder pf = new PathFinder(gp, g);
-
-                       //new Thread(pf).start();
-                       Graph path = null;
-                       path = pf.getPath(g, true);
-
-                       if(path != null) {
-                          gp.setGraph(path);
-                       }
-                       //double[] gridData = gp.getGridData();
-                       //g.alignToGrid(gridData[0], gridData[1], gridData[2]);
-
-                       validate();
-                       repaint();
-
+                    if(tabbedPane.getSelectedIndex() != -1)
+                    {
+                       ((GraphPane)tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
+                       ((GraphPane)tabbedPane.getSelectedComponent()).repaint();
                     }
+
                  }
               });
       gridlinesItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD,InputEvent.CTRL_DOWN_MASK));
@@ -5243,7 +5250,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
    JMenuItem texItem;
    JMenuItem saveFileItem, saveMultipleGraphsFileItem, exportAsImageFileItem, undoEditItem, redoEditItem, checkCrossingsItem, copyItem, pasteItem;
    JMenuItem growItem, shrinkItem;
-   JMenuItem gridItem, domsetItem, solverItem, editEdgeItem;
+   JMenuItem gridItem, domsetItem, solverItem, editEdgeItem, generateItem;
    JCheckBoxMenuItem gridlinesItem, gridSnapItem;
    JMenuItem snapGridItem;
 
