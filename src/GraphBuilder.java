@@ -62,7 +62,7 @@ public class GraphBuilder {
         return g;
     }
 
-    static Graph cycle(int n) {
+    static Graph cycle(int n, boolean linear) {
         Graph g = new Graph(n, 0);
 
         for (int i = 1; i < n; i++) {
@@ -71,7 +71,11 @@ public class GraphBuilder {
 
         g.addArc(n, 1);
 
-        g.createGrid(n, false, 100);
+        if(linear){
+            g.createGrid(n, false, 100);
+        } else {
+            g.createCircle();
+        }
 
         return g;
     }
