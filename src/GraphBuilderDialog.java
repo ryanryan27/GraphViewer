@@ -14,6 +14,7 @@ import java.util.Vector;
 public class GraphBuilderDialog extends JDialog implements ActionListener
 {
    JFrame parent;
+   JTabbedPane openGraphs;
 
    JPanel leftPanel;
    JList<ChoiceItem> choiceList;
@@ -52,13 +53,15 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    boolean cancelled;
 
-   public GraphBuilderDialog(JFrame frame)
+   public GraphBuilderDialog(JFrame frame, JTabbedPane openGraphs)
    {
       super(frame, true);
 
       parent = frame;
+      this.openGraphs = openGraphs;
       cancelled = true;
 
+      setTitle("Generate New Graph");
       setSize(800,400);
       setResizable(true);
       setLocationRelativeTo(parent);
@@ -71,7 +74,7 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       getContentPane().add(leftPanel);
       getContentPane().add(rightPanel);
 
-
+      getRootPane().setDefaultButton(confirmButton);
 
       setVisible(true);
    }
@@ -86,15 +89,17 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       if(e.getSource() == graphTwoBuildButton){
          buildGraph(2);
       }
+      if(e.getSource() == graphOneSelectButton){
+         selectGraph(1);
+      }
+      if(e.getSource() == graphTwoSelectButton){
+         selectGraph(2);
+      }
 
       if(e.getSource() == confirmButton){
          evaluateGraph();
 
-         if(output == null) return;
 
-         cancelled = false;
-         setVisible(false);
-         dispose();
       }
 
       if(e.getSource() == cancelButton)
@@ -283,10 +288,18 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       }
 
 
+
+      if(output == null) return;
+
+      cancelled = false;
+      setVisible(false);
+      dispose();
+
+
    }
 
    private void buildGraph(int input_num){
-      GraphBuilderDialog gbd = new GraphBuilderDialog(parent);
+      GraphBuilderDialog gbd = new GraphBuilderDialog(parent, openGraphs);
 
       if(!gbd.cancelled()){
          if(input_num == 1){
@@ -299,6 +312,26 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
             graphTwoName.setText(g2_name);
          }
       }
+   }
+
+   private void selectGraph(int input_num){
+
+      GraphChooserDialog gcd = new GraphChooserDialog(parent, openGraphs);
+
+      if(!gcd.cancelled()){
+         if(input_num == 1){
+            g1 = gcd.getChosenGraph();
+            g1_name = gcd.getChosenName();
+            graphOneName.setText(g1_name);
+         } else {
+            g2 = gcd.getChosenGraph();
+            g2_name = gcd.getChosenName();
+            graphOneName.setText(g2_name);
+         }
+      }
+
+
+
    }
 
    public Graph getGraph(){

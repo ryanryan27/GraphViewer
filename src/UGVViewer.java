@@ -4613,14 +4613,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                  @Override
                  public void actionPerformed(ActionEvent e) {
 
-                    if(tabbedPane.getSelectedIndex() == -1) buildNewGraph();
 
-                    GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                    gp.setUndoState();
 
-                    GraphBuilderDialog gbd = new GraphBuilderDialog(parent);
+                    GraphBuilderDialog gbd = new GraphBuilderDialog(parent, tabbedPane);
 
                     if(!gbd.cancelled()){
+                       if(tabbedPane.getSelectedIndex() == -1) buildNewGraph();
+                       GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+                       gp.setUndoState();
                        gp.setGraph(gbd.getGraph());
                        fitToScreen();
                     }
