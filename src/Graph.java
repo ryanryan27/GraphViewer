@@ -1457,6 +1457,10 @@ public class Graph
 
    }
 
+   public Graph getSelectedSubgraph(boolean align){
+      return getSubgraph(selected, align);
+   }
+
    public Graph getSubgraph(boolean[] vertices){
       return getSubgraph(vertices, false);
    }
@@ -1465,6 +1469,10 @@ public class Graph
       int subN = 0;
       for (boolean v : vertices) {
          if(v) subN++;
+      }
+
+      if(subN == 0){
+         subN = N;
       }
 
       int[] verts = new int[subN];
