@@ -156,6 +156,7 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       choices.add(new ChoiceItem("Cartesian Product", ChoiceItem.GRAPH, ChoiceItem.GRAPH));
       choices.add(new ChoiceItem("Path", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Cycle", ChoiceItem.INTEGER));
+      choices.add(new ChoiceItem("Cycle (Linear)", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Torus Grid", ChoiceItem.INTEGER, ChoiceItem.INTEGER));
 
 
@@ -273,13 +274,17 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
          output_name = choice.name +"("+ intOneValue.getText()+")";
       }
       else if(Objects.equals(choice.name, "Cycle")){
-         output = GraphBuilder.cycle(Integer.parseInt(intOneValue.getText()));
+         output = GraphBuilder.cycle(Integer.parseInt(intOneValue.getText()), false);
+         output_name = choice.name +"("+ intOneValue.getText()+")";
+      }
+      else if(Objects.equals(choice.name, "Cycle (Linear)")){
+         output = GraphBuilder.cycle(Integer.parseInt(intOneValue.getText()), true);
          output_name = choice.name +"("+ intOneValue.getText()+")";
       }
       else if(Objects.equals(choice.name, "Torus Grid")){
          String int_one = intOneValue.getText();
          String int_two = intTwoValue.getText();
-         output = GraphBuilder.cartesian_product(GraphBuilder.cycle(Integer.parseInt(int_two)), GraphBuilder.cycle(Integer.parseInt(int_one)));
+         output = GraphBuilder.cartesian_product(GraphBuilder.cycle(Integer.parseInt(int_two), true), GraphBuilder.cycle(Integer.parseInt(int_one), true), true);
          output_name = choice.name + "(" + int_one +","+int_two+")";
       }
       else if(Objects.equals(choice.name, "Cartesian Product")){
