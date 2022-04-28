@@ -1,7 +1,11 @@
 public class GraphBuilder {
 
 
-    static Graph cartesian_product(Graph g1, Graph g2) {
+    static Graph cartesian_product(Graph g1, Graph g2){
+        return cartesian_product(g1, g2, false);
+    }
+
+    static Graph cartesian_product(Graph g1, Graph g2, boolean rotate) {
 
         int n1 = g1.getN();
         int n2 = g2.getN();
@@ -31,8 +35,13 @@ public class GraphBuilder {
                     product.addArc(i * n2 + j + 1, (arcs1[i][k] - 1) * n2 + 1 + j);
                 }
 
-                product.setXPos(i * n2 + j, xpos1[i] + ypos2[j]);
-                product.setYPos(i * n2 + j, ypos1[i] + xpos2[j]);
+                if(rotate) {
+                    product.setXPos(i * n2 + j, xpos1[i] + ypos2[j]);
+                    product.setYPos(i * n2 + j, ypos1[i] + xpos2[j]);
+                } else {
+                    product.setXPos(i * n2 + j, xpos1[i] + xpos2[j]);
+                    product.setYPos(i * n2 + j, ypos1[i] + ypos2[j]);
+                }
             }
         }
 
