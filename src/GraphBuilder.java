@@ -29,10 +29,12 @@ public class GraphBuilder {
             for (int j = 0; j < n2; j++) {
                 for (int k = 0; k < degrees2[j]; k++) {
                     product.addArc(i * n2 + j + 1, i * n2 + arcs2[j][k]);
+                    product.addArc(i * n2 + arcs2[j][k],i * n2 + j + 1);
                 }
 
                 for (int k = 0; k < degrees1[i]; k++) {
                     product.addArc(i * n2 + j + 1, (arcs1[i][k] - 1) * n2 + 1 + j);
+                    product.addArc( (arcs1[i][k] - 1) * n2 + 1 + j,i * n2 + j + 1);
                 }
 
                 if(rotate) {
@@ -55,6 +57,7 @@ public class GraphBuilder {
 
         for (int i = 1; i < n; i++) {
             g.addArc(i, i + 1);
+            g.addArc(i+1,i);
         }
 
         g.createGrid(n, false, 100);
@@ -67,9 +70,11 @@ public class GraphBuilder {
 
         for (int i = 1; i < n; i++) {
             g.addArc(i, i + 1);
+            g.addArc(i+1,i);
         }
 
         g.addArc(n, 1);
+        g.addArc(1, n);
 
         if(linear){
             g.createGrid(n, false, 100);
@@ -86,6 +91,7 @@ public class GraphBuilder {
         for (int i = 1; i < n; i++) {
             for (int j = i + 1; j <= n; j++) {
                 g.addArc(i, j);
+                g.addArc(j,i);
             }
         }
 
@@ -116,11 +122,19 @@ public class GraphBuilder {
             flower.addArc(i*4 + 1, i*4 + 5);
             flower.addArc(i*4 + 2, i*4 + 6);
             flower.addArc(i*4 + 4, i*4 + 8);
+
+            flower.addArc(i*4 + 5, i*4 + 1);
+            flower.addArc(i*4 + 6, i*4 + 2);
+            flower.addArc(i*4 + 8, i*4 + 4);
         }
 
         flower.addArc(1, 4*n-2);
         flower.addArc(2, 4*n-3);
         flower.addArc(4, 4*n);
+
+        flower.addArc(4*n-2, 1);
+        flower.addArc(4*n-3, 2);
+        flower.addArc(4*n, 4);
 
 
         flower.createGrid(n,true, 100);
@@ -141,6 +155,7 @@ public class GraphBuilder {
 
         for (int i = 1; i < n; i++) {
             g.addArc(i,n);
+            g.addArc(n,i);
         }
 
 
