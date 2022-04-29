@@ -246,16 +246,16 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
 
       switch (choice.inputs[0]) {
-         case ChoiceItem.INTEGER -> intInputOne.setVisible(true);
-         case ChoiceItem.GRAPH -> graphInputOne.setVisible(true);
+         case ChoiceItem.INTEGER: intInputOne.setVisible(true); break;
+         case ChoiceItem.GRAPH: graphInputOne.setVisible(true); break;
       }
 
 
       if(choice.inputs.length == 2) {
 
          switch (choice.inputs[1]) {
-            case ChoiceItem.INTEGER -> intInputTwo.setVisible(true);
-            case ChoiceItem.GRAPH -> graphInputTwo.setVisible(true);
+            case ChoiceItem.INTEGER: intInputTwo.setVisible(true);break;
+            case ChoiceItem.GRAPH: graphInputTwo.setVisible(true);break;
          }
       }
 
