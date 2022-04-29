@@ -158,6 +158,7 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       choices.add(new ChoiceItem("Cycle", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Cycle (Linear)", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Torus Grid", ChoiceItem.INTEGER, ChoiceItem.INTEGER));
+      choices.add(new ChoiceItem("Flower Snark", ChoiceItem.INTEGER));
 
 
 
@@ -290,6 +291,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       else if(Objects.equals(choice.name, "Cartesian Product")){
          output = GraphBuilder.cartesian_product(g1,g2);
          output_name = g1_name + " X " + g2_name;
+      }
+      else if(Objects.equals(choice.name, "Flower Snark")){
+         output = GraphBuilder.flower_snark(Integer.parseInt(intOneValue.getText()));
+         output_name = choice.name +"("+ intOneValue.getText()+")";
       }
 
 
