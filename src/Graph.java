@@ -581,6 +581,10 @@ public class Graph
       selected[v] = false;
    }
 
+   public void deselectAll(){
+      selected = new boolean[N];
+   }
+
    public boolean isSelected(int v)
    {
       return selected[v];
