@@ -3551,7 +3551,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                         GraphBuilderDialog gbd = new GraphBuilderDialog(parent, tabbedPane);
 
                         if (!gbd.cancelled()) {
-                            if (tabbedPane.getSelectedIndex() == -1) buildNewGraph();
+                            buildNewGraph();
                             GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
                             tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), gbd.getName());
                             gp.setUndoState();
