@@ -124,6 +124,7 @@ public class GraphBuilder {
 
 
         flower.createGrid(n,true, 100);
+        flower.deselectAll();
 
         return flower;
     }
