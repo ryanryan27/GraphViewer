@@ -143,10 +143,6 @@ public class GraphBuilder {
         return flower;
     }
 
-
-
-
-
     static Graph star(int n){
         Graph g = new Graph(n-1,0);
         g.createCircle();

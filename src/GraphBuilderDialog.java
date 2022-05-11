@@ -149,7 +149,7 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
-   private void   buildChoiceList(){
+   private void buildChoiceList(){
 
       Vector<ChoiceItem> choices = new Vector<>();
 
@@ -159,6 +159,8 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       choices.add(new ChoiceItem("Cycle (Linear)", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Torus Grid", ChoiceItem.INTEGER, ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Flower Snark", ChoiceItem.INTEGER));
+      choices.add(new ChoiceItem("Complete", ChoiceItem.INTEGER));
+      choices.add(new ChoiceItem("Star", ChoiceItem.INTEGER));
 
 
 
@@ -294,6 +296,14 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       }
       else if(Objects.equals(choice.name, "Flower Snark")){
          output = GraphBuilder.flower_snark(Integer.parseInt(intOneValue.getText()));
+         output_name = choice.name +"("+ intOneValue.getText()+")";
+      }
+      else if(Objects.equals(choice.name, "Complete")){
+         output = GraphBuilder.complete(Integer.parseInt(intOneValue.getText()));
+         output_name = choice.name +"("+ intOneValue.getText()+")";
+      }
+      else if(Objects.equals(choice.name, "Star")){
+         output = GraphBuilder.star(Integer.parseInt(intOneValue.getText()));
          output_name = choice.name +"("+ intOneValue.getText()+")";
       }
 
