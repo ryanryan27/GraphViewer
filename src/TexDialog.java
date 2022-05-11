@@ -17,8 +17,10 @@ public class TexDialog extends JDialog implements ActionListener
    JButton generateButton, saveButton, closeButton;
 
    JCheckBoxMenuItem labels;
+   JCheckBoxMenuItem newLine;
 
    boolean doLabel = true;
+   boolean doNewLine = false;
 
 
 
@@ -46,10 +48,13 @@ public class TexDialog extends JDialog implements ActionListener
 
       labels = new JCheckBoxMenuItem("Show Labels?");
       labels.setSelected(false);
+      newLine = new JCheckBoxMenuItem("New line each element?");
+      newLine.setSelected(false);
 
 
       JPanel buttonPane = new JPanel();
       buttonPane.add(labels);
+      buttonPane.add(newLine);
       buttonPane.add(generateButton);
       buttonPane.add(saveButton);
       buttonPane.add(closeButton);
@@ -70,6 +75,7 @@ public class TexDialog extends JDialog implements ActionListener
    {
 
       doLabel = labels.getState();
+      doNewLine = newLine.getState();
 
       if(e.getSource() == generateButton)
       {
@@ -109,19 +115,25 @@ public class TexDialog extends JDialog implements ActionListener
          colour = "white";
       }
 
+      String nl = "";
+
+      if(doNewLine){
+         nl = "\n";
+      }
+
 
       StringBuilder texSB = new StringBuilder();
 
       texSB.append("\\begin{tikzpicture}[scale=0.5, thick]\n");
-      texSB.append(" \\tikzstyle{every node}=[circle, draw, fill=").append(colour).append(", inner sep=0pt, minimum width=").append(nodeSize).append("pt]\n ");
-      texSB.append(" \\tikzstyle{dom}=[fill=white]\n ");
+      texSB.append(" \\tikzstyle{every node}=[circle, draw, fill=").append(colour).append(", inner sep=0pt, minimum width=").append(nodeSize).append("pt]\n");
+      texSB.append(" \\tikzstyle{dom}=[fill=white]\n");
       for (int i = 0; i < graph.getN(); i++) {
          String p1 = String.format("%.3f",((graph.getXPos(i) -topleft[0])*scale));
          String p2 = String.format("%.3f", 10-(graph.getYPos(i)-topleft[1])*scale);
-         texSB.append("\\coordinate (V").append(i + 1).append(") at (").append(p1).append(",").append(p2).append("); ");
+         texSB.append(" \\coordinate (V").append(i + 1).append(") at (").append(p1).append(",").append(p2).append(");").append(nl);
       }
 
-      texSB.append("\n ");
+      texSB.append("\n");
 
       int[][] arcs = graph.getArcs();
       int[] degrees = graph.getDegrees();
@@ -131,13 +143,18 @@ public class TexDialog extends JDialog implements ActionListener
             int v1 = i + 1;
             int v2 = arcs[i][j];
 
-            texSB.append("\\draw (V").append(v1).append(") -- (V").append(v2).append("); ");
+            if(v2 <= v1) continue;
 
+            texSB.append(" \\draw (V").append(v1).append(") -- (V").append(v2).append(");").append(nl);
 
          }
       }
 
-      texSB.append("\n \\draw");
+      if(!doNewLine) {
+         texSB.append("\n \\draw");
+      } else {
+         texSB.append("\n");
+      }
 
       for (int i = 1; i <= graph.getN(); i++) {
          String lab = "";
@@ -151,10 +168,22 @@ public class TexDialog extends JDialog implements ActionListener
              dom = "[dom]";
           }
 
-         texSB.append(" (V").append(i).append(") node").append(dom).append("{").append(lab).append("}");
+          String start = " ";
+
+          if(doNewLine){
+             start = " \\draw ";
+             nl = ";\n";
+          }
+
+         texSB.append(start).append("(V").append(i).append(") node").append(dom).append("{").append(lab).append("}").append(nl);
       }
 
-      texSB.append(";\n\\end{tikzpicture}");
+      if(doNewLine){
+         texSB.append("\\end{tikzpicture}");
+      } else {
+         texSB.append(";\n\\end{tikzpicture}");
+      }
+
 
       return texSB.toString();
 

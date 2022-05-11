@@ -29,12 +29,10 @@ public class GraphBuilder {
             for (int j = 0; j < n2; j++) {
                 for (int k = 0; k < degrees2[j]; k++) {
                     product.addArc(i * n2 + j + 1, i * n2 + arcs2[j][k]);
-                    product.addArc(i * n2 + arcs2[j][k],i * n2 + j + 1);
                 }
 
                 for (int k = 0; k < degrees1[i]; k++) {
                     product.addArc(i * n2 + j + 1, (arcs1[i][k] - 1) * n2 + 1 + j);
-                    product.addArc( (arcs1[i][k] - 1) * n2 + 1 + j,i * n2 + j + 1);
                 }
 
                 if(rotate) {
