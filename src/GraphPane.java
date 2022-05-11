@@ -100,6 +100,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     final int CC_EDGE = 5;
     final int CC_DELETEEDGE = 6;
 
+    final double scaleMax = 5;
+    final double scaleMin = 0.1;
+
     // Alterable properties
 
     Color backgroundColor = new Color(1f, 1f, 1f);
@@ -164,8 +167,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                         double oldxScale = xScale;
                         double oldyScale = yScale;
 
-                        xScale *= (1 - rotation / 6.0);
-                        yScale *= (1 - rotation / 6.0);
+                        //xScale *= (1 - rotation / 6.0);
+                        //yScale *= (1 - rotation / 6.0);
+
+                        setScale(xScale*(1-rotation/6.0), yScale*(1-rotation/6.0));
 
 
                         int mouseX = (int) Math.round((MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2));
@@ -1129,7 +1134,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 for (int j = 0; j < degrees[i]; j++) {
                     int v2 = arcs[i][j] - 1;
 
-                    if (nodeHighlighted == i || nodeHighlighted == v2) {
+                    if (nodeHighlighted == i || nodeHighlighted == v2 || v2 <= i) {
                         continue;
 
                     }
@@ -1178,7 +1183,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 for (int j = 0; j < degrees[i]; j++) {
                     int v2 = arcs[i][j] - 1;
 
-                    if ((nodeHighlighted != i && nodeHighlighted != v2) || (edgeHighlighted[0] == i && edgeHighlighted[1] == v2) || (edgeHighlighted[0] == v2 && edgeHighlighted[1] == i)) {
+                    if ((nodeHighlighted != i && nodeHighlighted != v2) || (edgeHighlighted[0] == i && edgeHighlighted[1] == v2) || (edgeHighlighted[0] == v2 && edgeHighlighted[1] == i) || v2 <= i) {
                         continue;
 
                     }
@@ -1321,8 +1326,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void setScale(double xs, double ys) {
+
+        System.out.println("xScale = " + xScale);
+        System.out.println("yScale = " + yScale);
+
         xScale = xs;
         yScale = ys;
+
+        if(xScale > scaleMax) xScale = scaleMax;
+        if(yScale > scaleMax) yScale = scaleMax;
+        if(xScale < scaleMin) xScale = scaleMin;
+        if(yScale < scaleMin) yScale = scaleMin;
+
     }
 
     public void setTopLeft(int xl, int yl) {
