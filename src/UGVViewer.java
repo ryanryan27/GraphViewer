@@ -1671,7 +1671,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 }
 
                 GraphPane graphPanel = makeGraphPanel();
-                graphPanel.setScale(xScale, yScale);
+                graphPanel.setScale(xScale);
                 graphPanel.setTopLeft(xTopLeft, yTopLeft);
                 graphPanel.setRadius(radius);
 
@@ -1771,7 +1771,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
                         GraphPane graphPanel = makeGraphPanel();
 
-                        graphPanel.setScale(xScale, yScale);
+                        graphPanel.setScale(xScale);
                         graphPanel.setTopLeft(xTopLeft, yTopLeft);
                         graphPanel.setRadius(radius);
 
@@ -3877,7 +3877,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             if (maxY < thisGraph.getYPos(i) + radius) maxY = thisGraph.getYPos(i) + radius;
         }
         double scale = Math.min(0.9 * graphPane.getSize().getWidth() * 1.0 / (maxX - minX), 0.9 * graphPane.getSize().getHeight() * 1.0 / (maxY - minY));
-        graphPane.setScale(scale, scale);
+        graphPane.setScale(scale);
         graphPane.setTopLeft((int) Math.round(minX - ((graphPane.getSize().getWidth()) / scale - (maxX - minX)) / 2.0), (int) Math.round(minY - ((graphPane.getSize().getHeight()) / scale - (maxY - minY)) / 2.0));
         graphPane.repaint();
 
