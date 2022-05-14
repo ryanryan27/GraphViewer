@@ -211,31 +211,16 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
         }
+
         if (graph != null) {
 
 
-            int xPos = mouseX();
-            int yPos = mouseY();
+            int mouseX = mouseX();
+            int mouseY = mouseY();
 
             if (e.getButton() == MouseEvent.BUTTON1) {
                 if (selectedOption == DEFAULT_OPTION) {
-
-                    nodeSelected = vertexContaining(xPos, yPos);
-
-                    if(nodeSelected != -1){
-                        setUndoState();
-                        originalX = new double[graph.getN()];
-                        originalY = new double[graph.getN()];
-                        for (int j = 0; j < graph.getN(); j++) {
-                            originalX[j] = graph.getXPos(j);
-                            originalY[j] = graph.getYPos(j);
-                        }
-                        offsetX = (int) Math.round(xPos / scale + xTopLeft - graph.getXPos(nodeSelected));
-                        offsetY = (int) Math.round(yPos / scale + yTopLeft - graph.getYPos(nodeSelected));
-                    }
-
-
-
+                    startDraggingVertex(mouseX, mouseY);
                 }
                 if (selectedOption == VERTEX_OPTION) {
                     startedCreatingVertex = true;
@@ -258,7 +243,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                         new TimerTask() {
                             @Override
                             public void run() {
-                                rotate((xPos / scale + xTopLeft), (yPos / scale + yTopLeft));
+                                rotate((mouseX / scale + xTopLeft), (mouseY / scale + yTopLeft));
                             }
                         }, 0, 1);
 
@@ -280,10 +265,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             int yPos = mouseY();
 
             if (selectedOption == DEFAULT_OPTION) {
-                if (nodeSelected != -1) {
-
-                    nodeSelected = -1;
-                }
+                nodeSelected = -1;
             }
             if (selectedOption == VERTEX_OPTION) {
                 if (startedCreatingVertex) {
@@ -404,46 +386,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         int yPos = mouseY();
 
         if (selectedOption == DEFAULT_OPTION) {
-            if (nodeSelected != -1) {
-                if (graph.isSelected(nodeSelected)) {
-                    double origX = graph.getXPos(nodeSelected);
-                    double origY = graph.getYPos(nodeSelected);
-
-                    double newX = xTopLeft + ((xPos) / scale - offsetX);
-                    double newY = yTopLeft + ((yPos) / scale - offsetY);
-
-                    if (snapToGrid) {
-
-                        newX = Math.round((newX - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX;
-                        newY = Math.round((newY - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY;
-                    }
-
-
-                    graph.setXPos(nodeSelected, newX);
-                    graph.setYPos(nodeSelected, newY);
-
-                    for (int i = 0; i < graph.getN(); i++)
-                        if (graph.isSelected(i) && i != nodeSelected) {
-                            graph.setXPos(i, graph.getXPos(i) + newX - origX);
-                            graph.setYPos(i, graph.getYPos(i) + newY - origY);
-                        }
-                } else {
-                    boolean[] newSelected = new boolean[graph.getN()];
-                    graph.setSelected(newSelected);
-
-                    double newX = xTopLeft + ((xPos) / scale - offsetX);
-                    double newY = yTopLeft + ((yPos) / scale - offsetY);
-
-                    if (snapToGrid) {
-
-                        newX = Math.round((newX - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX;
-                        newY = Math.round((newY - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY;
-                    }
-
-                    graph.setXPos(nodeSelected, newX);
-                    graph.setYPos(nodeSelected, newY);
-                }
-            }
+            dragVertex(xPos, yPos);
         }
         if (selectedOption == EDGE_OPTION || selectedOption == ERASER_OPTION || selectedOption == RELABEL_OPTION) {
             if (nodeSelectedForEdge != -1) {
@@ -730,6 +673,53 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             repaint();
         }
 
+
+    }
+
+    private void startDraggingVertex(int x, int y){
+        nodeSelected = vertexContaining(x, y);
+
+        if(nodeSelected != -1){
+            setUndoState();
+            originalX = new double[graph.getN()];
+            originalY = new double[graph.getN()];
+            for (int j = 0; j < graph.getN(); j++) {
+                originalX[j] = graph.getXPos(j);
+                originalY[j] = graph.getYPos(j);
+            }
+            offsetX = (int) Math.round(x / scale + xTopLeft - graph.getXPos(nodeSelected));
+            offsetY = (int) Math.round(y / scale + yTopLeft - graph.getYPos(nodeSelected));
+        }
+
+    }
+
+    private void dragVertex(int x, int y){
+        if (nodeSelected == -1) return;
+
+        double newX = xTopLeft + (x / scale - offsetX);
+        double newY = yTopLeft + (y / scale - offsetY);
+
+        if (snapToGrid) {
+            newX = Math.round((newX - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX;
+            newY = Math.round((newY - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY;
+        }
+
+        if (graph.isSelected(nodeSelected)) {
+            double origX = graph.getXPos(nodeSelected);
+            double origY = graph.getYPos(nodeSelected);
+
+            for (int i = 0; i < graph.getN(); i++) {
+                if (graph.isSelected(i) && i != nodeSelected) {
+                    graph.setXPos(i, graph.getXPos(i) + newX - origX);
+                    graph.setYPos(i, graph.getYPos(i) + newY - origY);
+                }
+            }
+        } else {
+            graph.deselectAll();
+        }
+
+        graph.setXPos(nodeSelected, newX);
+        graph.setYPos(nodeSelected, newY);
 
     }
 
