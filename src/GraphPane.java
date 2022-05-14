@@ -40,9 +40,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     int radius = 12;
     double scale = 1;
 
-    double rotateX = -1;
-    double rotateY = -1;
-
     int xTopLeft = 0;
     int yTopLeft = 0;
 
@@ -154,26 +151,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             new MouseWheelListener() {
                 public void mouseWheelMoved(MouseWheelEvent e) {
                     int rotation = e.getWheelRotation();
-
-                    if (selectedOption == GRID_OPTION) {
-
-
-                        gridSpacing = Math.max(gridSpacing * (1 - rotation / 6.0), 5.0);
-                        gridSpacing = Math.min(gridSpacing, 500);
-
-
-                    } else {
-                        double oldScale = scale;
-                        setScale(scale *(1-rotation/6.0));
-
-                        int mouseX = Math.round((MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2));
-                        int mouseY = Math.round((MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - mouseOffsetY2));
-
-                        xTopLeft = xTopLeft + (int) Math.round(mouseX / oldScale - (mouseX) / scale);
-                        yTopLeft = yTopLeft + (int) Math.round((mouseY) / oldScale - (mouseY) / scale);
-                    }
-
-                    repaint();
+                    mouseScrolled(rotation);
                 }
             });
 
@@ -183,41 +161,29 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         thisGraphPane = this;
     }
 
+    private void mouseScrolled(int rotation){
+        if (selectedOption == GRID_OPTION) {
+            gridSpacing = Math.max(gridSpacing * (1 - rotation / 6.0), 5.0);
+            gridSpacing = Math.min(gridSpacing, 500);
+
+        } else {
+            double oldScale = scale;
+            setScale(scale *(1-rotation/6.0));
+
+            int mouseX = mouseX();
+            int mouseY = mouseY();
+
+            xTopLeft = xTopLeft + (int) Math.round(mouseX / oldScale - (mouseX) / scale);
+            yTopLeft = yTopLeft + (int) Math.round((mouseY) / oldScale - (mouseY) / scale);
+        }
+
+        repaint();
+    }
+
     public void mouseClicked(MouseEvent e) {
 
         if (e.getButton() == MouseEvent.BUTTON3) {
-            if (nodeSelected != -1) {
-                graph.setAllPos(originalX, originalY);
-                nodeSelected = -1;
-                mouseMoved(e);
-                repaint();
-            } else if (startedCreatingVertex) {
-                startedCreatingVertex = false;
-                repaint();
-            } else if (nodeSelectedForEdge > -1) {
-                nodeSelectedForEdge = -1;
-                repaint();
-            } else if (nodeSelectedForErasing > -1) {
-                nodeSelectedForErasing = -1;
-                repaint();
-            } else if (edgeSelectedForErasing[0] > -1 && edgeSelectedForErasing[1] > -1) {
-                edgeSelectedForErasing[0] = -1;
-                edgeSelectedForErasing[1] = -1;
-                repaint();
-            } else if (nodeSelectedForRelabelling > -1) {
-                nodeSelectedForRelabelling = -1;
-                repaint();
-            } else if (nodeSelectedForDom > -1) {
-                nodeSelectedForDom = -1;
-                repaint();
-            } else {
-                defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-                selectedOption = -1;
-                edgeHighlighted[0] = -1;
-                edgeHighlighted[1] = -1;
-                parent.changeCursor(defaultCursor);
-                parent.changeSelectedOption(-1);
-            }
+            resetMouseVars();
         }
     }
 
@@ -296,9 +262,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                         new TimerTask() {
                             @Override
                             public void run() {
-                                rotateX = (xPos / scale + xTopLeft);
-                                rotateY = (yPos / scale + yTopLeft);
-                                rotate();
+                                rotate((xPos / scale + xTopLeft), (yPos / scale + yTopLeft));
                             }
                         }, 0, 1);
 
@@ -310,33 +274,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
-    public void rotate() {
-        for (int i = 0; i < graph.getN(); i++)
-            if (graph.isSelected(i)) {
-                double x = graph.getXPos(i);
-                double y = graph.getYPos(i);
-                double r = Math.pow(Math.pow(x - rotateX, 2) + Math.pow(y - rotateY, 2), 0.5);
-                double theta = Math.atan(Math.abs(((x - rotateX)) / ((y - rotateY))));
-                if (x >= rotateX && y >= rotateY)
-                    theta = Math.PI / 2.0 - theta;
-                if (x < rotateX && y >= rotateY)
-                    theta = Math.PI / 2.0 + theta;
-                if (x < rotateX && y < rotateY)
-                    theta = 3.0 * Math.PI / 2.0 - theta;
-                if (x >= rotateX && y < rotateY)
-                    theta = 3.0 * Math.PI / 2.0 + theta;
-                theta = theta + Math.PI / 360.0;
-                double newx = x;
-                double newy = y;
-                if (r >= 0.001) {
-                    newx = (rotateX + r * Math.cos(theta));
-                    newy = (rotateY + r * Math.sin(theta));
-                }
-                graph.setXPos(i, newx);
-                graph.setYPos(i, newy);
-            }
-        repaint();
-    }
+
 
     public void mouseReleased(MouseEvent e) {
 
@@ -541,13 +479,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-    public int mouseX(){
-        return (MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2);
-    }
 
-    public int mouseY(){
-        return (MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - mouseOffsetY2);
-    }
 
     public void mouseDragged(MouseEvent e) {
 
@@ -676,9 +608,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                         new TimerTask() {
                             @Override
                             public void run() {
-                                rotateX = ((xPos) / scale + xTopLeft);
-                                rotateY = ((yPos) / scale + yTopLeft);
-                                rotate();
+                                rotate(((xPos) / scale + xTopLeft), ((yPos) / scale + yTopLeft));
                             }
                         }, 0, 1);
 
@@ -776,6 +706,47 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    public int mouseX(){
+        return (MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2);
+    }
+
+    public int mouseY(){
+        return (MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - mouseOffsetY2);
+    }
+
+    private void resetMouseVars(){
+        if (nodeSelected != -1) {
+            graph.setAllPos(originalX, originalY);
+            nodeSelected = -1;
+            repaint();
+        } else if (startedCreatingVertex) {
+            startedCreatingVertex = false;
+            repaint();
+        } else if (nodeSelectedForEdge > -1) {
+            nodeSelectedForEdge = -1;
+            repaint();
+        } else if (nodeSelectedForErasing > -1) {
+            nodeSelectedForErasing = -1;
+            repaint();
+        } else if (edgeSelectedForErasing[0] > -1 && edgeSelectedForErasing[1] > -1) {
+            edgeSelectedForErasing[0] = -1;
+            edgeSelectedForErasing[1] = -1;
+            repaint();
+        } else if (nodeSelectedForRelabelling > -1) {
+            nodeSelectedForRelabelling = -1;
+            repaint();
+        } else if (nodeSelectedForDom > -1) {
+            nodeSelectedForDom = -1;
+            repaint();
+        } else {
+            defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+            selectedOption = -1;
+            edgeHighlighted[0] = -1;
+            edgeHighlighted[1] = -1;
+            parent.changeCursor(defaultCursor);
+            parent.changeSelectedOption(-1);
+        }
+    }
 
     public Color[] getDefaultColors() {
         Color[] tempColors = new Color[6];
@@ -1279,6 +1250,33 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
+    public void rotate(double rotateX, double rotateY) {
+        for (int i = 0; i < graph.getN(); i++)
+            if (graph.isSelected(i)) {
+                double x = graph.getXPos(i);
+                double y = graph.getYPos(i);
+                double r = Math.pow(Math.pow(x - rotateX, 2) + Math.pow(y - rotateY, 2), 0.5);
+                double theta = Math.atan(Math.abs(((x - rotateX)) / ((y - rotateY))));
+                if (x >= rotateX && y >= rotateY)
+                    theta = Math.PI / 2.0 - theta;
+                if (x < rotateX && y >= rotateY)
+                    theta = Math.PI / 2.0 + theta;
+                if (x < rotateX && y < rotateY)
+                    theta = 3.0 * Math.PI / 2.0 - theta;
+                if (x >= rotateX && y < rotateY)
+                    theta = 3.0 * Math.PI / 2.0 + theta;
+                theta = theta + Math.PI / 360.0;
+                double newx = x;
+                double newy = y;
+                if (r >= 0.001) {
+                    newx = (rotateX + r * Math.cos(theta));
+                    newy = (rotateY + r * Math.sin(theta));
+                }
+                graph.setXPos(i, newx);
+                graph.setYPos(i, newy);
+            }
+        repaint();
+    }
 
     public int getTextSize() {
         return textSize;
