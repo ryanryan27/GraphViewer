@@ -879,219 +879,46 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
             //draw the gridlines here
-
             if (showGridlines) {
-
-                //find boundary af drawn area
-
-                Rectangle boundingBox = new Rectangle(0, 0, (int) (getSize().getWidth() / scale), (int) (getSize().getHeight() / scale));
-
-
-                //find where first vertical line goes, and how many
-                double startX = boundingBox.x - gridSpacing - (boundingBox.x - gridOffsetX + xTopLeft) % (gridSpacing);
-                int numLinesX = 3 + (int) Math.floor((boundingBox.x + boundingBox.width) / gridSpacing) - (int) Math.floor(boundingBox.x / gridSpacing);
-
-                //find where first horizontal line goes, and how many
-                double startY = boundingBox.y - gridSpacing - (boundingBox.y - gridOffsetY + yTopLeft) % (gridSpacing);
-                int numLinesY = 3 + (int) Math.floor((boundingBox.y + boundingBox.height) / gridSpacing) - (int) Math.floor(boundingBox.y / gridSpacing);
-
-                //draw the lines
-                g.setColor(Color.lightGray);
-                for (int i = 0; i < numLinesX; i++) {
-                    g.drawLine((int) (startX + i * gridSpacing), boundingBox.y - (int) gridSpacing, (int) (startX + i * gridSpacing), boundingBox.y + boundingBox.height + (int) gridSpacing);
-                }
-                for (int i = 0; i < numLinesY; i++) {
-                    g.drawLine(boundingBox.x - (int) gridSpacing, (int) (startY + i * gridSpacing), boundingBox.x + boundingBox.width + (int) gridSpacing, (int) (startY + i * gridSpacing));
-                }
-
+                drawGridlines(g);
             }
-
 
             int N = graph.getN();
 
             if (displayCrossings) {
-                findCrossings();
-                g.setColor(crossColor);
-                for (int i = 0; i < crossings; i++)
-                    g.fillOval(Math.round(-xTopLeft + crossingsX[i]) - radius, Math.round(-yTopLeft + crossingsY[i]) - radius, 2 * radius, 2 * radius);
-
-                g.setFont(g.getFont().deriveFont((float) (20 / scale)));
-                g.drawString(("Crossings: " + crossings), Math.round(20 / scale), Math.round(20 / scale));
-                g.setFont(g.getFont().deriveFont((float) textSize));
-                g.setColor(defaultColor);
+                drawCrossings(g);
             }
 
 
             int mouseX = (int) Math.round((MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2) / scale);
             int mouseY = (int) Math.round((MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - mouseOffsetY2) / scale);
 
-            boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
+
 
             if (displayDomination) {
-                g.setColor(crossColor);
-                g.setFont(g.getFont().deriveFont((float) (20 / scale)));
-                int ud = 0;
-                for (boolean b : dv)
-                    if (!b) {
-                        ud++;
-                    }
-
-
-                g.drawString(("Undominated Vertices: " + ud + " (" + graph.getDomSize() + ")"), (int) Math.round((getWidth() - 300) / scale), (int) Math.round(20 / scale));
-                String domstring = "";
-                if (domTotal) {
-                    if (domstring.length() == 0) domstring = "(";
-                    else domstring += ", ";
-                    domstring += "Total";
-                }
-                if (domConnected) {
-                    if (domstring.length() == 0) domstring = "(";
-                    else domstring += ", ";
-                    domstring += "Connected";
-                }
-                if (domSecure) {
-                    if (domstring.length() == 0) domstring = "(";
-                    else domstring += ", ";
-                    domstring += "Secure";
-                }
-                if (domWeakRoman) {
-                    if (domstring.length() == 0) domstring = "(";
-                    else domstring += ", ";
-                    domstring += "Weak Roman";
-                }
-                if (domRoman) {
-                    if (domstring.length() == 0) domstring = "(";
-                    else domstring += ", ";
-                    domstring += "Roman";
-                }
-                if (domstring.length() > 0)
-                    domstring += ")";
-                g.setFont(g.getFont().deriveFont((float) (14 / scale)));
-                g.drawString(domstring, (int) Math.round((getWidth() - 75 - 6 * domstring.length()) / scale), (int) Math.round(32 / scale));
-                g.setFont(g.getFont().deriveFont((float) textSize));
-                g.setColor(defaultColor);
+                drawDominationText(g);
             }
 
             for (int i = 0; i < N; i++) {
                 if (graph.isSelected(i)) {
 
                     final float[] dash1 = {2.0f};
+                    g.setColor(defaultColor);
                     g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
                     g.drawRect((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius - 6, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius - 6, 2 * radius + 12, 2 * radius + 12);
                     g.setStroke(new BasicStroke(1));
 
                 }
-                if (i == nodeHighlighted || i == nodeSelectedForEdge) {
-                    continue;
 
-                }
+                if(i == nodeHighlighted || i == nodeSelectedForEdge) continue;
 
-                if (graph.inDomset(i + 1) == 2 && displayDomination) {
-                    g.setStroke(new BasicStroke(12));
-                    g.fillRect((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius - 6, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius - 6, 2 * radius + 12, 2 * radius + 12);
-                    g.setColor(Color.WHITE);
-                    g.setStroke(new BasicStroke(1));
-                    g.fillOval((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius, 2 * radius, 2 * radius);
-                    g.setColor(defaultColor);
-                }
-
-                if (dv[i] && displayDomination) {
-                    g.setColor(dominatedColor);
-                    g.fillOval((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius, 2 * radius, 2 * radius);
-                    g.setColor(defaultColor);
-                }
-
-                if (graph.inDomset(i + 1) == 1 && displayDomination)
-                    g.setStroke(new BasicStroke(6));
-
-                g.drawOval((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius, 2 * radius, 2 * radius);
-                if (graph.inDomset(i + 1) > 0 && displayDomination)
-                    g.setStroke(new BasicStroke(1));
-
-
-                if (displayVertexLabels) {
-                    String nodeLabel = ("" + (i + 1));
-                    g.drawString(nodeLabel, (int) Math.round((-xTopLeft - textSize * 0.5 * nodeLabel.length() / 2 + graph.getXPos(i))), (int) Math.round((-yTopLeft + textSize / 2.7 + graph.getYPos(i))));
-
-                }
-
-                if (i == nodeHighlighted || i == nodeSelectedForEdge) {
-                    g.setColor(defaultColor);
-                    g.setFont(g.getFont().deriveFont(Font.PLAIN));
-                    g.setStroke(new BasicStroke(1.0f));
-                }
-
+                drawVertex(g, i);
 
             }
 
-            if (nodeHighlighted != -1) {
+            drawVertex(g, nodeHighlighted);
+            drawVertex(g, nodeSelectedForEdge);
 
-                g.setColor(highlightedVertexFillColor);
-
-                g.fillOval((int) Math.round((-xTopLeft + graph.getXPos(nodeHighlighted))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(nodeHighlighted))) - radius, 2 * radius, 2 * radius);
-
-                g.setColor(highlightedVertexColor);
-                g.setFont(g.getFont().deriveFont(Font.BOLD));
-
-
-                if (graph.inDomset(nodeHighlighted + 1) == 2 && displayDomination) {
-                    g.setStroke(new BasicStroke(6));
-                    g.fillRect((int) Math.round((-xTopLeft + graph.getXPos(nodeHighlighted))) - radius - 6, (int) Math.round((-yTopLeft + graph.getYPos(nodeHighlighted))) - radius - 6, 2 * radius + 12, 2 * radius + 12);
-                    g.setStroke(new BasicStroke(1));
-                    g.setColor(highlightedVertexFillColor);
-                    g.fillOval((int) Math.round((-xTopLeft + graph.getXPos(nodeHighlighted))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(nodeHighlighted))) - radius, 2 * radius, 2 * radius);
-                    g.setColor(highlightedVertexColor);
-                }
-
-                if (graph.inDomset(nodeHighlighted + 1) == 1 && displayDomination)
-                    g.setStroke(new BasicStroke(6));
-
-                g.drawOval((int) Math.round((-xTopLeft + graph.getXPos(nodeHighlighted))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(nodeHighlighted))) - radius, 2 * radius, 2 * radius);
-                if (graph.inDomset(nodeHighlighted + 1) > 0 && displayDomination)
-                    g.setStroke(new BasicStroke(1));
-
-                if (displayVertexLabels) {
-                    String nodeLabel = ("" + (nodeHighlighted + 1));
-                    g.drawString(nodeLabel, (int) Math.round((-xTopLeft - textSize * 0.5 * nodeLabel.length() / 2 + graph.getXPos(nodeHighlighted))), (int) Math.round((-yTopLeft + textSize / 2.7 + graph.getYPos(nodeHighlighted))));
-                }
-
-                g.setColor(defaultColor);
-                g.setFont(g.getFont().deriveFont(Font.PLAIN));
-                g.setStroke(new BasicStroke(1.0f));
-            }
-            if (nodeSelectedForEdge != -1) {
-                g.setColor(highlightedVertexFillColor);
-
-                g.fillOval((int) Math.round((-xTopLeft + graph.getXPos(nodeSelectedForEdge))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(nodeSelectedForEdge))) - radius, 2 * radius, 2 * radius);
-
-                g.setColor(highlightedVertexColor);
-                g.setFont(g.getFont().deriveFont(Font.BOLD));
-
-
-                if (graph.inDomset(nodeSelectedForEdge + 1) == 2 && displayDomination) {
-                    g.setStroke(new BasicStroke(6));
-                    g.fillRect((int) Math.round((-xTopLeft + graph.getXPos(nodeSelectedForEdge))) - radius - 6, (int) Math.round((-yTopLeft + graph.getYPos(nodeSelectedForEdge))) - radius - 6, 2 * radius + 12, 2 * radius + 12);
-                    g.setStroke(new BasicStroke(1));
-                    g.setColor(highlightedVertexFillColor);
-                    g.fillOval((int) Math.round((-xTopLeft + graph.getXPos(nodeSelectedForEdge))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(nodeSelectedForEdge))) - radius, 2 * radius, 2 * radius);
-                    g.setColor(highlightedVertexColor);
-                }
-                if (graph.inDomset(nodeSelectedForEdge + 1) == 1 && displayDomination)
-                    g.setStroke(new BasicStroke(6));
-
-                g.drawOval((int) Math.round((-xTopLeft + graph.getXPos(nodeSelectedForEdge))) - radius, (int) Math.round((-yTopLeft + graph.getYPos(nodeSelectedForEdge))) - radius, 2 * radius, 2 * radius);
-                if (graph.inDomset(nodeSelectedForEdge + 1) > 0 && displayDomination)
-                    g.setStroke(new BasicStroke(1));
-
-                if (displayVertexLabels) {
-                    String nodeLabel = ("" + (nodeSelectedForEdge + 1));
-                    g.drawString(nodeLabel, (int) Math.round((-xTopLeft - textSize * 0.5 * nodeLabel.length() / 2 + graph.getXPos(nodeSelectedForEdge))), (int) Math.round((-yTopLeft + textSize / 2.7 + graph.getYPos(nodeSelectedForEdge))));
-                }
-
-                g.setColor(defaultColor);
-                g.setFont(g.getFont().deriveFont(Font.PLAIN));
-                g.setStroke(new BasicStroke(1.0f));
-            }
 
             if (startedSelection) {
                 //int leftX = xClicked;
@@ -1115,7 +942,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 final float[] dash1 = {2.0f};
                 g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
                 g.drawRect(leftX, bottomY, rightX - leftX, topY - bottomY);
-                g.setStroke(new BasicStroke(1));
 
             }
 
@@ -1123,132 +949,29 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             int[][] arcs = graph.getArcs();
             int[] degrees = graph.getDegrees();
 
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i < N; i++) {
                 for (int j = 0; j < degrees[i]; j++) {
                     int v2 = arcs[i][j] - 1;
 
-                    if (nodeHighlighted == i || nodeHighlighted == v2 || v2 <= i) {
-                        continue;
+                    if(v2 <= i) continue;
 
+                    if ((nodeHighlighted != i && nodeHighlighted != v2) || (edgeHighlighted[0] == i && edgeHighlighted[1] == v2) || (edgeHighlighted[0] == v2 && edgeHighlighted[1] == i)) {
+                        drawEdge(g, i, v2, defaultColor, 1);
+                    } else {
+                        drawEdge(g, i, v2, highlightedVertexColor, (float) Math.max(2f, 1.5f / scale));
                     }
-
-
-                    double centre1X = -xTopLeft + graph.getXPos(i);
-                    double centre1Y = -yTopLeft + graph.getYPos(i);
-                    double centre2X = -xTopLeft + graph.getXPos(v2);
-                    double centre2Y = -yTopLeft + graph.getYPos(v2);
-
-
-                    double theta;
-                    if (centre2X == centre1X)
-                        if (centre1Y > centre2Y)
-                            theta = Math.PI / 2;
-                        else
-                            theta = 3 * Math.PI / 2;
-                    else
-                        theta = Math.atan((0.0 + centre2Y - centre1Y) / (centre2X - centre1X));
-
-                    if (centre1X < centre2X) {
-                        if (centre1Y < centre2Y)
-                            g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.ceil(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre2Y + radius * Math.sin(Math.PI + theta)));
-                        else if (centre1Y > centre2Y)
-                            g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.floor(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre2Y + radius * Math.sin(Math.PI + theta)));
-                        else
-                            g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.floor(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre2Y + radius * Math.sin(Math.PI + theta)));
-                    } else if (centre1X > centre2X)
-                        if (centre1Y < centre2Y)
-                            g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                        else if (centre1Y > centre2Y)
-                            g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.ceil(centre2Y + radius * Math.sin(theta)));
-                        else
-                            g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                    else if (centre1Y < centre2Y)
-                        g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.floor(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                    else
-                        g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.floor(centre2X + radius * Math.cos(theta)), (int) Math.ceil(centre2Y + radius * Math.sin(theta)));
-
                 }
+            }
 
-            g.setColor(highlightedVertexColor);
-            g.setStroke(new BasicStroke((float) Math.max(2f, 1.5f / Math.max(scale, scale))));
-
-            for (int i = 0; i < N; i++)
-                for (int j = 0; j < degrees[i]; j++) {
-                    int v2 = arcs[i][j] - 1;
-
-                    if ((nodeHighlighted != i && nodeHighlighted != v2) || (edgeHighlighted[0] == i && edgeHighlighted[1] == v2) || (edgeHighlighted[0] == v2 && edgeHighlighted[1] == i) || v2 <= i) {
-                        continue;
-
-                    }
-
-
-                    double centre1X = -xTopLeft + graph.getXPos(i);
-                    double centre1Y = -yTopLeft + graph.getYPos(i);
-                    double centre2X = -xTopLeft + graph.getXPos(v2);
-                    double centre2Y = -yTopLeft + graph.getYPos(v2);
-
-                    double theta;
-                    if (centre2X == centre1X)
-                        if (centre1Y > centre2Y)
-                            theta = Math.PI / 2;
-                        else
-                            theta = 3 * Math.PI / 2;
-                    else
-                        theta = Math.atan((0.0 + centre2Y - centre1Y) / (centre2X - centre1X));
-
-                    if (centre1X < centre2X) {
-                        if (centre1Y < centre2Y)
-                            g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.ceil(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre2Y + radius * Math.sin(Math.PI + theta)));
-                        else if (centre1Y > centre2Y)
-                            g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.floor(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre2Y + radius * Math.sin(Math.PI + theta)));
-                        else
-                            g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.floor(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre2Y + radius * Math.sin(Math.PI + theta)));
-                    } else if (centre1X > centre2X)
-                        if (centre1Y < centre2Y)
-                            g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                        else if (centre1Y > centre2Y)
-                            g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.ceil(centre2Y + radius * Math.sin(theta)));
-                        else
-                            g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                    else if (centre1Y < centre2Y)
-                        g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.floor(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                    else
-                        g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.floor(centre2X + radius * Math.cos(theta)), (int) Math.ceil(centre2Y + radius * Math.sin(theta)));
-
-
-                }
-
-            g.setStroke(new BasicStroke(1f));
-            g.setColor(defaultColor);
 
             if (nodeSelectedForEdge != -1) {
-
-                g.setColor(newEdgeColor);
-                g.setStroke(new BasicStroke((float) Math.max(2f, 1.5f / Math.max(scale, scale))));
-
 
                 double centre1X = -xTopLeft + graph.getXPos(nodeSelectedForEdge);
                 double centre1Y = -yTopLeft + graph.getYPos(nodeSelectedForEdge);
 
-                double theta;
-                if (mouseX == centre1X)
-                    if (centre1Y > mouseY)
-                        theta = Math.PI / 2;
-                    else
-                        theta = 3 * Math.PI / 2;
-                else
-                    theta = Math.atan((0.0 + mouseY - centre1Y) / (mouseX - centre1X));
-
-                if (centre1X < mouseX) {
-                    g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.ceil(centre1Y + radius * Math.sin(theta)), mouseX, mouseY);
-                } else
-                    g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre1Y + radius * Math.sin(Math.PI + theta)), mouseX, mouseY);
-
-                g.setStroke(new BasicStroke(1f));
-                g.setColor(defaultColor);
+                drawEdge(g, centre1X, centre1Y, radius, mouseX, mouseY, 0, newEdgeColor, (float)Math.max(2f, 1.5f / scale));
 
             }
-
 
             if (startedCreatingVertex) {
 
@@ -1260,53 +983,234 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                     newVertY = Math.round((newVertY + yTopLeft - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY - yTopLeft;
                 }
 
-                g.drawOval((int) Math.round(newVertX) - radius, (int) Math.round(newVertY) - radius, 2 * radius, 2 * radius);
+                drawVertex(g, newVertX, newVertY, radius, defaultColor, 1f);
             }
             if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
-                g.setColor(deleteEdgeColor);
-                g.setStroke(new BasicStroke((float) Math.max(2f, 1.5f / Math.max(scale, scale))));
-
-
-                double centre1X = -xTopLeft + graph.getXPos(edgeHighlighted[0]);
-                double centre1Y = -yTopLeft + graph.getYPos(edgeHighlighted[0]);
-                double centre2X = -xTopLeft + graph.getXPos(edgeHighlighted[1]);
-                double centre2Y = -yTopLeft + graph.getYPos(edgeHighlighted[1]);
-
-                double theta;
-                if (centre2X == centre1X)
-                    if (centre1Y > centre2Y)
-                        theta = Math.PI / 2;
-                    else
-                        theta = 3 * Math.PI / 2;
-                else
-                    theta = Math.atan((0.0 + centre2Y - centre1Y) / (centre2X - centre1X));
-
-                if (centre1X < centre2X) {
-                    if (centre1Y < centre2Y)
-                        g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.ceil(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre2Y + radius * Math.sin(Math.PI + theta)));
-                    else if (centre1Y > centre2Y)
-                        g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.floor(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre2Y + radius * Math.sin(Math.PI + theta)));
-                    else
-                        g.drawLine((int) Math.ceil(centre1X + radius * Math.cos(theta)), (int) Math.floor(centre1Y + radius * Math.sin(theta)), (int) Math.floor(centre2X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre2Y + radius * Math.sin(Math.PI + theta)));
-                } else if (centre1X > centre2X)
-                    if (centre1Y < centre2Y)
-                        g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                    else if (centre1Y > centre2Y)
-                        g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.ceil(centre2Y + radius * Math.sin(theta)));
-                    else
-                        g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.ceil(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                else if (centre1Y < centre2Y)
-                    g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.ceil(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.floor(centre2X + radius * Math.cos(theta)), (int) Math.floor(centre2Y + radius * Math.sin(theta)));
-                else
-                    g.drawLine((int) Math.floor(centre1X + radius * Math.cos(Math.PI + theta)), (int) Math.floor(centre1Y + radius * Math.sin(Math.PI + theta)), (int) Math.floor(centre2X + radius * Math.cos(theta)), (int) Math.ceil(centre2Y + radius * Math.sin(theta)));
-
-                g.setStroke(new BasicStroke(1f));
-                g.setColor(defaultColor);
+                drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
             }
 
             gra.drawImage(image, 0, 0, null);
         }
 
+    }
+
+    private void drawVertex(Graphics2D g, int vertex){
+
+        if(vertex == -1) return;
+
+        boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
+
+        float weight = 1;
+        Color stroke = defaultColor;
+        Color fill = Color.WHITE;
+        Font font = g.getFont().deriveFont(Font.PLAIN).deriveFont((float)textSize);
+
+        if (dv[vertex] && displayDomination) {
+            fill = dominatedColor;
+        }
+
+        if (vertex == nodeHighlighted || vertex == nodeSelectedForEdge) {
+            stroke = highlightedVertexColor;
+            fill = highlightedVertexFillColor;
+            font = g.getFont().deriveFont(Font.BOLD);
+            weight = (float)Math.max(2f, 1.5f / scale);
+        }
+
+
+        double x = -xTopLeft + graph.getXPos(vertex);
+        double y = -yTopLeft + graph.getYPos(vertex);
+
+        if (graph.inDomset(vertex + 1) == 2 && displayDomination) {
+            drawVertex(g, x, y, radius + 4, stroke, fill, 4);
+        }
+
+
+        if (graph.inDomset(vertex + 1) == 1 && displayDomination){
+            weight = 6;
+        }
+
+        if(displayVertexLabels){
+            String label = "" + (vertex + 1);
+            drawVertex(g, x, y, radius, stroke, fill, weight, label, font);
+        } else {
+            drawVertex(g, x, y, radius, stroke, fill, weight);
+        }
+
+    }
+
+    private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, float weight){
+        g.setStroke(new BasicStroke(weight));
+        g.setColor(stroke);
+
+        g.drawOval((int)Math.round(x) - rad, (int)Math.round(y)-rad, 2*rad, 2*rad);
+    }
+
+    private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, Color fill, float weight){
+        g.setColor(fill);
+        g.fillOval((int)Math.round(x) - rad, (int)Math.round(y)-rad, 2*rad, 2*rad);
+
+        drawVertex(g, x, y, rad, stroke, weight);
+    }
+
+    private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, float weight, String label, Font font){
+        drawVertex(g, x, y, rad, stroke, weight);
+
+        g.setColor(stroke);
+        g.setFont(font);
+
+        FontMetrics fm = g.getFontMetrics();
+
+        int text_x = (int)Math.round(x-fm.stringWidth(label)/2.0);
+        int text_y = (int)Math.round(y-fm.getHeight()/2.0) +fm.getAscent();
+
+
+        g.drawString(label, text_x, text_y);
+    }
+
+    private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, Color fill, float weight, String label, Font font){
+        g.setColor(fill);
+        g.fillOval((int)Math.round(x) - rad, (int)Math.round(y)-rad, 2*rad, 2*rad);
+
+        drawVertex(g, x, y, rad, stroke, weight, label, font);
+    }
+
+    private void drawEdge(Graphics2D g, int v1, int v2, Color c, float weight){
+
+        double x1 = -xTopLeft + graph.getXPos(v1);
+        double y1 = -yTopLeft + graph.getYPos(v1);
+        double x2 = -xTopLeft + graph.getXPos(v2);
+        double y2 = -yTopLeft + graph.getYPos(v2);
+
+        drawEdge(g, x1, y1, radius, x2, y2, radius, c, weight);
+    }
+
+    private void drawEdge(Graphics2D g, double x1, double y1, int r1, double x2, double y2, int r2, Color c, float weight){
+
+        g.setStroke(new BasicStroke(weight));
+        g.setColor(c);
+
+        double theta;
+
+        int start_x1;
+        int start_x2;
+        int start_y1;
+        int start_y2;
+
+        if (x2 == x1) {
+            if (y1 > y2) {
+                theta = Math.PI / 2;
+            } else {
+                theta = 3 * Math.PI / 2;
+            }
+        } else {
+            theta = Math.atan((0.0 + y2 - y1) / (x2 - x1));
+        }
+
+        double y1_offset;
+        double y2_offset;
+
+        if (x1 < x2) {
+            start_x1 = (int) Math.ceil(x1 + r1 * Math.cos(theta));
+            start_x2 = (int) Math.floor(x2 + r2 * Math.cos(Math.PI + theta));
+            y1_offset = 0;
+            y2_offset = Math.PI;
+        } else if (x1 > x2) {
+            start_x1 = (int) Math.floor(x1 + r1 * Math.cos(Math.PI + theta));
+            start_x2 = (int) Math.ceil(x2 + r2 * Math.cos(theta));
+            y1_offset = Math.PI;
+            y2_offset = 0;
+        } else {
+            start_x1 = (int) Math.floor(x1 + r1 * Math.cos(Math.PI + theta));
+            start_x2 = (int) Math.floor(x2 + r2 * Math.cos(theta));
+            y1_offset = Math.PI;
+            y2_offset = 0;
+        }
+
+        if(y1 < y2){
+            start_y1 = (int) Math.ceil(y1 + r1 * Math.sin(theta+y1_offset));
+            start_y2 = (int) Math.floor(y2 + r2 * Math.sin(theta+y2_offset));
+        } else if (y1 > y2){
+            start_y1 = (int) Math.floor(y1 + r1 * Math.sin(theta+y1_offset));
+            start_y2 = (int) Math.ceil(y2 + r2 * Math.sin(theta+y2_offset));
+        } else {
+            start_y1 = (int) Math.floor(y1 + r1 * Math.sin(theta+y1_offset));
+            start_y2 = (int) Math.floor(y2 + r2 * Math.sin(theta+y2_offset));
+        }
+
+        g.drawLine(start_x1, start_y1, start_x2, start_y2);
+
+    }
+
+    private void drawGridlines(Graphics2D g){
+        //find boundary af drawn area
+        Rectangle boundingBox = new Rectangle(0, 0, (int) (getSize().getWidth() / scale), (int) (getSize().getHeight() / scale));
+
+
+        //find where first vertical line goes, and how many
+        double startX = boundingBox.x - gridSpacing - (boundingBox.x - gridOffsetX + xTopLeft) % (gridSpacing);
+        int numLinesX = 3 + (int) Math.floor((boundingBox.x + boundingBox.width) / gridSpacing) - (int) Math.floor(boundingBox.x / gridSpacing);
+
+        //find where first horizontal line goes, and how many
+        double startY = boundingBox.y - gridSpacing - (boundingBox.y - gridOffsetY + yTopLeft) % (gridSpacing);
+        int numLinesY = 3 + (int) Math.floor((boundingBox.y + boundingBox.height) / gridSpacing) - (int) Math.floor(boundingBox.y / gridSpacing);
+
+        //draw the lines
+        g.setColor(Color.lightGray);
+        g.setStroke(new BasicStroke(1));
+        for (int i = 0; i < numLinesX; i++) {
+            g.drawLine((int) (startX + i * gridSpacing), boundingBox.y - (int) gridSpacing, (int) (startX + i * gridSpacing), boundingBox.y + boundingBox.height + (int) gridSpacing);
+        }
+        for (int i = 0; i < numLinesY; i++) {
+            g.drawLine(boundingBox.x - (int) gridSpacing, (int) (startY + i * gridSpacing), boundingBox.x + boundingBox.width + (int) gridSpacing, (int) (startY + i * gridSpacing));
+        }
+    }
+
+    private void drawCrossings(Graphics2D g){
+        findCrossings();
+        g.setColor(crossColor);
+        for (int i = 0; i < crossings; i++) {
+            g.fillOval(Math.round(-xTopLeft + crossingsX[i]) - radius, Math.round(-yTopLeft + crossingsY[i]) - radius, 2 * radius, 2 * radius);
+        }
+
+        g.setFont(g.getFont().deriveFont((float) (20 / scale)));
+        g.drawString(("Crossings: " + crossings), Math.round(20 / scale), Math.round(20 / scale));
+    }
+
+    private void drawDominationText(Graphics2D g){
+        boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
+
+
+        int ud = 0;
+        for (boolean b : dv) {
+            if (!b) {
+                ud++;
+            }
+        }
+
+        g.scale(1/scale, 1/scale);
+
+        g.setColor(crossColor);
+        g.setFont(g.getFont().deriveFont((float) (20)));
+
+        g.drawString(("Undominated Vertices: " + ud + " (" + graph.getDomSize() + ")"),getWidth() - 300,20);
+
+        String types = "";
+        StringJoiner sj = new StringJoiner(", ");
+
+        if (domTotal) sj.add("Total");
+        if (domConnected) sj.add("Connected");
+        if (domSecure) sj.add("Secure");
+        if (domWeakRoman)  sj.add("Weak Roman");
+        if (domRoman) sj.add("Roman");
+        if (sj.length() > 0) {
+            types = "(" + sj.toString() + ")";
+
+            g.setFont(g.getFont().deriveFont((float) (14)));
+            g.drawString(types, getWidth() - 75 - 6 * types.length(), 32);
+
+        }
+
+        g.scale(scale, scale);
     }
 
     public void setGraph(Graph gr) {
