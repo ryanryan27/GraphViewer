@@ -148,13 +148,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             for (int i = 0; i < defaultColors.length; i++)
                 defaultColors[i] = new Color(di.readInt(), di.readInt(), di.readInt());
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
         try {
             if (di != null)
                 di.close();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
+
         }
     }
 
@@ -179,7 +180,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
             dos.close();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
     }
 
@@ -334,12 +335,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         vertexSizeField.setToolTipText("Resize vertices");
         vertexSizeField.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent ae) {
                         try {
                             int size = Integer.parseInt(vertexSizeField.getText());
                             if (size < MIN_VERTEX_SIZE) vertexSizeField.setText("" + MIN_VERTEX_SIZE);
                             if (size > MAX_VERTEX_SIZE) vertexSizeField.setText("" + MAX_VERTEX_SIZE);
-                        } catch (Exception ex) {
+                        } catch (Exception e) {
                             if (tabbedPane.getSelectedIndex() != -1) {
                                 vertexSizeField.setText("" + ((GraphPane) tabbedPane.getSelectedComponent()).getRadius());
                             } else
@@ -351,26 +352,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 new DocumentListener() {
 
                     @Override
-                    public void removeUpdate(DocumentEvent e) {
-                        try {
-                            int size = Integer.parseInt(vertexSizeField.getText());
-                            if (size < MIN_VERTEX_SIZE) size = MIN_VERTEX_SIZE;
-                            if (size > MAX_VERTEX_SIZE) size = MAX_VERTEX_SIZE;
-
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                ((GraphPane) tabbedPane.getSelectedComponent()).setRadius(size);
-                                tabbedPane.getSelectedComponent().repaint();
-                            }
-                            if (vertexSizeSlider != null)
-                                vertexSizeSlider.setValue(size);
-
-                        } catch (Exception ex) {
-                            System.err.println(ex.getMessage());
-                        }
-                    }
+                    public void removeUpdate(DocumentEvent de) {}
 
                     @Override
-                    public void insertUpdate(DocumentEvent e) {
+                    public void insertUpdate(DocumentEvent de) {
                         try {
                             int size = Integer.parseInt(vertexSizeField.getText());
                             if (size < MIN_VERTEX_SIZE) size = MIN_VERTEX_SIZE;
@@ -384,8 +369,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                             }
                             if (vertexSizeSlider != null) vertexSizeSlider.setValue(size);
 
-                        } catch (Exception ex) {
-                            System.err.println(ex.getMessage());
+                        } catch (Exception e) {
+                            System.err.println(e);
                         }
                     }
 
@@ -403,8 +388,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                             if (vertexSizeSlider != null) {
                                 vertexSizeSlider.setValue(size);
                             }
-                        } catch (Exception ex) {
-                            System.err.println(ex.getMessage());
+                        } catch (Exception e) {
+                            System.err.println(e);
                         }
                     }
                 });
@@ -415,12 +400,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         labelSizeField.setToolTipText("Resize vertex labels");
         labelSizeField.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent ae) {
                         try {
                             int size = Integer.parseInt(labelSizeField.getText());
                             if (size < MIN_LABEL_SIZE) labelSizeField.setText("" + MIN_LABEL_SIZE);
                             if (size > MAX_LABEL_SIZE) labelSizeField.setText("" + MAX_LABEL_SIZE);
-                        } catch (Exception ex) {
+                        } catch (Exception e) {
                             if (tabbedPane.getSelectedIndex() != -1) {
                                 labelSizeField.setText("" + ((GraphPane) tabbedPane.getSelectedComponent()).getTextSize());
                             } else {
@@ -434,7 +419,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 new DocumentListener() {
 
                     @Override
-                    public void removeUpdate(DocumentEvent e) {
+                    public void removeUpdate(DocumentEvent de) {
                         try {
 
                             int size = Integer.parseInt(labelSizeField.getText());
@@ -448,14 +433,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                             if (labelSizeSlider != null) {
                                 labelSizeSlider.setValue(size);
                             }
-                        } catch (Exception ex) {
-                            System.err.println(ex.getMessage());
+                        } catch (Exception e) {
+                            System.err.println(e);
                         }
 
                     }
 
                     @Override
-                    public void insertUpdate(DocumentEvent e) {
+                    public void insertUpdate(DocumentEvent de) {
                         try {
 
                             int size = Integer.parseInt(labelSizeField.getText());
@@ -470,8 +455,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                             if (labelSizeSlider != null) {
                                 labelSizeSlider.setValue(size);
                             }
-                        } catch (Exception ex) {
-                            System.err.println(ex.getMessage());
+                        } catch (Exception e) {
+                            System.err.println(e);
                         }
                     }
 
@@ -490,8 +475,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                             if (labelSizeSlider != null)
                                 labelSizeSlider.setValue(size);
 
-                        } catch (Exception ex) {
-                            System.err.println(ex.getMessage());
+                        } catch (Exception e) {
+                            System.err.println(e);
                         }
                     }
                 });
@@ -1023,7 +1008,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
 
     }
@@ -1107,7 +1092,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             fitToScreen();
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
     }
 
@@ -1196,7 +1181,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             fitToScreen();
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
     }
 
@@ -1215,7 +1200,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         try {
             di = new DataInputStream(new FileInputStream(file));
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
         int degree = 1;
         long graphsToDo = 0;
@@ -1278,7 +1263,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                             }
                             di = new DataInputStream(new FileInputStream(file));
                         } catch (Exception e) {
-                            System.err.println(e.getMessage());
+                            System.err.println(e);
                         }
                         readStream(di);
                         read = readStream(di);
@@ -1323,7 +1308,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                     }
                     di = new DataInputStream(new FileInputStream(file));
                 } catch (Exception e) {
-                    System.err.println(e.getMessage());
+                    System.err.println(e);
                 }
                 readStream(di);
                 read = readStream(di);
@@ -1354,7 +1339,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             try {
                 di = new DataInputStream(new FileInputStream(file));
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println(e);
             }
 
             if (graphsToDoLong == 1) {
@@ -1454,7 +1439,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                         di.close();
                     }
                 } catch (Exception e) {
-                    System.err.println(e.getMessage());
+                    System.err.println(e);
                 }
 
             }
@@ -1611,7 +1596,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             }
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
     }
 
@@ -1790,7 +1775,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             }
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println(e);
         }
     }
 
@@ -1962,7 +1947,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
 
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println(e);
             }
         }
 
@@ -2042,7 +2027,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 }
 
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println(e);
             }
         }
 
@@ -2094,7 +2079,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 bw.close();
 
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println(e);
             }
         }
 
@@ -2178,8 +2163,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 bw.write(line);
                 bw.close();
 
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
 
         }
@@ -2261,8 +2246,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
                     append = true;
                 }
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
 
         }
@@ -2320,7 +2305,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 bw.newLine();
                 bw.close();
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println(e);
             }
         }
 
@@ -2425,8 +2410,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
                 }
 
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
         }
 
@@ -2538,8 +2523,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 dos.close();
 
 
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
         }
 
@@ -2678,8 +2663,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                         newFile.renameTo(fileToSave);
                     }
                 }
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
         }
 
@@ -2826,8 +2811,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                         newFile.renameTo(fileToSave);
                     }
                 }
-            } catch (Exception ex) {
-                System.err.println(ex.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
         }
 
@@ -2890,7 +2875,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         JMenuItem closeFileItem = new JMenuItem("Close");
         saveFileItem = new JMenuItem("Save");
         saveMultipleGraphsFileItem = new JMenuItem("Save multiple graphs...");
-        exportAsImageFileItem = new JMenuItem("Export as image...");
+        exportAsImageFileItem = new JMenuItem("Export as image..");
         JMenuItem exitFileItem = new JMenuItem("Exit");
 
         newFileItem.addActionListener(
@@ -3221,7 +3206,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         exportAsImageFileItem.addActionListener(
                 new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent de) {
                         JFileChooser jfc = new JFileChooser(".");
                         jfc.setAcceptAllFileFilterUsed(false);
 
@@ -3314,8 +3299,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                 }
                                 if (save)
                                     ImageIO.write(img, fileFormat, file);
-                            } catch (Exception ex) {
-                                System.err.println(ex.getMessage());
+                            } catch (Exception e) {
+                                System.err.println(e);
                             }
                             gp.setSavingWithTransparentBackground(false);
                             saveSettings();
@@ -3980,8 +3965,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 validate();
                 repaint();
 
-            } catch (Exception e1) {
-                System.err.println(e1.getMessage());
+            } catch (Exception e) {
+                System.err.println(e);
             }
         }
 
