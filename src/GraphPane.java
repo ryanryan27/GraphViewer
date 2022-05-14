@@ -838,7 +838,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         for (int i = 0; i < N; i++) {
             if(i == nodeHighlighted || i == nodeSelectedForEdge) continue;
-
+            if(i == edgeHighlighted[0] || i == edgeHighlighted[1]) continue;
             drawVertex(g, i);
 
         }
@@ -856,6 +856,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
             drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
+            drawVertex(g, edgeHighlighted[0], deleteEdgeColor, true);
+            drawVertex(g, edgeHighlighted[1], deleteEdgeColor, true);
         }
 
 
@@ -886,16 +888,19 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-
     private void drawVertex(Graphics2D g, int vertex){
+        drawVertex(g, vertex, defaultColor, false);
+    }
+
+    private void drawVertex(Graphics2D g, int vertex, Color st, boolean override){
 
         if(vertex == -1) return;
 
         boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
 
         float weight = 1;
-        Color stroke = defaultColor;
         Color fill = Color.WHITE;
+        Color stroke = st;
         Font font = g.getFont().deriveFont(Font.PLAIN).deriveFont((float)textSize);
 
         if (dv[vertex] && displayDomination) {
@@ -909,6 +914,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             weight = (float)Math.max(2f, 1.5f / scale);
         }
 
+
+        if(override){
+            stroke = st;
+        }
 
         double x = -xTopLeft + graph.getXPos(vertex);
         double y = -yTopLeft + graph.getYPos(vertex);
