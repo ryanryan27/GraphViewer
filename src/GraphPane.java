@@ -797,37 +797,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         deleteEdgeColor = colors[5];
     }
 
-    private BufferedImage TransformColorToTransparency(BufferedImage image, Color c1) {
-        // Primitive test, just an example
-        final int r1 = c1.getRed();
-        final int g1 = c1.getGreen();
-        final int b1 = c1.getBlue();
-        ImageFilter filter =
-                new RGBImageFilter() {
-                    public int filterRGB(int x, int y, int rgb) {
-                        int r = (rgb & 0xFF0000) >> 16;
-                        int g = (rgb & 0xFF00) >> 8;
-                        int b = rgb & 0xFF;
-                        if (r == r1 && g == g1 && b == b1) {
-                            // Set fully transparent but keep color
-                            return rgb & 0xFFFFFF;
-                        }
-                        return rgb;
-                    }
-                };
-
-        ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
-        return ImageToBufferedImage(Toolkit.getDefaultToolkit().createImage(ip), image.getWidth(), image.getHeight());
-    }
-
-    private BufferedImage ImageToBufferedImage(Image image, int width, int height) {
-        BufferedImage dest = new BufferedImage(
-                width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = dest.createGraphics();
-        g2.drawImage(image, 0, 0, null);
-        g2.dispose();
-        return dest;
-    }
 
     public BufferedImage makeTransparent(BufferedImage image, int x, int y) {
         ColorModel cm = image.getColorModel();
@@ -864,15 +833,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
 
 
-
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
-
         g.scale(scale, scale);
+
 
         int N = graph.getN();
 
@@ -884,10 +852,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         if (displayCrossings) {
             drawCrossings(g);
         }
-
-
-
-
 
 
         int mouseX = (int) Math.round(mouseX() / scale);
@@ -933,12 +897,15 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         }
 
+
         if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
             drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
         }
 
+
         drawVertex(g, nodeHighlighted);
         drawVertex(g, nodeSelectedForEdge);
+
 
         if (startedCreatingVertex) {
 
@@ -954,10 +921,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
 
 
-
         if (displayDomination) {
             drawDominationText(g);
         }
+
 
         gra.drawImage(image, 0, 0, null);
     }
@@ -967,9 +934,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     private void drawVertex(Graphics2D g, int vertex){
 
         if(vertex == -1) return;
-
-
-
 
         boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
 
@@ -1137,7 +1101,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
             g.setFont(g.getFont().deriveFont((float) (14)));
             g.drawString(types, getWidth() - 75 - 6 * types.length(), 32);
-
         }
 
         g.scale(scale, scale);
@@ -1216,21 +1179,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     public void setSelectedOption(int option) {
         selectedOption = option;
-    }
-
-    public void changeColor(int colorCode, Color color) {
-        if (colorCode == CC_BACKGROUND)
-            backgroundColor = color;
-        if (colorCode == CC_DEFAULT)
-            defaultColor = color;
-        if (colorCode == CC_VERTEXFILL)
-            highlightedVertexFillColor = color;
-        if (colorCode == CC_VERTEX)
-            highlightedVertexColor = color;
-        if (colorCode == CC_EDGE)
-            newEdgeColor = color;
-        if (colorCode == CC_DELETEEDGE)
-            deleteEdgeColor = color;
     }
 
     public boolean getDisplayVertexLabels() {
