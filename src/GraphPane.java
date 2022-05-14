@@ -33,7 +33,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     int nodeHighlighted = -1;
     int nodeSelectedForEdge = -1;
     int[] edgeHighlighted = new int[2];
-    int[] edgeSelectedForErasing = new int[2];
     int radius = 12;
     double scale = 1;
 
@@ -129,8 +128,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         edgeHighlighted[0] = -1;
         edgeHighlighted[1] = -1;
-        edgeSelectedForErasing[0] = -1;
-        edgeSelectedForErasing[1] = -1;
+
 
         setDefaultColors(parent.getDefaultColors());
 
@@ -174,9 +172,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         if (e.getButton() == MouseEvent.BUTTON3) {
             resetMouseVars();
+
+            if(selectedOption != SELECT_OPTION){
+
+                graph.deselectAll();
+            }
+
         }
         if(e.getButton() == MouseEvent.BUTTON1){
-
             int vertex_hovered = vertexContaining(mouseX(), mouseY());
 
             if(selectedOption == RELABEL_OPTION){
@@ -185,8 +188,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             else if(selectedOption == ERASER_OPTION){
                 eraseVertex(vertex_hovered);
             }
+            else if(selectedOption == SCISSORS_OPTION){
+                deleteHighlightedEdge();
+            }
             else if (selectedOption == DOM_OPTION) {
                 dominateVertex(vertex_hovered);
+            }
+            else if (selectedOption == SELECT_OPTION){
+                toggleSelection(vertex_hovered);
             }
         }
 
@@ -194,164 +203,72 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void mousePressed(MouseEvent e) {
+
+        int mouseX = mouseX();
+        int mouseY = mouseY();
+
         if (e.getButton() == MouseEvent.BUTTON1) {
             leftButtonPressed = true;
-            if (rightButtonPressed && nodeSelected == -1)
+            if (rightButtonPressed && nodeSelected == -1) {
                 setCursor(new Cursor(Cursor.MOVE_CURSOR));
-
-            xClicked = mouseX();
-            yClicked = mouseY();
+            }
+            xClicked = mouseX;
+            yClicked = mouseY;
         }
         if (e.getButton() == MouseEvent.BUTTON3) {
             rightButtonPressed = true;
-            if (leftButtonPressed && nodeSelected == -1)
+            if (leftButtonPressed && nodeSelected == -1) {
                 setCursor(new Cursor(Cursor.MOVE_CURSOR));
-            xClicked = mouseX();
-            yClicked = mouseY();
-
-
+            }
+            xClicked = mouseX;
+            yClicked = mouseY;
         }
 
-        if (graph != null) {
+        if (graph == null) return;
 
 
-            int mouseX = mouseX();
-            int mouseY = mouseY();
-
-            if (e.getButton() == MouseEvent.BUTTON1) {
-                if (selectedOption == DEFAULT_OPTION) {
-                    startDraggingVertex(mouseX, mouseY);
-                }
-                if (selectedOption == VERTEX_OPTION) {
-                    startedCreatingVertex = true;
-                }
-                if (selectedOption == EDGE_OPTION) {
-                    nodeSelectedForEdge = nodeHighlighted;
-                }
-                if (selectedOption == SCISSORS_OPTION) {
-                    edgeSelectedForErasing[0] = edgeHighlighted[0];
-                    edgeSelectedForErasing[1] = edgeHighlighted[1];
-                }
-                if (selectedOption == SELECT_OPTION) {
-                    startedSelection = true;
-                }
-                if (selectedOption == ROTATE_OPTION) {
-                    timer = new Timer();
-                    startedRotating = true;
-                    setUndoState();
-                    timer.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                rotate((mouseX / scale + xTopLeft), (mouseY / scale + yTopLeft));
-                            }
-                        }, 0, 1);
-
-                }
-
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            if (selectedOption == DEFAULT_OPTION) {
+                startDraggingVertex(mouseX, mouseY);
+            }
+            if (selectedOption == VERTEX_OPTION) {
+                startedCreatingVertex = true;
+            }
+            if (selectedOption == EDGE_OPTION) {
+                nodeSelectedForEdge = nodeHighlighted;
+            }
+            if (selectedOption == SELECT_OPTION) {
+                if(nodeHighlighted == -1) startedSelection = true;
+            }
+            if (selectedOption == ROTATE_OPTION) {
+                beginRotating(mouseX, mouseY);
             }
 
         }
         repaint();
     }
 
-
-
     public void mouseReleased(MouseEvent e) {
 
         if (e.getButton() == MouseEvent.BUTTON1) {
 
-            int xPos = mouseX();
-            int yPos = mouseY();
+            int mouseX = mouseX();
+            int mouseY = mouseY();
 
             if (selectedOption == DEFAULT_OPTION) {
                 nodeSelected = -1;
             }
             if (selectedOption == VERTEX_OPTION) {
-                if (startedCreatingVertex) {
-                    setUndoState();
-
-                    startedCreatingVertex = false;
-                    graph.setN(graph.getN() + 1);
-
-                    double vertX = (xPos / scale + xTopLeft);
-                    double vertY = (yPos / scale + yTopLeft);
-
-                    if (snapToGrid) {
-                        vertX = Math.round((vertX - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX;
-                        vertY = Math.round((vertY - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY;
-                    }
-
-
-                    graph.setXPos(graph.getN() - 1, vertX);
-                    graph.setYPos(graph.getN() - 1, vertY);
-
-
-                    validate();
-                    repaint();
-                }
+                createVertex(mouseX, mouseY);
             }
             if (selectedOption == EDGE_OPTION) {
-                if (nodeSelectedForEdge != -1) {
-                    if (nodeHighlighted != -1 && nodeHighlighted != nodeSelectedForEdge) {
-                        setUndoState();
-
-                        graph.addArc(nodeSelectedForEdge + 1, nodeHighlighted + 1);
-                        graph.addArc(nodeHighlighted + 1, nodeSelectedForEdge + 1);
-                    }
-
-                    nodeSelectedForEdge = -1;
-                    repaint();
-                }
-
-            }
-            if (selectedOption == SCISSORS_OPTION) {
-                if (edgeSelectedForErasing[0] != -1 && edgeSelectedForErasing[1] != -1 && edgeSelectedForErasing[0] == edgeHighlighted[0] && edgeSelectedForErasing[1] == edgeHighlighted[1]) {
-                    setUndoState();
-
-                    graph.deleteArc(edgeSelectedForErasing[0] + 1, edgeSelectedForErasing[1] + 1);
-                    graph.deleteArc(edgeSelectedForErasing[1] + 1, edgeSelectedForErasing[0] + 1);
-                    edgeSelectedForErasing[0] = -1;
-                    edgeSelectedForErasing[1] = -1;
-                    edgeHighlighted[0] = -1;
-                    edgeHighlighted[1] = -1;
-                    repaint();
-                }
+                finishEdge();
             }
             if (selectedOption == SELECT_OPTION) {
-                if (startedSelection) {
-                    int leftX = (int) Math.round(xTopLeft + (xClicked) / scale);
-                    int rightX = (int) Math.round(xTopLeft + (xPos) / scale);
-                    if (leftX > rightX) {
-                        int temp = leftX;
-                        leftX = rightX;
-                        rightX = temp;
-                    }
-
-                    int bottomY = (int) Math.round(yTopLeft + (yClicked) / scale);
-                    int topY = (int) Math.round(yTopLeft + (yPos) / scale);
-                    if (bottomY > topY) {
-                        int temp = bottomY;
-                        bottomY = topY;
-                        topY = temp;
-                    }
-                    for (int i = 0; i < graph.getN(); i++) {
-                        if (graph.getXPos(i) >= leftX && graph.getXPos(i) <= rightX && graph.getYPos(i) >= bottomY && graph.getYPos(i) <= topY) {
-                            graph.select(i);
-                        } else {
-                            graph.deselect(i);
-                        }
-                    }
-                    startedSelection = false;
-                    repaint();
-                }
+                finishSelectionBox(mouseX, mouseY);
             }
             if (selectedOption == ROTATE_OPTION) {
-                if (startedRotating) {
-
-                    timer.cancel();
-                    startedRotating = false;
-                }
+                stopRotating();
             }
         }
 
@@ -378,192 +295,41 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-
-
     public void mouseDragged(MouseEvent e) {
 
-        int xPos = mouseX();
-        int yPos = mouseY();
+        int mouseX = mouseX();
+        int mouseY = mouseY();
 
         if (selectedOption == DEFAULT_OPTION) {
-            dragVertex(xPos, yPos);
+            dragVertex(mouseX, mouseY);
         }
-        if (selectedOption == EDGE_OPTION || selectedOption == ERASER_OPTION || selectedOption == RELABEL_OPTION) {
-            if (nodeSelectedForEdge != -1) {
-
-                nodeHighlighted = vertexContaining(xPos, yPos);
-
-                repaint();
-
-            }
-        }
-
         if (selectedOption == SCISSORS_OPTION) {
-
-            double xScreen = xPos / scale + xTopLeft;
-            double yScreen = yPos / scale + yTopLeft;
-
-            int[][] arcs = graph.getArcs();
-            int N = graph.getN();
-            int[] degrees = graph.getDegrees();
-
-            boolean edgeFound = false;
-            double closest = -1;
-            for (int i = 0; i < N; i++)
-                for (int j = 0; j < degrees[i]; j++) {
-                    int v2 = arcs[i][j] - 1;
-
-
-                    double x1 = graph.getXPos(i);
-                    double y1 = graph.getYPos(i);
-                    double x2 = graph.getXPos(v2);
-                    double y2 = graph.getYPos(v2);
-
-                    if (Math.abs(x2-x1) > 0.0001) {
-                        double theta = Math.atan((y2 - y1) / (x2 - x1));
-
-                        double abs = Math.abs(yScreen - ((y2 - y1) * xScreen / (x2 - x1) - (y2 * x1 - y1 * x2) / (x2 - x1)));
-                        if (abs <= SCISSORS_DISTANCE && xScreen + 1 >= Math.min(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && xScreen - 1 <= Math.max(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && yScreen + 1 >= Math.min(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta)) && yScreen - 1 <= Math.max(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta))) {
-                            if (closest == -1 || closest > abs)
-                                closest = abs;
-                            else
-                                continue;
-
-
-                            edgeHighlighted[0] = i;
-                            edgeHighlighted[1] = v2;
-                            edgeFound = true;
-
-
-                        }
-                    } else {
-                        if (Math.abs(xScreen - x1) <= SCISSORS_DISTANCE && yScreen >= Math.min(y1, y2) + radius && yScreen <= Math.max(y1, y2) - radius) {
-                            if (closest == -1 || closest > Math.abs(xScreen - x1))
-                                closest = Math.abs(xScreen - x1);
-                            else
-                                continue;
-
-                            edgeHighlighted[0] = i;
-                            edgeHighlighted[1] = v2;
-                            edgeFound = true;
-                        }
-                    }
-
-                }
-
-            if (!edgeFound) {
-                edgeHighlighted[0] = -1;
-                edgeHighlighted[1] = -1;
-            }
-
+            highlightEdge(mouseX, mouseY);
         }
-
-        if (selectedOption == ROTATE_OPTION)
-            if (startedRotating) {
-                timer.cancel();
-                timer = new Timer();
-                startedRotating = true;
-                setUndoState();
-                timer.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                rotate(((xPos) / scale + xTopLeft), ((yPos) / scale + yTopLeft));
-                            }
-                        }, 0, 1);
-
-
-            }
-
-
+        if (selectedOption == ROTATE_OPTION) {
+            stopRotating();
+        }
         if (selectedOption == GRID_OPTION) {
-            gridOffsetX = gridOffsetX + (int) Math.round(1 * ((xPos) / scale - xClicked / scale));
-            gridOffsetY = gridOffsetY + (int) Math.round(1 * ((yPos) / scale - yClicked / scale));
-            xClicked = (xPos);
-            yClicked = (yPos);
+            panGrid(mouseX, mouseY);
         }
 
         if ((leftButtonPressed && rightButtonPressed) || (selectedOption == DEFAULT_OPTION && nodeSelected == -1)) {
-
-            xTopLeft = xTopLeft - (int) Math.round(1 * ((xPos) / scale - xClicked / scale));
-            yTopLeft = yTopLeft - (int) Math.round(1 * ((yPos) / scale - yClicked / scale));
-            xClicked = (xPos);
-            yClicked = (yPos);
+            panGraph(mouseX, mouseY);
         }
+
         mouseMoved(e);
         repaint();
     }
 
     public void mouseMoved(MouseEvent e) {
 
-        if (selectedOption == DEFAULT_OPTION || selectedOption == EDGE_OPTION || selectedOption == ERASER_OPTION || selectedOption == RELABEL_OPTION || selectedOption == DOM_OPTION) {
-
+        if (selectedOption == DEFAULT_OPTION || selectedOption == EDGE_OPTION || selectedOption == ERASER_OPTION || selectedOption == RELABEL_OPTION || selectedOption == DOM_OPTION || selectedOption == SELECT_OPTION) {
             nodeHighlighted = vertexContaining(mouseX(), mouseY());
-            repaint();
-
         }
         if (selectedOption == SCISSORS_OPTION) {
-            int xPos = mouseX();
-            int yPos = mouseY();
-            double xScreen = xPos / scale + xTopLeft;
-            double yScreen = yPos / scale + yTopLeft;
-
-            int[][] arcs = graph.getArcs();
-            int N = graph.getN();
-            int[] degrees = graph.getDegrees();
-
-            boolean edgeFound = false;
-            double closest = -1;
-            for (int i = 0; i < N; i++)
-                for (int j = 0; j < degrees[i]; j++) {
-                    int v2 = arcs[i][j] - 1;
-
-                    double x1 = graph.getXPos(i);
-                    double y1 = graph.getYPos(i);
-                    double x2 = graph.getXPos(v2);
-                    double y2 = graph.getYPos(v2);
-
-                    if (Math.abs(x2 - x1) > 0.001) {
-                        double theta = Math.atan((y2 - y1) / (x2 - x1));
-
-                        double abs = Math.abs(yScreen - ((y2 - y1) * xScreen / (x2 - x1) - (y2 * x1 - y1 * x2) / (x2 - x1)));
-                        if (abs <= SCISSORS_DISTANCE && xScreen + 1 >= Math.min(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && xScreen - 1 <= Math.max(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && yScreen + 1 >= Math.min(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta)) && yScreen - 1 <= Math.max(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta))) {
-                            if (closest == -1 || closest > abs)
-                                closest = abs;
-                            else
-                                continue;
-
-
-                            edgeHighlighted[0] = i;
-                            edgeHighlighted[1] = v2;
-                            edgeFound = true;
-
-
-                        }
-                    } else {
-                        if (Math.abs(xScreen - x1) <= SCISSORS_DISTANCE && yScreen >= Math.min(y1, y2) + radius && yScreen <= Math.max(y1, y2) - radius) {
-                            if (closest == -1 || closest > Math.abs(xScreen - x1))
-                                closest = Math.abs(xScreen - x1);
-                            else
-                                continue;
-
-                            edgeHighlighted[0] = i;
-                            edgeHighlighted[1] = v2;
-                            edgeFound = true;
-                        }
-                    }
-
-                }
-
-            if (!edgeFound) {
-                edgeHighlighted[0] = -1;
-                edgeHighlighted[1] = -1;
-            }
-            repaint();
-
-
+            highlightEdge(mouseX(), mouseY());
         }
-
+        repaint();
     }
 
     public int mouseX(){
@@ -579,19 +345,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             graph.setAllPos(originalX, originalY);
             nodeSelected = -1;
             repaint();
-        } else if (startedCreatingVertex) {
+        }
+        if (startedCreatingVertex) {
             startedCreatingVertex = false;
             repaint();
-        } else if (nodeSelectedForEdge > -1) {
+        }
+        if (nodeSelectedForEdge > -1) {
             nodeSelectedForEdge = -1;
-            repaint();
-        } else if (edgeSelectedForErasing[0] > -1 && edgeSelectedForErasing[1] > -1) {
-            edgeSelectedForErasing[0] = -1;
-            edgeSelectedForErasing[1] = -1;
             repaint();
         } else {
             defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
             selectedOption = -1;
+            startedSelection = false;
             edgeHighlighted[0] = -1;
             edgeHighlighted[1] = -1;
             parent.changeCursor(defaultCursor);
@@ -676,8 +441,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-    private void startDraggingVertex(int x, int y){
-        nodeSelected = vertexContaining(x, y);
+    private void startDraggingVertex(int mouseX, int mouseY){
+        nodeSelected = vertexContaining(mouseX, mouseY);
 
         if(nodeSelected != -1){
             setUndoState();
@@ -687,17 +452,17 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 originalX[j] = graph.getXPos(j);
                 originalY[j] = graph.getYPos(j);
             }
-            offsetX = (int) Math.round(x / scale + xTopLeft - graph.getXPos(nodeSelected));
-            offsetY = (int) Math.round(y / scale + yTopLeft - graph.getYPos(nodeSelected));
+            offsetX = (int) Math.round(mouseX / scale + xTopLeft - graph.getXPos(nodeSelected));
+            offsetY = (int) Math.round(mouseY / scale + yTopLeft - graph.getYPos(nodeSelected));
         }
 
     }
 
-    private void dragVertex(int x, int y){
+    private void dragVertex(int mouseX, int mouseY){
         if (nodeSelected == -1) return;
 
-        double newX = xTopLeft + (x / scale - offsetX);
-        double newY = yTopLeft + (y / scale - offsetY);
+        double newX = xTopLeft + (mouseX / scale - offsetX);
+        double newY = yTopLeft + (mouseY / scale - offsetY);
 
         if (snapToGrid) {
             newX = Math.round((newX - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX;
@@ -721,6 +486,190 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         graph.setXPos(nodeSelected, newX);
         graph.setYPos(nodeSelected, newY);
 
+    }
+
+    public void createVertex(int mouseX, int mouseY){
+        if (startedCreatingVertex) {
+            setUndoState();
+
+            startedCreatingVertex = false;
+            graph.setN(graph.getN() + 1);
+
+            double vertX = (mouseX / scale + xTopLeft);
+            double vertY = (mouseY / scale + yTopLeft);
+
+            if (snapToGrid) {
+                vertX = Math.round((vertX - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX;
+                vertY = Math.round((vertY - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY;
+            }
+
+            graph.setXPos(graph.getN() - 1, vertX);
+            graph.setYPos(graph.getN() - 1, vertY);
+
+            validate();
+            repaint();
+        }
+    }
+
+
+    public void deleteHighlightedEdge(){
+        if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
+            setUndoState();
+
+            graph.deleteArc(edgeHighlighted[0] + 1, edgeHighlighted[1] + 1);
+            graph.deleteArc(edgeHighlighted[1] + 1, edgeHighlighted[0] + 1);
+            edgeHighlighted[0] = -1;
+            edgeHighlighted[1] = -1;
+            repaint();
+        }
+    }
+
+    public void toggleSelection(int vertex){
+        if(vertex == -1) return;
+
+        if(graph.isSelected(vertex)){
+            graph.deselect(vertex);
+        } else {
+            graph.select(vertex);
+        }
+    }
+
+    private void finishSelectionBox(int mouseX, int mouseY){
+        if (!startedSelection) return;
+
+        int leftX = (int) Math.round(xTopLeft + (xClicked) / scale);
+        int rightX = (int) Math.round(xTopLeft + (mouseX) / scale);
+        if (leftX > rightX) {
+            int temp = leftX;
+            leftX = rightX;
+            rightX = temp;
+        }
+
+        int bottomY = (int) Math.round(yTopLeft + (yClicked) / scale);
+        int topY = (int) Math.round(yTopLeft + (mouseY) / scale);
+        if (bottomY > topY) {
+            int temp = bottomY;
+            bottomY = topY;
+            topY = temp;
+        }
+        for (int i = 0; i < graph.getN(); i++) {
+            if (graph.getXPos(i) >= leftX && graph.getXPos(i) <= rightX && graph.getYPos(i) >= bottomY && graph.getYPos(i) <= topY) {
+                graph.select(i);
+            } else {
+                graph.deselect(i);
+            }
+        }
+        startedSelection = false;
+        repaint();
+
+    }
+
+    private void finishEdge(){
+        if (nodeSelectedForEdge == -1) return;
+
+        if (nodeHighlighted != -1 && nodeHighlighted != nodeSelectedForEdge) {
+            setUndoState();
+
+            graph.addArc(nodeSelectedForEdge + 1, nodeHighlighted + 1);
+            graph.addArc(nodeHighlighted + 1, nodeSelectedForEdge + 1);
+        }
+
+        nodeSelectedForEdge = -1;
+        repaint();
+
+    }
+
+    private void highlightEdge(int mouseX, int mouseY){
+        double xScreen = mouseX / scale + xTopLeft;
+        double yScreen = mouseY / scale + yTopLeft;
+
+        int[][] arcs = graph.getArcs();
+        int N = graph.getN();
+        int[] degrees = graph.getDegrees();
+
+        boolean edgeFound = false;
+        double closest = -1;
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < degrees[i]; j++) {
+                int v2 = arcs[i][j] - 1;
+
+
+                double x1 = graph.getXPos(i);
+                double y1 = graph.getYPos(i);
+                double x2 = graph.getXPos(v2);
+                double y2 = graph.getYPos(v2);
+
+                if (Math.abs(x2-x1) > 0.0001) {
+                    double theta = Math.atan((y2 - y1) / (x2 - x1));
+
+                    double abs = Math.abs(yScreen - ((y2 - y1) * xScreen / (x2 - x1) - (y2 * x1 - y1 * x2) / (x2 - x1)));
+                    if (abs <= SCISSORS_DISTANCE && xScreen + 1 >= Math.min(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && xScreen - 1 <= Math.max(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && yScreen + 1 >= Math.min(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta)) && yScreen - 1 <= Math.max(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta))) {
+                        if (closest == -1 || closest > abs)
+                            closest = abs;
+                        else
+                            continue;
+
+
+                        edgeHighlighted[0] = i;
+                        edgeHighlighted[1] = v2;
+                        edgeFound = true;
+
+
+                    }
+                } else {
+                    if (Math.abs(xScreen - x1) <= SCISSORS_DISTANCE && yScreen >= Math.min(y1, y2) + radius && yScreen <= Math.max(y1, y2) - radius) {
+                        if (closest == -1 || closest > Math.abs(xScreen - x1))
+                            closest = Math.abs(xScreen - x1);
+                        else
+                            continue;
+
+                        edgeHighlighted[0] = i;
+                        edgeHighlighted[1] = v2;
+                        edgeFound = true;
+                    }
+                }
+
+            }
+
+        if (!edgeFound) {
+            edgeHighlighted[0] = -1;
+            edgeHighlighted[1] = -1;
+        }
+    }
+
+    private void beginRotating(int mouseX, int mouseY){
+        timer = new Timer();
+        startedRotating = true;
+        setUndoState();
+        timer.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        rotate((mouseX / scale + xTopLeft), (mouseY / scale + yTopLeft));
+                    }
+                }, 0, 1);
+
+    }
+
+    private void stopRotating(){
+        if (startedRotating) {
+            timer.cancel();
+            startedRotating = false;
+        }
+    }
+
+    private void panGrid(int mouseX, int mouseY){
+        gridOffsetX = gridOffsetX + (int) Math.round(1 * ((mouseX) / scale - xClicked / scale));
+        gridOffsetY = gridOffsetY + (int) Math.round(1 * ((mouseY) / scale - yClicked / scale));
+        xClicked = (mouseX);
+        yClicked = (mouseY);
+    }
+
+    private void panGraph(int mouseX, int mouseY){
+        xTopLeft = xTopLeft - (int) Math.round(1 * ((mouseX) / scale - xClicked / scale));
+        yTopLeft = yTopLeft - (int) Math.round(1 * ((mouseY) / scale - yClicked / scale));
+        xClicked = (mouseX);
+        yClicked = (mouseY);
     }
 
     public Color[] getDefaultColors() {
