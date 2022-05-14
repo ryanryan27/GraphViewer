@@ -323,9 +323,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 }
 
             }
-            if (selectedOption == ERASER_OPTION) {
-                //TODO eraseVertex(vertexContaining(mouseX(), mouseY()));
-            }
             if (selectedOption == SCISSORS_OPTION) {
                 if (edgeSelectedForErasing[0] != -1 && edgeSelectedForErasing[1] != -1 && edgeSelectedForErasing[0] == edgeHighlighted[0] && edgeSelectedForErasing[1] == edgeHighlighted[1]) {
                     setUndoState();
