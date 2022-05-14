@@ -156,6 +156,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         thisGraphPane = this;
     }
 
+    /**
+     * Rescales either the gridlines or the graph when mouse wheel is scrolled
+     * @param rotation how far the scroll wheel has moved
+     */
     private void mouseScrolled(int rotation){
         if (selectedOption == GRID_OPTION) {
             gridSpacing = Math.max(gridSpacing * (1 - rotation / 6.0), 5.0);
@@ -175,6 +179,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    /**
+     * Required function for MouseListener. Runs functions for when the mouse is pressed then released without being moved.
+     * @param e the provided MouseEvent
+     */
     public void mouseClicked(MouseEvent e) {
 
         if (e.getButton() == MouseEvent.BUTTON3) {
@@ -189,7 +197,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-
+    /**
+     * Required function for MouseListener. Runs functions for when the mouse is pressed.
+     * @param e the provided MouseEvent
+     */
     public void mousePressed(MouseEvent e) {
 
         int mouseX = mouseX();
@@ -251,6 +262,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    /**
+     * Required function for MouseListener. Runs functions for when the mouse is released.
+     * @param e the provided MouseEvent
+     */
     public void mouseReleased(MouseEvent e) {
 
         if (e.getButton() == MouseEvent.BUTTON1) {
@@ -303,16 +318,28 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Required function for MouseListener. Runs functions for when the mouse is moved onto the GraphPane.
+     * @param e the provided MouseEvent
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
 
     }
 
+    /**
+     * Required function for MouseListener. Runs functions for when the mouse is moved off of the GraphPane.
+     * @param e the provided MouseEvent
+     */
     @Override
     public void mouseExited(MouseEvent e) {
 
     }
 
+    /**
+     * Required function for MouseListener. Runs functions for when the mouse button is held, then the pointer moved.
+     * @param e the provided MouseEvent
+     */
     public void mouseDragged(MouseEvent e) {
 
         int mouseX = mouseX();
@@ -339,6 +366,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    /**
+     * Required function for MouseListener. Runs functions for when the mouse is moved on the GraphPane.
+     * @param e the provided MouseEvent
+     */
     public void mouseMoved(MouseEvent e) {
 
         if (selectedOption == DEFAULT_OPTION || selectedOption == EDGE_OPTION || selectedOption == ERASER_OPTION || selectedOption == RELABEL_OPTION || selectedOption == DOM_OPTION || selectedOption == SELECT_OPTION) {
@@ -350,14 +381,25 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    /**
+     * Calculates the x-coordinate of the mouse pointer on the GraphPane
+     * @return x-coordinate of pointer relative to top left of GraphPane
+     */
     public int mouseX(){
         return (MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2);
     }
 
+    /**
+     * Calculates the y-coordinate of the mouse pointer on the GraphPane
+     * @return y-coordinate of pointer relative to top left of GraphPane
+     */
     public int mouseY(){
         return (MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - mouseOffsetY2);
     }
 
+    /**
+     * Resets the various variables used for mouse related functions.
+     */
     private void resetMouseVars(){
         if (nodeSelected != -1) {
             graph.setAllPos(originalX, originalY);
@@ -382,6 +424,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
+    /**
+     * Erases the vertex specified on mouse release, only if it was under the pointer when the mouse was pressed.
+     * @param vertex the vertex to be removed.
+     */
     public void eraseVertex(int vertex){
         if(vertex == -1) return;
         if(vertex != nodeToDelete) return;
@@ -406,6 +452,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Toggles domination of the vertex specified on mouse release, only if it was under the pointer when the mouse was pressed.
+     * @param vertex the vertex whose domination state is to be toggled.
+     */
     public void dominateVertex(int vertex){
 
         if(vertex == -1) return;
@@ -427,6 +477,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Triggers relabel dialog for the vertex specified on mouse release, only if it was under the pointer when the mouse was pressed.
+     * @param vertex the vertex to be relabeled.
+     */
     public void relabelVertex(int vertex){
         if(vertex == -1) return;
         if(vertex != nodeToRelabel) return;
@@ -462,6 +516,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Initiates the dragging procedure for the currently highlighted vertex.
+     * @param mouseX initial x coordinate of the pointer when the vertex was highlighted.
+     * @param mouseY initial y coordinate of the pointer when the vertex was highlighted.
+     */
     private void startDraggingVertex(int mouseX, int mouseY){
         nodeSelected = vertexContaining(mouseX, mouseY);
 
@@ -479,6 +538,12 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Updates the location of the currently held vertex to the given mouse coordinates.
+     * Only functions if startDraggingVertex has been called.
+     * @param mouseX current y position of the pointer on GraphPane
+     * @param mouseY current y position of the pointer on GraphPane
+     */
     private void dragVertex(int mouseX, int mouseY){
         if (nodeSelected == -1) return;
 
@@ -507,6 +572,12 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Creates a new vertex at the given pointer coordinates.
+     * Only functions if startedCreatingVertex is true.
+     * @param mouseX x coordinate of the pointer in GraphPane.
+     * @param mouseY y coordinate of the pointer in GraphPane.
+     */
     public void createVertex(int mouseX, int mouseY){
         if (startedCreatingVertex) {
             setUndoState();
@@ -530,7 +601,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
-
+    /**
+     * Deletes the currently highlighted edge when the mouse is released.
+     * Only functions if the same edge was highlighted when the mouse was pressed.
+     */
     public void deleteHighlightedEdge(){
         if (edgeHighlighted[0] == -1 || edgeHighlighted[1] == -1) return;
         if (edgeToDelete[0] != edgeHighlighted[0] || edgeToDelete[1] != edgeHighlighted[1]) return;
@@ -545,6 +619,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Toggles the selection state of the highlighted vertex when mouse is released.
+     * Only functions if this vertex was highlighted when the mouse was pressed.
+     * @param vertex vertex whose selection state is to be toggled.
+     */
     public void toggleSelection(int vertex){
         if(vertex == -1) return;
         if(vertex != nodeToSelect) return;
@@ -556,6 +635,12 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
+    /**
+     * Changes to selection state of the vertices within a box determined by the coordinates of the pointer at the time of
+     * mouse being pressed and mouse being released.
+     * @param mouseX x coordinate of the pointer relative to GraphPane at time of mouse release.
+     * @param mouseY y coordinate of the pointer relative to GraphPane at time of mouse release.
+     */
     private void finishSelectionBox(int mouseX, int mouseY){
         if (!startedSelection) return;
 
@@ -586,6 +671,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Creates a new edge between the vertex that was highlighted at the time of mouse press and the vertex that was
+     * highlighted at the timed of mouse release.
+     */
     private void finishEdge(){
         if (nodeSelectedForEdge == -1) return;
 
@@ -601,6 +690,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Highlights the closest edge within SCISSORS_DISTANCE of the pointer.
+     * @param mouseX x coordinate of the pointer relative to the GraphPane.
+     * @param mouseY y coordinate of the pointer relative to the GraphPane.
+     */
     private void highlightEdge(int mouseX, int mouseY){
         double xScreen = mouseX / scale + xTopLeft;
         double yScreen = mouseY / scale + yTopLeft;
@@ -647,7 +741,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-
+    /**
+     * Calculates the square of the distance from (x,y) to line segment (x1,y1)--(x2,y2), within the lines
+     * perpendicular to the line segment, that meet each endpoint of the line segment.
+     * If (x,y) is not within this section, it returns a value greater than the square of SCISSORS_DISTANCE.
+     * @param x x coordinate of the point.
+     * @param y y coordinate of the point.
+     * @param x1 x coordinate of the first endpoint of the line segment.
+     * @param y1 y coordinate of the first endpoint of the line segment.
+     * @param x2 x coordinate of the second endpoint of the line segment.
+     * @param y2 y coordinate of the second endpoint of the line segment.
+     * @return
+     */
     private double distSquareToEdge(double x, double y, double x1, double y1, double x2, double y2){
         double dist;
 
@@ -664,10 +769,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         double dotP2 = xp2*x12 + yp2*y12;
 
         if(dotP1 > 0){
-            //dist = xp1*xp1 + yp1*yp1;
             dist = 4*SCISSORS_DISTANCE*SCISSORS_DISTANCE;
         } else if(dotP2 < 0){
-            //dist = xp2*xp2 + yp2*yp2;
             dist = 4*SCISSORS_DISTANCE*SCISSORS_DISTANCE;
         } else {
             dist = (x12*yp1 - y12*xp1)*(x12*yp1 - y12*xp1)/(x12*x12 + y12*y12);
@@ -676,6 +779,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         return dist;
     }
 
+    /**
+     * Initiates the rotation of the selected vertices of the graph around the mouse pointer.
+     * @param mouseX x coordinate of the mouse pointer, relative to GraphPane.
+     * @param mouseY y coordinate of the mouse pointer, relative to GraphPane.
+     */
     private void beginRotating(int mouseX, int mouseY){
         timer = new Timer();
         startedRotating = true;
@@ -690,6 +798,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Cancels the rotation of the graph around the pointer.
+     */
     private void stopRotating(){
         if (startedRotating) {
             timer.cancel();
@@ -697,6 +808,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
+    /**
+     * Updates the offset of the grid, relative to the change in mouse position since it was last clicked.
+     * @param mouseX current x coordinate of the pointer relative to GraphPane.
+     * @param mouseY current y coordinate of the pointer relative to GraphPane.
+     */
     private void panGrid(int mouseX, int mouseY){
         gridOffsetX = gridOffsetX + (int) Math.round(1 * ((mouseX) / scale - xClicked / scale));
         gridOffsetY = gridOffsetY + (int) Math.round(1 * ((mouseY) / scale - yClicked / scale));
@@ -704,6 +820,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         yClicked = (mouseY);
     }
 
+    /**
+     * Updates the offset of the viewpoint of GraphPane, relative to the change in mouse position since it was last clicked.
+     * @param mouseX current x coordinate of the pointer relative to GraphPane.
+     * @param mouseY current y coordinate of the pointer relative to GraphPane.
+     */
     private void panGraph(int mouseX, int mouseY){
         xTopLeft = xTopLeft - (int) Math.round(1 * ((mouseX) / scale - xClicked / scale));
         yTopLeft = yTopLeft - (int) Math.round(1 * ((mouseY) / scale - yClicked / scale));
@@ -750,6 +871,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         return new BufferedImage(icm2, raster, image.isAlphaPremultiplied(), null);
     }
 
+    /**
+     * Updates the visible component of GraphPane with the current state of vertices, edges, and text.
+     * @param gra the provided graphics object to be updated, which will be printed to the screen.
+     */
     public void paintComponent(Graphics gra) {
 
         if(graph == null) return;
@@ -867,11 +992,24 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         gra.drawImage(image, 0, 0, null);
     }
 
-
+    /**
+     * Draw a given vertex to the graphic g
+     * @param g the graphic to draw the vertex onto.
+     * @param dv the list of vertices which are dominated.
+     * @param vertex the vertex to be drawn.
+     */
     private void drawVertex(Graphics2D g,  boolean[] dv, int vertex){
         drawVertex(g, dv, vertex, defaultColor, false);
     }
 
+    /**
+     * Draw a given vertex to the graphic g
+     * @param g the graphic to draw the vertex onto.
+     * @param dv the list of vertices which are dominated.
+     * @param vertex the vertex to be drawn.
+     * @param st the default colour of the border of the vertex
+     * @param override whether or not to force the vertex to be drawn with st as the border colour.
+     */
     private void drawVertex(Graphics2D g, boolean[] dv, int vertex, Color st, boolean override){
 
         if(vertex == -1) return;
@@ -923,6 +1061,15 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Draw a given vertex to the graphic g
+     * @param g the graphic to draw the vertex onto.
+     * @param x the x coordinate of the vertex.
+     * @param y the y coordinate of the vertex.
+     * @param rad the radius of the vertex.
+     * @param stroke the colour of the border of the vertex.
+     * @param weight the thickness of the border of the vertex.
+     */
     private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, float weight){
         g.setStroke(new BasicStroke(weight));
         g.setColor(stroke);
@@ -930,6 +1077,16 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         g.drawOval((int)Math.round(x) - rad, (int)Math.round(y)-rad, 2*rad, 2*rad);
     }
 
+    /**
+     * Draw a given vertex to the graphic g
+     * @param g the graphic to draw the vertex onto.
+     * @param x the x coordinate of the vertex.
+     * @param y the y coordinate of the vertex.
+     * @param rad the radius of the vertex.
+     * @param stroke the colour of the border of the vertex.
+     * @param fill the colour of the interior of the vertex.
+     * @param weight the thickness of the border of the vertex.
+     */
     private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, Color fill, float weight){
         g.setColor(fill);
         g.fillOval((int)Math.round(x) - rad, (int)Math.round(y)-rad, 2*rad, 2*rad);
@@ -937,6 +1094,17 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         drawVertex(g, x, y, rad, stroke, weight);
     }
 
+    /**
+     * Draw a given vertex to the graphic g
+     * @param g the graphic to draw the vertex onto.
+     * @param x the x coordinate of the vertex.
+     * @param y the y coordinate of the vertex.
+     * @param rad the radius of the vertex.
+     * @param stroke the colour of the border of the vertex.
+     * @param weight the thickness of the border of the vertex.
+     * @param label text to be drawn at the centre of the vertex.
+     * @param font the font of the label.
+     */
     private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, float weight, String label, Font font){
         drawVertex(g, x, y, rad, stroke, weight);
 
@@ -952,6 +1120,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         g.drawString(label, text_x, text_y);
     }
 
+    /**
+     * Draw a given vertex to the graphic g
+     * @param g the graphic to draw the vertex onto.
+     * @param x the x coordinate of the vertex.
+     * @param y the y coordinate of the vertex.
+     * @param rad the radius of the vertex.
+     * @param stroke the colour of the border of the vertex.
+     * @param fill the colour of the interior of the vertex.
+     * @param weight the thickness of the border of the vertex.
+     * @param label text to be drawn at the centre of the vertex.
+     * @param font the font of the label.
+     */
     private void drawVertex(Graphics2D g, double x, double y, int rad, Color stroke, Color fill, float weight, String label, Font font){
         g.setColor(fill);
         g.fillOval((int)Math.round(x) - rad, (int)Math.round(y)-rad, 2*rad, 2*rad);
@@ -959,6 +1139,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         drawVertex(g, x, y, rad, stroke, weight, label, font);
     }
 
+    /**
+     * Draw a straight line edge between vertices v1 and v2.
+     * @param g graphics to be drawn to.
+     * @param v1 first vertex.
+     * @param v2 second vertex.
+     * @param c colour of the edge.
+     * @param weight thickness of the edge.
+     */
     private void drawEdge(Graphics2D g, int v1, int v2, Color c, float weight){
 
         double x1 = -xTopLeft + graph.getXPos(v1);
@@ -969,6 +1157,16 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         drawEdge(g, x1, y1, x2, y2, c, weight);
     }
 
+    /**
+     * Draw a straight line edge between points (x1,y1) and (x2,y2).
+     * @param g graphics to be drawn to.
+     * @param x1 x coordinate of the first point.
+     * @param y1 y coordinate of the first point.
+     * @param x2 x coordinate of the second point.
+     * @param y2 y coordinate of the second point.
+     * @param c colour of the edge.
+     * @param weight thickness of the edge.
+     */
     private void drawEdge(Graphics2D g, double x1, double y1, double x2, double y2, Color c, float weight){
 
         g.setStroke(new BasicStroke(weight));
@@ -978,6 +1176,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Draws the background gridlines to the GraphPane.
+     * @param g the graphic object to be drawn to.
+     */
     private void drawGridlines(Graphics2D g){
         //find boundary af drawn area
         Rectangle boundingBox = new Rectangle(0, 0, (int) (getSize().getWidth() / scale), (int) (getSize().getHeight() / scale));
@@ -1002,6 +1204,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
+    /**
+     * Draws a circle at the point of crossings and displays the text showing the number of crossings.
+     * @param g graphic object to be drawn to.
+     */
     private void drawCrossings(Graphics2D g){
         findCrossings();
         g.setColor(crossColor);
@@ -1013,6 +1219,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         g.drawString(("Crossings: " + crossings), Math.round(20 / scale), Math.round(20 / scale));
     }
 
+    /**
+     * Draws the domination text to the GraphPane.
+     * @param g graphic object to be drawn to.
+     */
     private void drawDominationText(Graphics2D g){
         boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
 
@@ -1048,6 +1258,15 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         g.scale(scale, scale);
     }
 
+    /**
+     * Draws a rectangular dashed box specified by coordinates.
+     * @param g graphic object to be drawn to.
+     * @param x1 x coordinate of one corner.
+     * @param y1 y coordinate of one corner.
+     * @param x2 x coordinate of the diagonally opposite corner.
+     * @param y2 y coordinate of the diagonally opposite corner.
+     * @param c colour of the dashed line.
+     */
     private void drawSelectionBox(Graphics2D g, int x1, int y1, int x2, int y2, Color c){
         if (x1 > x2) {
             int tempX = x1;
@@ -1068,6 +1287,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Changes the Graph object associated with this GraphPane.
+     * @param gr a Graph.
+     */
     public void setGraph(Graph gr) {
         graph = gr;
     }
