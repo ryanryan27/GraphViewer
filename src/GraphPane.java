@@ -178,8 +178,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
             resetMouseVars();
 
-
-
         }
         if(e.getButton() == MouseEvent.BUTTON1){
             int vertex_hovered = vertexContaining(mouseX(), mouseY());
@@ -589,7 +587,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         boolean edgeFound = false;
         double closest = -1;
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < N; i++) {
             for (int j = 0; j < degrees[i]; j++) {
                 int v2 = arcs[i][j] - 1;
 
@@ -630,6 +628,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 }
 
             }
+        }
 
         if (!edgeFound) {
             edgeHighlighted[0] = -1;
@@ -794,7 +793,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
         if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
-            drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
+            drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / scale));
             drawVertex(g, edgeHighlighted[0], deleteEdgeColor, true);
             drawVertex(g, edgeHighlighted[1], deleteEdgeColor, true);
         }
@@ -992,7 +991,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         g.drawString(("Undominated Vertices: " + ud + " (" + graph.getDomSize() + ")"),getWidth() - 300,20);
 
-        String types = "";
+
         StringJoiner sj = new StringJoiner(", ");
 
         if (domTotal) sj.add("Total");
@@ -1001,8 +1000,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         if (domWeakRoman)  sj.add("Weak Roman");
         if (domRoman) sj.add("Roman");
         if (sj.length() > 0) {
-            types = "(" + sj.toString() + ")";
-
+            String types = "(" + sj.toString() + ")";
             g.setFont(g.getFont().deriveFont((float) (14)));
             g.drawString(types, getWidth() - 75 - 6 * types.length(), 32);
         }
@@ -1285,12 +1283,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     public int vertexContaining(double mouseX, double mouseY) {
         for (int i = 0; i < graph.getN(); i++) {
 
-            if (Math.pow(Math.pow(mouseX + xTopLeft * scale - graph.getXPos(i) * scale, 2) + Math.pow(mouseY + yTopLeft * scale - graph.getYPos(i) * scale, 2), 0.5) <= radius * Math.min(scale, scale)) {
+            if (Math.pow(Math.pow(mouseX + xTopLeft * scale - graph.getXPos(i) * scale, 2) + Math.pow(mouseY + yTopLeft * scale - graph.getYPos(i) * scale, 2), 0.5) <= radius * scale) {
                 return i;
             }
-
         }
-
         return -1;
 
     }
