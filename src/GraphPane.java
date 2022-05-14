@@ -32,6 +32,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     int nodeSelected = -1;
     int nodeHighlighted = -1;
     int nodeSelectedForEdge = -1;
+    int nodeToSelect = -1;
+    int nodeToRelabel = -1;
+    int nodeToDelete = -1;
+    int nodeToDominate = -1;
+    int[] edgeToDelete = new int[2];
     int[] edgeHighlighted = new int[2];
     int radius = 12;
     double scale = 1;
@@ -128,6 +133,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         edgeHighlighted[0] = -1;
         edgeHighlighted[1] = -1;
+        edgeToDelete[0] = -1;
+        edgeToDelete[1] = -1;
 
 
         setDefaultColors(parent.getDefaultColors());
@@ -179,25 +186,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             resetMouseVars();
 
         }
-        if(e.getButton() == MouseEvent.BUTTON1){
-            int vertex_hovered = vertexContaining(mouseX(), mouseY());
-
-            if(selectedOption == RELABEL_OPTION){
-                relabelVertex(vertex_hovered);
-            }
-            else if(selectedOption == ERASER_OPTION){
-                eraseVertex(vertex_hovered);
-            }
-            else if(selectedOption == SCISSORS_OPTION){
-                deleteHighlightedEdge();
-            }
-            else if (selectedOption == DOM_OPTION) {
-                dominateVertex(vertex_hovered);
-            }
-            else if (selectedOption == SELECT_OPTION){
-                toggleSelection(vertex_hovered);
-            }
-        }
 
     }
 
@@ -226,6 +214,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         if (graph == null) return;
 
+        int vertex_hovered = vertexContaining(mouseX, mouseY);
 
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (selectedOption == DEFAULT_OPTION) {
@@ -239,9 +228,23 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             }
             if (selectedOption == SELECT_OPTION) {
                 if(nodeHighlighted == -1) startedSelection = true;
+                nodeToSelect = vertex_hovered;
             }
             if (selectedOption == ROTATE_OPTION) {
                 beginRotating(mouseX, mouseY);
+            }
+            if(selectedOption == RELABEL_OPTION){
+                nodeToRelabel = vertex_hovered;
+            }
+            if(selectedOption == ERASER_OPTION){
+                nodeToDelete = vertex_hovered;
+            }
+            if(selectedOption == SCISSORS_OPTION){
+                edgeToDelete[0] = edgeHighlighted[0];
+                edgeToDelete[1] = edgeHighlighted[1];
+            }
+            if(selectedOption == DOM_OPTION){
+                nodeToDominate = vertex_hovered;
             }
 
         }
@@ -255,6 +258,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             int mouseX = mouseX();
             int mouseY = mouseY();
 
+            int vertex_hovered = vertexContaining(mouseX, mouseY);
+
             if (selectedOption == DEFAULT_OPTION) {
                 nodeSelected = -1;
             }
@@ -266,6 +271,19 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             }
             if (selectedOption == SELECT_OPTION) {
                 finishSelectionBox(mouseX, mouseY);
+                toggleSelection(vertex_hovered);
+            }
+            if (selectedOption == DOM_OPTION){
+                dominateVertex(vertex_hovered);
+            }
+            if (selectedOption == RELABEL_OPTION){
+                relabelVertex(vertex_hovered);
+            }
+            if (selectedOption == ERASER_OPTION){
+                eraseVertex(vertex_hovered);
+            }
+            if (selectedOption == SCISSORS_OPTION){
+                deleteHighlightedEdge();
             }
             if (selectedOption == ROTATE_OPTION) {
                 stopRotating();
@@ -366,6 +384,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     public void eraseVertex(int vertex){
         if(vertex == -1) return;
+        if(vertex != nodeToDelete) return;
 
         if (graph.isSelected(vertex)) {
             setUndoState();
@@ -390,6 +409,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     public void dominateVertex(int vertex){
 
         if(vertex == -1) return;
+        if(vertex != nodeToDominate) return;
 
         setUndoState();
         if (graph.isSelected(vertex)) {
@@ -409,6 +429,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     public void relabelVertex(int vertex){
         if(vertex == -1) return;
+        if(vertex != nodeToRelabel) return;
 
         RelabelDialog rd = new RelabelDialog(parent, (vertex + 1), graph.getN());
 
@@ -511,19 +532,22 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void deleteHighlightedEdge(){
-        if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
-            setUndoState();
+        if (edgeHighlighted[0] == -1 || edgeHighlighted[1] == -1) return;
+        if (edgeToDelete[0] != edgeHighlighted[0] || edgeToDelete[1] != edgeHighlighted[1]) return;
 
-            graph.deleteArc(edgeHighlighted[0] + 1, edgeHighlighted[1] + 1);
-            graph.deleteArc(edgeHighlighted[1] + 1, edgeHighlighted[0] + 1);
-            edgeHighlighted[0] = -1;
-            edgeHighlighted[1] = -1;
-            repaint();
-        }
+        setUndoState();
+
+        graph.deleteArc(edgeHighlighted[0] + 1, edgeHighlighted[1] + 1);
+        graph.deleteArc(edgeHighlighted[1] + 1, edgeHighlighted[0] + 1);
+        edgeHighlighted[0] = -1;
+        edgeHighlighted[1] = -1;
+        repaint();
+
     }
 
     public void toggleSelection(int vertex){
         if(vertex == -1) return;
+        if(vertex != nodeToSelect) return;
 
         if(graph.isSelected(vertex)){
             graph.deselect(vertex);
