@@ -863,7 +863,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             g.fill(new Rectangle(0, 0, (int) Math.round(getSize().getWidth()), (int) Math.round(getSize().getHeight())));
         }
 
-        g.scale(scale, scale);
+
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -871,11 +871,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
-        //g.setPaint(defaultColor);
 
-        //g.setFont(g.getFont().deriveFont((float) textSize));
-
-
+        g.scale(scale, scale);
 
         int N = graph.getN();
 
@@ -889,29 +886,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
 
 
-        if (displayDomination) {
-            drawDominationText(g);
-        }
 
-        for (int i = 0; i < N; i++) {
-            if (graph.isSelected(i)) {
 
-                final float[] dash1 = {2.0f};
-                g.setColor(defaultColor);
-                g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
-                g.drawRect((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius - 6, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius - 6, 2 * radius + 12, 2 * radius + 12);
-                g.setStroke(new BasicStroke(1));
 
-            }
-
-            if(i == nodeHighlighted || i == nodeSelectedForEdge) continue;
-
-            drawVertex(g, i);
-
-        }
-
-        drawVertex(g, nodeHighlighted);
-        drawVertex(g, nodeSelectedForEdge);
 
         int mouseX = (int) Math.round(mouseX() / scale);
         int mouseY = (int) Math.round(mouseY() / scale);
@@ -939,14 +916,29 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
 
 
+        for (int i = 0; i < N; i++) {
+            if(i == nodeHighlighted || i == nodeSelectedForEdge) continue;
+
+            drawVertex(g, i);
+
+        }
+
+
         if (nodeSelectedForEdge != -1) {
 
             double centre1X = -xTopLeft + graph.getXPos(nodeSelectedForEdge);
             double centre1Y = -yTopLeft + graph.getYPos(nodeSelectedForEdge);
 
-            drawEdge(g, centre1X, centre1Y, radius, mouseX, mouseY, 0, newEdgeColor, (float)Math.max(2f, 1.5f / scale));
+            drawEdge(g, centre1X, centre1Y, mouseX, mouseY, newEdgeColor, (float)Math.max(2f, 1.5f / scale));
 
         }
+
+        if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
+            drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
+        }
+
+        drawVertex(g, nodeHighlighted);
+        drawVertex(g, nodeSelectedForEdge);
 
         if (startedCreatingVertex) {
 
@@ -961,8 +953,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             drawVertex(g, newVertX, newVertY, radius, defaultColor, 1f);
         }
 
-        if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
-            drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
+
+
+        if (displayDomination) {
+            drawDominationText(g);
         }
 
         gra.drawImage(image, 0, 0, null);
@@ -973,6 +967,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     private void drawVertex(Graphics2D g, int vertex){
 
         if(vertex == -1) return;
+
+
+
 
         boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
 
@@ -1010,6 +1007,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             drawVertex(g, x, y, radius, stroke, fill, weight, label, font);
         } else {
             drawVertex(g, x, y, radius, stroke, fill, weight);
+        }
+
+        if(graph.isSelected(vertex)){
+            int spacing = radius + 6;
+            drawSelectionBox(g, (int)x - spacing, (int)y - spacing, (int)x + spacing, (int)y + spacing, defaultColor);
         }
 
     }
@@ -1057,63 +1059,15 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         double x2 = -xTopLeft + graph.getXPos(v2);
         double y2 = -yTopLeft + graph.getYPos(v2);
 
-        drawEdge(g, x1, y1, radius, x2, y2, radius, c, weight);
+        drawEdge(g, x1, y1, x2, y2, c, weight);
     }
 
-    private void drawEdge(Graphics2D g, double x1, double y1, int r1, double x2, double y2, int r2, Color c, float weight){
+    private void drawEdge(Graphics2D g, double x1, double y1, double x2, double y2, Color c, float weight){
 
         g.setStroke(new BasicStroke(weight));
         g.setColor(c);
 
-        double theta;
-
-        int start_x1;
-        int start_x2;
-        int start_y1;
-        int start_y2;
-
-        if (x2 == x1) {
-            if (y1 > y2) {
-                theta = Math.PI / 2;
-            } else {
-                theta = 3 * Math.PI / 2;
-            }
-        } else {
-            theta = Math.atan((0.0 + y2 - y1) / (x2 - x1));
-        }
-
-        double y1_offset;
-        double y2_offset;
-
-        if (x1 < x2) {
-            start_x1 = (int) Math.ceil(x1 + r1 * Math.cos(theta));
-            start_x2 = (int) Math.floor(x2 + r2 * Math.cos(Math.PI + theta));
-            y1_offset = 0;
-            y2_offset = Math.PI;
-        } else if (x1 > x2) {
-            start_x1 = (int) Math.floor(x1 + r1 * Math.cos(Math.PI + theta));
-            start_x2 = (int) Math.ceil(x2 + r2 * Math.cos(theta));
-            y1_offset = Math.PI;
-            y2_offset = 0;
-        } else {
-            start_x1 = (int) Math.floor(x1 + r1 * Math.cos(Math.PI + theta));
-            start_x2 = (int) Math.floor(x2 + r2 * Math.cos(theta));
-            y1_offset = Math.PI;
-            y2_offset = 0;
-        }
-
-        if(y1 < y2){
-            start_y1 = (int) Math.ceil(y1 + r1 * Math.sin(theta+y1_offset));
-            start_y2 = (int) Math.floor(y2 + r2 * Math.sin(theta+y2_offset));
-        } else if (y1 > y2){
-            start_y1 = (int) Math.floor(y1 + r1 * Math.sin(theta+y1_offset));
-            start_y2 = (int) Math.ceil(y2 + r2 * Math.sin(theta+y2_offset));
-        } else {
-            start_y1 = (int) Math.floor(y1 + r1 * Math.sin(theta+y1_offset));
-            start_y2 = (int) Math.floor(y2 + r2 * Math.sin(theta+y2_offset));
-        }
-
-        g.drawLine(start_x1, start_y1, start_x2, start_y2);
+        g.drawLine((int)Math.round(x1), (int)Math.round(y1), (int)Math.round(x2), (int)Math.round(y2));
 
     }
 
@@ -1166,7 +1120,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         g.scale(1/scale, 1/scale);
 
         g.setColor(crossColor);
-        g.setFont(g.getFont().deriveFont((float) (20)));
+        g.setFont(g.getFont().deriveFont((float) (20)).deriveFont(Font.PLAIN));
 
         g.drawString(("Undominated Vertices: " + ud + " (" + graph.getDomSize() + ")"),getWidth() - 300,20);
 
