@@ -597,34 +597,20 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 double x2 = graph.getXPos(v2);
                 double y2 = graph.getYPos(v2);
 
-                if (Math.abs(x2-x1) > 0.0001) {
-                    double theta = Math.atan((y2 - y1) / (x2 - x1));
+                double dist = Math.sqrt(distSquareToEdge(xScreen, yScreen, x1, y1, x2, y2));
 
-                    double abs = Math.abs(yScreen - ((y2 - y1) * xScreen / (x2 - x1) - (y2 * x1 - y1 * x2) / (x2 - x1)));
-                    if (abs <= SCISSORS_DISTANCE && xScreen + 1 >= Math.min(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && xScreen - 1 <= Math.max(Math.min(x1, x2) + radius * Math.cos(theta), Math.max(x1, x2) - radius * Math.cos(theta)) && yScreen + 1 >= Math.min(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta)) && yScreen - 1 <= Math.max(Math.min(y1, y2) + radius * Math.sin(theta), Math.max(y1, y2) - radius * Math.sin(theta))) {
-                        if (closest == -1 || closest > abs)
-                            closest = abs;
-                        else
-                            continue;
+                if(dist <= SCISSORS_DISTANCE){
 
-
-                        edgeHighlighted[0] = i;
-                        edgeHighlighted[1] = v2;
-                        edgeFound = true;
-
-
+                    if(closest > dist &&closest != -1){
+                        continue;
                     }
-                } else {
-                    if (Math.abs(xScreen - x1) <= SCISSORS_DISTANCE && yScreen >= Math.min(y1, y2) + radius && yScreen <= Math.max(y1, y2) - radius) {
-                        if (closest == -1 || closest > Math.abs(xScreen - x1))
-                            closest = Math.abs(xScreen - x1);
-                        else
-                            continue;
 
-                        edgeHighlighted[0] = i;
-                        edgeHighlighted[1] = v2;
-                        edgeFound = true;
-                    }
+                    closest = dist;
+
+                    edgeHighlighted[0] = i;
+                    edgeHighlighted[1] = v2;
+                    edgeFound = true;
+
                 }
 
             }
@@ -634,6 +620,36 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             edgeHighlighted[0] = -1;
             edgeHighlighted[1] = -1;
         }
+    }
+
+
+
+    private double distSquareToEdge(double x, double y, double x1, double y1, double x2, double y2){
+        double dist;
+
+        double xp1 = x - x1;
+        double yp1 = y - y1;
+
+        double xp2 = x - x2;
+        double yp2 = y - y2;
+
+        double x12 = x1 - x2;
+        double y12 = y1 - y2;
+
+        double dotP1 = xp1*x12 + yp1*y12;
+        double dotP2 = xp2*x12 + yp2*y12;
+
+        if(dotP1 > 0){
+            //dist = xp1*xp1 + yp1*yp1;
+            dist = 4*SCISSORS_DISTANCE*SCISSORS_DISTANCE;
+        } else if(dotP2 < 0){
+            //dist = xp2*xp2 + yp2*yp2;
+            dist = 4*SCISSORS_DISTANCE*SCISSORS_DISTANCE;
+        } else {
+            dist = (x12*yp1 - y12*xp1)*(x12*yp1 - y12*xp1)/(x12*x12 + y12*y12);
+        }
+
+        return dist;
     }
 
     private void beginRotating(int mouseX, int mouseY){
