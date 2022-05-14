@@ -32,9 +32,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     int nodeSelected = -1;
     int nodeHighlighted = -1;
     int nodeSelectedForEdge = -1;
-    int nodeSelectedForErasing = -1;
-    int nodeSelectedForRelabelling = -1;
-    int nodeSelectedForDom = -1;
     int[] edgeHighlighted = new int[2];
     int[] edgeSelectedForErasing = new int[2];
     int radius = 12;
@@ -88,13 +85,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
 
     final int SCISSORS_DISTANCE = 15;
-
-    final int CC_BACKGROUND = 1;
-    final int CC_DEFAULT = 2;
-    final int CC_VERTEXFILL = 3;
-    final int CC_VERTEX = 4;
-    final int CC_EDGE = 5;
-    final int CC_DELETEEDGE = 6;
 
     final double SCALE_MAX = 5;
     final double SCALE_MIN = 0.1;
@@ -185,6 +175,21 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         if (e.getButton() == MouseEvent.BUTTON3) {
             resetMouseVars();
         }
+        if(e.getButton() == MouseEvent.BUTTON1){
+
+            int vertex_hovered = vertexContaining(mouseX(), mouseY());
+
+            if(selectedOption == RELABEL_OPTION){
+                relabelVertex(vertex_hovered);
+            }
+            else if(selectedOption == ERASER_OPTION){
+                eraseVertex(vertex_hovered);
+            }
+            else if (selectedOption == DOM_OPTION) {
+                dominateVertex(vertex_hovered);
+            }
+        }
+
     }
 
 
@@ -238,18 +243,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                 if (selectedOption == EDGE_OPTION) {
                     nodeSelectedForEdge = nodeHighlighted;
                 }
-                if (selectedOption == ERASER_OPTION) {
-                    nodeSelectedForErasing = nodeHighlighted;
-                }
                 if (selectedOption == SCISSORS_OPTION) {
                     edgeSelectedForErasing[0] = edgeHighlighted[0];
                     edgeSelectedForErasing[1] = edgeHighlighted[1];
-                }
-                if (selectedOption == RELABEL_OPTION) {
-                    nodeSelectedForRelabelling = nodeHighlighted;
-                }
-                if (selectedOption == DOM_OPTION) {
-                    nodeSelectedForDom = nodeHighlighted;
                 }
                 if (selectedOption == SELECT_OPTION) {
                     startedSelection = true;
@@ -328,28 +324,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
             }
             if (selectedOption == ERASER_OPTION) {
-                if (nodeSelectedForErasing == nodeHighlighted && nodeSelectedForErasing != -1) {
-
-                    if (graph.isSelected(nodeHighlighted)) {
-                        setUndoState();
-                        for (int i = graph.getN() - 1; i >= 0; i--) {
-                            if (graph.isSelected(i)) {
-                                graph.deleteVertex(i + 1);
-                            }
-                        }
-                    } else {
-                        setUndoState();
-
-
-                        graph.deleteVertex(nodeHighlighted + 1);
-
-                    }
-                    nodeSelectedForErasing = -1;
-                    nodeHighlighted = -1;
-
-                    repaint();
-
-                }
+                //TODO eraseVertex(vertexContaining(mouseX(), mouseY()));
             }
             if (selectedOption == SCISSORS_OPTION) {
                 if (edgeSelectedForErasing[0] != -1 && edgeSelectedForErasing[1] != -1 && edgeSelectedForErasing[0] == edgeHighlighted[0] && edgeSelectedForErasing[1] == edgeHighlighted[1]) {
@@ -361,61 +336,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                     edgeSelectedForErasing[1] = -1;
                     edgeHighlighted[0] = -1;
                     edgeHighlighted[1] = -1;
-                    repaint();
-                }
-            }
-            if (selectedOption == RELABEL_OPTION) {
-                if (nodeSelectedForRelabelling == nodeHighlighted && nodeSelectedForRelabelling != -1) {
-                    RelabelDialog rd = new RelabelDialog(parent, (nodeHighlighted + 1), graph.getN());
-
-                    if (!rd.getCancelled()) {
-
-
-                        int newLabel = rd.getNewLabel();
-                        if (newLabel == -1) {
-                            System.out.println("Some relabelling problem, should never happen");
-                        } else {
-                            setUndoState();
-
-
-                            if (rd.getIncrement()) {
-                                // Increment rest
-                                if ((nodeHighlighted + 1) < newLabel)
-                                    for (int i = nodeHighlighted + 1; i < newLabel; i++)
-                                        graph.swapVertices(i, i + 1);
-                                else
-                                    for (int i = nodeHighlighted + 1; i > newLabel; i--)
-                                        graph.swapVertices(i, i - 1);
-                            } else {
-                                // Swap labels
-                                graph.swapVertices(nodeHighlighted + 1, newLabel);
-                            }
-                        }
-                        nodeHighlighted = newLabel - 1;
-                        nodeSelectedForRelabelling = newLabel - 1;
-                        repaint();
-                    }
-
-
-                    // Pop open relabelling window
-                }
-            }
-            if (selectedOption == DOM_OPTION) {
-                if (nodeSelectedForDom == nodeHighlighted && nodeSelectedForDom != -1) {
-
-                    setUndoState();
-                    if (graph.isSelected(nodeSelectedForDom)) {
-                        graph.toggleDom(nodeSelectedForDom);
-                        int val = graph.inDomset(nodeSelectedForDom + 1);
-                        for (int i = 0; i < graph.getN(); i++) {
-                            if (graph.isSelected(i)) {
-                                graph.setDomValue(i, val);
-
-                            }
-                        }
-                    } else {
-                        graph.toggleDom(nodeSelectedForDom);
-                    }
                     repaint();
                 }
             }
@@ -725,18 +645,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         } else if (nodeSelectedForEdge > -1) {
             nodeSelectedForEdge = -1;
             repaint();
-        } else if (nodeSelectedForErasing > -1) {
-            nodeSelectedForErasing = -1;
-            repaint();
         } else if (edgeSelectedForErasing[0] > -1 && edgeSelectedForErasing[1] > -1) {
             edgeSelectedForErasing[0] = -1;
             edgeSelectedForErasing[1] = -1;
-            repaint();
-        } else if (nodeSelectedForRelabelling > -1) {
-            nodeSelectedForRelabelling = -1;
-            repaint();
-        } else if (nodeSelectedForDom > -1) {
-            nodeSelectedForDom = -1;
             repaint();
         } else {
             defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
@@ -746,6 +657,83 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             parent.changeCursor(defaultCursor);
             parent.changeSelectedOption(-1);
         }
+    }
+
+    public void eraseVertex(int vertex){
+        if(vertex == -1) return;
+
+        if (graph.isSelected(vertex)) {
+            setUndoState();
+            for (int i = graph.getN() - 1; i >= 0; i--) {
+                if (graph.isSelected(i)) {
+                    graph.deleteVertex(i + 1);
+                }
+            }
+        } else {
+            setUndoState();
+
+            graph.deleteVertex(vertex + 1);
+
+        }
+
+        nodeHighlighted = -1;
+        repaint();
+
+
+    }
+
+    public void dominateVertex(int vertex){
+
+        if(vertex == -1) return;
+
+        setUndoState();
+        if (graph.isSelected(vertex)) {
+            graph.toggleDom(vertex);
+            int val = graph.inDomset(vertex + 1);
+            for (int i = 0; i < graph.getN(); i++) {
+                if (graph.isSelected(i)) {
+                    graph.setDomValue(i, val);
+                }
+            }
+        } else {
+            graph.toggleDom(vertex);
+        }
+        repaint();
+
+    }
+
+    public void relabelVertex(int vertex){
+        if(vertex == -1) return;
+
+        RelabelDialog rd = new RelabelDialog(parent, (vertex + 1), graph.getN());
+
+        if (!rd.getCancelled()) {
+
+            int newLabel = rd.getNewLabel();
+
+            setUndoState();
+
+            if (rd.getIncrement()) {
+                // Increment rest
+                if ((vertex + 1) < newLabel) {
+                    for (int i = vertex + 1; i < newLabel; i++) {
+                        graph.swapVertices(i, i + 1);
+                    }
+                }
+                else {
+                    for (int i = vertex + 1; i > newLabel; i--) {
+                        graph.swapVertices(i, i - 1);
+                    }
+                }
+            } else {
+                // Swap labels
+                graph.swapVertices(vertex + 1, newLabel);
+            }
+
+            repaint();
+        }
+
+
     }
 
     public Color[] getDefaultColors() {
