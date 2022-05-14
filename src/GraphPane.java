@@ -849,6 +849,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     public void paintComponent(Graphics gra) {
 
+        if(graph == null) return;
+
         image = new BufferedImage((int) Math.round(getSize().getWidth()), (int) Math.round(getSize().getHeight()), BufferedImage.TYPE_BYTE_INDEXED);
         Graphics2D g = (Graphics2D) image.getGraphics();
 
@@ -869,130 +871,104 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
-        g.setPaint(defaultColor);
+        //g.setPaint(defaultColor);
 
-        g.setFont(g.getFont().deriveFont((float) textSize));
-
-
-
-        if (graph != null) {
-
-
-            //draw the gridlines here
-            if (showGridlines) {
-                drawGridlines(g);
-            }
-
-            int N = graph.getN();
-
-            if (displayCrossings) {
-                drawCrossings(g);
-            }
-
-
-            int mouseX = (int) Math.round((MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - mouseOffsetX2) / scale);
-            int mouseY = (int) Math.round((MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - mouseOffsetY2) / scale);
+        //g.setFont(g.getFont().deriveFont((float) textSize));
 
 
 
-            if (displayDomination) {
-                drawDominationText(g);
-            }
+        int N = graph.getN();
 
-            for (int i = 0; i < N; i++) {
-                if (graph.isSelected(i)) {
-
-                    final float[] dash1 = {2.0f};
-                    g.setColor(defaultColor);
-                    g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
-                    g.drawRect((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius - 6, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius - 6, 2 * radius + 12, 2 * radius + 12);
-                    g.setStroke(new BasicStroke(1));
-
-                }
-
-                if(i == nodeHighlighted || i == nodeSelectedForEdge) continue;
-
-                drawVertex(g, i);
-
-            }
-
-            drawVertex(g, nodeHighlighted);
-            drawVertex(g, nodeSelectedForEdge);
-
-
-            if (startedSelection) {
-                //int leftX = xClicked;
-                int leftX = (int) Math.round((xClicked) / scale);
-                int rightX = mouseX;
-                if (leftX > rightX) {
-                    int tempX = leftX;
-                    leftX = rightX;
-                    rightX = tempX;
-                }
-
-                //int bottomY = yClicked;
-                int bottomY = (int) Math.round((yClicked) / scale);
-                int topY = mouseY;
-                if (bottomY > topY) {
-                    int tempY = bottomY;
-                    bottomY = topY;
-                    topY = tempY;
-                }
-
-                final float[] dash1 = {2.0f};
-                g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
-                g.drawRect(leftX, bottomY, rightX - leftX, topY - bottomY);
-
-            }
-
-
-            int[][] arcs = graph.getArcs();
-            int[] degrees = graph.getDegrees();
-
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < degrees[i]; j++) {
-                    int v2 = arcs[i][j] - 1;
-
-                    if(v2 <= i) continue;
-
-                    if ((nodeHighlighted != i && nodeHighlighted != v2) || (edgeHighlighted[0] == i && edgeHighlighted[1] == v2) || (edgeHighlighted[0] == v2 && edgeHighlighted[1] == i)) {
-                        drawEdge(g, i, v2, defaultColor, 1);
-                    } else {
-                        drawEdge(g, i, v2, highlightedVertexColor, (float) Math.max(2f, 1.5f / scale));
-                    }
-                }
-            }
-
-
-            if (nodeSelectedForEdge != -1) {
-
-                double centre1X = -xTopLeft + graph.getXPos(nodeSelectedForEdge);
-                double centre1Y = -yTopLeft + graph.getYPos(nodeSelectedForEdge);
-
-                drawEdge(g, centre1X, centre1Y, radius, mouseX, mouseY, 0, newEdgeColor, (float)Math.max(2f, 1.5f / scale));
-
-            }
-
-            if (startedCreatingVertex) {
-
-                double newVertX = mouseX;
-                double newVertY = mouseY;
-
-                if (snapToGrid) {
-                    newVertX = Math.round((newVertX + xTopLeft - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX - xTopLeft;
-                    newVertY = Math.round((newVertY + yTopLeft - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY - yTopLeft;
-                }
-
-                drawVertex(g, newVertX, newVertY, radius, defaultColor, 1f);
-            }
-            if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
-                drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
-            }
-
-            gra.drawImage(image, 0, 0, null);
+        if (showGridlines) {
+            drawGridlines(g);
         }
 
+
+        if (displayCrossings) {
+            drawCrossings(g);
+        }
+
+
+        if (displayDomination) {
+            drawDominationText(g);
+        }
+
+        for (int i = 0; i < N; i++) {
+            if (graph.isSelected(i)) {
+
+                final float[] dash1 = {2.0f};
+                g.setColor(defaultColor);
+                g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
+                g.drawRect((int) Math.round((-xTopLeft + graph.getXPos(i))) - radius - 6, (int) Math.round((-yTopLeft + graph.getYPos(i))) - radius - 6, 2 * radius + 12, 2 * radius + 12);
+                g.setStroke(new BasicStroke(1));
+
+            }
+
+            if(i == nodeHighlighted || i == nodeSelectedForEdge) continue;
+
+            drawVertex(g, i);
+
+        }
+
+        drawVertex(g, nodeHighlighted);
+        drawVertex(g, nodeSelectedForEdge);
+
+        int mouseX = (int) Math.round(mouseX() / scale);
+        int mouseY = (int) Math.round(mouseY() / scale);
+
+        if (startedSelection) {
+            drawSelectionBox(g, mouseX, mouseY, (int) Math.round((xClicked) / scale), (int) Math.round((yClicked) / scale), defaultColor);
+        }
+
+
+        int[][] arcs = graph.getArcs();
+        int[] degrees = graph.getDegrees();
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < degrees[i]; j++) {
+                int v2 = arcs[i][j] - 1;
+
+                if(v2 <= i) continue;
+
+                if ((nodeHighlighted != i && nodeHighlighted != v2) || (edgeHighlighted[0] == i && edgeHighlighted[1] == v2) || (edgeHighlighted[0] == v2 && edgeHighlighted[1] == i)) {
+                    drawEdge(g, i, v2, defaultColor, 1);
+                } else {
+                    drawEdge(g, i, v2, highlightedVertexColor, (float) Math.max(2f, 1.5f / scale));
+                }
+            }
+        }
+
+
+        if (nodeSelectedForEdge != -1) {
+
+            double centre1X = -xTopLeft + graph.getXPos(nodeSelectedForEdge);
+            double centre1Y = -yTopLeft + graph.getYPos(nodeSelectedForEdge);
+
+            drawEdge(g, centre1X, centre1Y, radius, mouseX, mouseY, 0, newEdgeColor, (float)Math.max(2f, 1.5f / scale));
+
+        }
+
+        if (startedCreatingVertex) {
+
+            double newVertX = mouseX;
+            double newVertY = mouseY;
+
+            if (snapToGrid) {
+                newVertX = Math.round((newVertX + xTopLeft - gridOffsetX) / gridSpacing) * gridSpacing + gridOffsetX - xTopLeft;
+                newVertY = Math.round((newVertY + yTopLeft - gridOffsetY) / gridSpacing) * gridSpacing + gridOffsetY - yTopLeft;
+            }
+
+            drawVertex(g, newVertX, newVertY, radius, defaultColor, 1f);
+        }
+
+        if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
+            drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / Math.max(scale, scale)));
+        }
+
+        gra.drawImage(image, 0, 0, null);
     }
+
+
 
     private void drawVertex(Graphics2D g, int vertex){
 
@@ -1211,6 +1187,26 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
 
         g.scale(scale, scale);
+    }
+
+    private void drawSelectionBox(Graphics2D g, int x1, int y1, int x2, int y2, Color c){
+        if (x1 > x2) {
+            int tempX = x1;
+            x1 = x2;
+            x2 = tempX;
+        }
+
+        if (y1 > y2) {
+            int tempY = y1;
+            y1 = y2;
+            y2 = tempY;
+        }
+
+        final float[] dash1 = {2.0f};
+        g.setColor(c);
+        g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f));
+        g.drawRect(x1, y1, x2 - x1, y2 - y1);
+
     }
 
     public void setGraph(Graph gr) {
