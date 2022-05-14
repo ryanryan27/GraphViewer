@@ -778,6 +778,8 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         int N = graph.getN();
 
+        boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
+
         if (showGridlines) {
             drawGridlines(g);
         }
@@ -817,7 +819,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         for (int i = 0; i < N; i++) {
             if(i == nodeHighlighted || i == nodeSelectedForEdge) continue;
             if(i == edgeHighlighted[0] || i == edgeHighlighted[1]) continue;
-            drawVertex(g, i);
+            drawVertex(g, dv, i);
 
         }
 
@@ -834,13 +836,13 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         if (edgeHighlighted[0] != -1 && edgeHighlighted[1] != -1) {
             drawEdge(g, edgeHighlighted[0], edgeHighlighted[1], deleteEdgeColor, (float) Math.max(2f, 1.5f / scale));
-            drawVertex(g, edgeHighlighted[0], deleteEdgeColor, true);
-            drawVertex(g, edgeHighlighted[1], deleteEdgeColor, true);
+            drawVertex(g, dv, edgeHighlighted[0], deleteEdgeColor, true);
+            drawVertex(g, dv, edgeHighlighted[1], deleteEdgeColor, true);
         }
 
 
-        drawVertex(g, nodeHighlighted);
-        drawVertex(g, nodeSelectedForEdge);
+        drawVertex(g, dv, nodeHighlighted);
+        drawVertex(g, dv, nodeSelectedForEdge);
 
 
         if (startedCreatingVertex) {
@@ -866,15 +868,13 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-    private void drawVertex(Graphics2D g, int vertex){
-        drawVertex(g, vertex, defaultColor, false);
+    private void drawVertex(Graphics2D g,  boolean[] dv, int vertex){
+        drawVertex(g, dv, vertex, defaultColor, false);
     }
 
-    private void drawVertex(Graphics2D g, int vertex, Color st, boolean override){
+    private void drawVertex(Graphics2D g, boolean[] dv, int vertex, Color st, boolean override){
 
         if(vertex == -1) return;
-
-        boolean[] dv = graph.dominatedVertices(domTotal, domSecure, domConnected, domRoman, domWeakRoman);
 
         float weight = 1;
         Color fill = Color.WHITE;
