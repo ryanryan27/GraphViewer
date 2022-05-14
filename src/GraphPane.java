@@ -171,12 +171,14 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     public void mouseClicked(MouseEvent e) {
 
         if (e.getButton() == MouseEvent.BUTTON3) {
-            resetMouseVars();
 
             if(selectedOption != SELECT_OPTION){
-
                 graph.deselectAll();
             }
+
+            resetMouseVars();
+
+
 
         }
         if(e.getButton() == MouseEvent.BUTTON1){
@@ -479,8 +481,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
                     graph.setYPos(i, graph.getYPos(i) + newY - origY);
                 }
             }
-        } else {
-            graph.deselectAll();
         }
 
         graph.setXPos(nodeSelected, newX);
