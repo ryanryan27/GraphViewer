@@ -1447,158 +1447,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
 
-    public void openGraph6(File file) {
-        int maxNode = 0;
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String graphLine = br.readLine();
-            int g6count;
-            long g6countLong = 0;
-            while (graphLine != null) {
-                g6countLong++;
-                graphLine = br.readLine();
-            }
-            br.close();
-
-            if (g6countLong == 1) {
-                br = new BufferedReader(new FileReader(file));
-                graphLine = br.readLine();
-
-
-                int lineIndex = 0;
-
-                int headerAscii = graphLine.charAt(lineIndex++);
-
-                if (headerAscii == 126) {
-                    int headerAscii2 = graphLine.charAt(lineIndex++);
-                    if (headerAscii2 == 126) {
-                        System.out.println("UGV does not support graphs of this size.");
-                    } else {
-                        int headerAscii3 = graphLine.charAt(lineIndex++);
-                        int headerAscii4 = graphLine.charAt(lineIndex++);
-                        String binaryString = intToBinary(headerAscii2 - 63) + intToBinary(headerAscii3 - 63) + intToBinary(headerAscii4 - 63);
-
-                        maxNode = binaryToInt(binaryString);
-                    }
-                } else {
-                    maxNode = headerAscii - 63;
-                }
-
-                String graphString = "";
-                for (int i = lineIndex; i < graphLine.length(); i++)
-                    graphString += intToBinary(((int) graphLine.charAt(i)) - 63);
-
-                graph = new Graph(maxNode, 1);
-
-                int arcCount = 0;
-                for (int i = 1; i < maxNode; i++)
-                    for (int j = 0; j < i; j++)
-                        if (graphString.charAt(arcCount++) == '1') {
-                            graph.addArc(i + 1, j + 1);
-                            graph.addArc(j + 1, i + 1);
-                        }
-                GraphPane graphPanel = makeGraphPanel();
-
-                tabbedPane.add(graphPanel, file.getName());
-                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-                createWindowItem(graphPanel, file.getName());
-
-                validate();
-                fitToScreen();
-
-                br.close();
-            } else if (g6countLong > 1) {
-                boolean[] openGraphs = new boolean[0];
-                boolean useOpenGraphs = true;
-                long[][] graphChoices = new long[0][0];
-                if (g6countLong > Integer.MAX_VALUE) {
-                    // TOO BIG
-                    SelectFilesBlind sfb = new SelectFilesBlind(this, g6countLong);
-
-                    if (sfb.getCancelled())
-                        return;
-
-                    graphChoices = sfb.getGraphChoices();
-                    useOpenGraphs = false;
-                } else {
-                    g6count = (int) g6countLong;
-                    SelectFiles sf = new SelectFiles(this, file.getName(), g6count);
-
-                    if (sf.getCancelled())
-                        return;
-
-                    openGraphs = sf.getOpenGraphs();
-
-                }
-
-                int graphIndex = 0;
-
-                br = new BufferedReader(new FileReader(file));
-                for (long graphcount = 0; graphcount < g6countLong; graphcount++) {
-                    graphLine = br.readLine();
-                    if ((useOpenGraphs && openGraphs[(int) graphcount]) || (!useOpenGraphs && graphChoices[0][graphIndex] - 1 <= graphcount && graphChoices[1][graphIndex] - 1 >= graphcount)) {
-                        if (!useOpenGraphs && graphChoices[1][graphIndex] - 1 == graphcount)
-                            graphIndex++;
-
-
-                        int lineIndex = 0;
-
-                        int headerAscii = graphLine.charAt(lineIndex++);
-
-                        if (headerAscii == 126) {
-                            int headerAscii2 = graphLine.charAt(lineIndex++);
-                            if (headerAscii2 == 126) {
-                                System.out.println("UGV does not support graphs of this size.");
-                            } else {
-
-                                int headerAscii3 = graphLine.charAt(lineIndex++);
-                                int headerAscii4 = graphLine.charAt(lineIndex++);
-                                String binaryString = intToBinary(headerAscii2 - 63) + intToBinary(headerAscii3 - 63) + intToBinary(headerAscii4 - 63);
-
-                                maxNode = binaryToInt(binaryString);
-                            }
-                        } else {
-                            maxNode = headerAscii - 63;
-                        }
-
-                        String graphString = "";
-                        for (int i = lineIndex; i < graphLine.length(); i++)
-                            graphString += intToBinary(((int) graphLine.charAt(i)) - 63);
-
-
-                        graph = new Graph(maxNode, 1);
-
-                        int arcCount = 0;
-                        for (int i = 1; i < maxNode; i++)
-                            for (int j = 0; j < i; j++)
-                                if (graphString.charAt(arcCount++) == '1') {
-                                    graph.addArc(i + 1, j + 1);
-                                    graph.addArc(j + 1, i + 1);
-                                }
-
-                        GraphPane graphPanel = makeGraphPanel();
-
-                        tabbedPane.add(graphPanel, (file.getName() + " #" + (graphcount + 1)));
-                        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-                        createWindowItem(graphPanel, file.getName() + " #" + (graphcount + 1));
-
-                        validate();
-                        fitToScreen();
-                        if (!useOpenGraphs && graphIndex >= graphChoices[0].length)
-                            break;
-
-                    }
-                }
-                br.close();
-
-
-            }
-
-        } catch (Exception e) {
-            System.err.println(e);
-        }
-    }
 
     public void openFile(File file, int type){
         FileParser fp = new FileParser();
@@ -1609,6 +1457,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             graphs = fp.parseGML(file);
         } else if(type == FileParser.FILE_UGV){
             graphs = fp.parseUGV(file);
+        } else if(type == FileParser.FILE_G6){
+            graphs = fp.parseGraph6(file);
         } else {
             graphs = new GraphData[0];
         }
@@ -2763,7 +2613,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                 openGraphASC(file);
                             } else if (extensionName.equals(graph6Name)) {
                                 settings_loadFilter = 1;
-                                openGraph6(file);
+                                openFile(file, FileParser.FILE_G6);
                             } else if (extensionName.equals(hcpName)) {
                                 settings_loadFilter = 2;
                                 openGraphHCP(file);

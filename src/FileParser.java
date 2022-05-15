@@ -274,6 +274,112 @@ public class FileParser {
     }
 
 
+    public GraphData[] parseGraph6(File file){
+        GraphData[] graphs = new GraphData[0];
+
+        int maxNode = 0;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String graphLine = br.readLine();
+            int g6count = 0;
+            while (graphLine != null) {
+                g6count++;
+                graphLine = br.readLine();
+            }
+            br.close();
+
+            graphs = new GraphData[g6count];
+
+            for (int i = 0; i < g6count; i++) {
+                graphs[i] = new GraphData(new Graph(0,0));
+            }
+
+            br = new BufferedReader(new FileReader(file));
+            for (int gr = 0; gr < g6count; gr++) {
+                graphLine = br.readLine();
+
+                int lineIndex = 0;
+
+                int headerAscii = graphLine.charAt(lineIndex++);
+
+                if (headerAscii == 126) {
+                    int headerAscii2 = graphLine.charAt(lineIndex++);
+                    if (headerAscii2 == 126) {
+                        System.out.println("UGV does not support graphs of this size.");
+                    } else {
+
+                        int headerAscii3 = graphLine.charAt(lineIndex++);
+                        int headerAscii4 = graphLine.charAt(lineIndex++);
+                        String binaryString = intToBinary(headerAscii2 - 63) + intToBinary(headerAscii3 - 63) + intToBinary(headerAscii4 - 63);
+
+                        maxNode = binaryToInt(binaryString);
+                    }
+                } else {
+                    maxNode = headerAscii - 63;
+                }
+
+                String graphString = "";
+                for (int i = lineIndex; i < graphLine.length(); i++) {
+                    graphString += intToBinary(((int) graphLine.charAt(i)) - 63);
+                }
+
+                Graph graph = graphs[gr].graph;
+                graph.setN(maxNode);
+
+                int arcCount = 0;
+                for (int i = 1; i < maxNode; i++) {
+                    for (int j = 0; j < i; j++) {
+                        if (graphString.charAt(arcCount++) == '1') {
+                            graph.addArc(i + 1, j + 1);
+                            graph.addArc(j + 1, i + 1);
+                        }
+                    }
+                }
+
+                graph.createCircle();
+
+            }
+            br.close();
+
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+
+
+        return graphs;
+    }
+
+
+
+
+    public String intToBinary(int number) {
+        // Assumes number will be less than 64, the following is for testing purposes only!!!
+        if (number > 64)
+            System.out.println("NUMBER IS WRONG!!");
+
+        String binary = "";
+
+        for (int i = 5; i >= 0; i--)
+            if (number >= Math.pow(2, i)) {
+                binary += "1";
+                number -= Math.pow(2, i);
+            } else
+                binary += "0";
+
+        return binary;
+    }
+
+    public int binaryToInt(String binary) {
+        int number = 0;
+        for (int i = 1; i <= binary.length(); i++)
+            number += Math.pow(2, Integer.parseInt("" + binary.charAt(binary.length() - i)));
+
+        return number;
+    }
+
 
     private class Edge {
         int graph;
