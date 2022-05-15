@@ -921,6 +921,66 @@ public class FileParser {
         return graphs;
     }
 
+    public void saveASC(GraphData[] graphs, File file, boolean append){
+
+        try {
+            int latestGraph = 0;
+            if (append && file.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String line = br.readLine();
+                while (line != null) {
+                    if (line.length() > 5 && line.startsWith("Graph")) {
+                        int graphNumber = Integer.parseInt(line.substring(6, line.indexOf(":")));
+                        if (graphNumber > latestGraph)
+                            latestGraph = graphNumber;
+                    }
+                    line = br.readLine();
+                }
+                br.close();
+            }
+
+            for (GraphData graphData : graphs) {
+                Graph graph = graphData.graph;
+
+
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file, append));
+
+                bw.newLine();
+
+                latestGraph++;
+
+                int N = graph.getN();
+                int[][] arcs = graph.getArcs();
+                int[] degrees = graph.getDegrees();
+
+
+                bw.write(("Graph " + latestGraph + ":"));
+                bw.newLine();
+                bw.newLine();
+
+                for (int i = 0; i < N; i++) {
+                    String writeLine = ((i + 1) + " :");
+                    for (int j = 0; j < degrees[i]; j++)
+                        writeLine += (" " + arcs[i][j]);
+                    bw.write(writeLine);
+                    bw.newLine();
+                }
+                bw.write("Taillenweite: ");
+                bw.newLine();
+                bw.newLine();
+                bw.newLine();
+
+                bw.close();
+
+                append = true;
+            }
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+    }
+
     private int[] getSCDData(File file) {
         DataInputStream di = null;
         try {

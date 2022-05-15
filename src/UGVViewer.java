@@ -962,161 +962,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-
-    public void saveGraphASC(String filename, GraphPane graphPane) {
-        File fileToSave = new File(filename);
-
-        Graph graph = graphPane.getGraph();
-
-        boolean save = true;
-        boolean append = false;
-
-        if (fileToSave.exists()) {
-            String[] options = new String[3];
-            options[0] = "Overwrite";
-            options[1] = "Append";
-            options[2] = "Cancel";
-
-            JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-            int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[2]);
-            if (option == JOptionPane.NO_OPTION)
-                append = true;
-            if (option == JOptionPane.CANCEL_OPTION)
-                save = false;
-        }
-        if (save) {
-            try {
-                int latestGraph = 0;
-                if (append && fileToSave.exists()) {
-                    BufferedReader br = new BufferedReader(new FileReader(fileToSave));
-                    String line = br.readLine();
-                    while (line != null) {
-                        if (line.length() > 5 && line.startsWith("Graph")) {
-                            int graphNumber = Integer.parseInt(line.substring(6, line.indexOf(":")));
-                            if (graphNumber > latestGraph)
-                                latestGraph = graphNumber;
-                        }
-                        line = br.readLine();
-                    }
-                    br.close();
-                }
-                BufferedWriter bw = new BufferedWriter(new FileWriter(fileToSave, append));
-
-                bw.newLine();
-
-                latestGraph++;
-
-                int N = graph.getN();
-                int[][] arcs = graph.getArcs();
-                int[] degrees = graph.getDegrees();
-
-
-                bw.write(("Graph " + latestGraph + ":"));
-                bw.newLine();
-                bw.newLine();
-
-                for (int i = 0; i < N; i++) {
-                    String writeLine = ((i + 1) + " :");
-                    for (int j = 0; j < degrees[i]; j++)
-                        writeLine += (" " + arcs[i][j]);
-                    bw.write(writeLine);
-                    bw.newLine();
-                }
-                bw.write("Taillenweite: ");
-                bw.newLine();
-                bw.newLine();
-                bw.newLine();
-
-                bw.close();
-
-
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }
-
-    }
-
-    public void saveMultipleGraphsASC(String filename, GraphPane[] graphPanes) {
-        File fileToSave = new File(filename);
-
-        boolean save = true;
-        boolean append = false;
-
-        if (fileToSave.exists()) {
-            String[] options = new String[3];
-            options[0] = "Overwrite";
-            options[1] = "Append";
-            options[2] = "Cancel";
-
-            JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-            int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[2]);
-            if (option == JOptionPane.NO_OPTION)
-                append = true;
-            if (option == JOptionPane.CANCEL_OPTION)
-                save = false;
-        }
-        if (save) {
-
-            try {
-                int latestGraph = 0;
-                if (append && fileToSave.exists()) {
-                    BufferedReader br = new BufferedReader(new FileReader(fileToSave));
-                    String line = br.readLine();
-                    while (line != null) {
-                        if (line.length() > 5 && line.startsWith("Graph")) {
-                            int graphNumber = Integer.parseInt(line.substring(6, line.indexOf(":")));
-                            if (graphNumber > latestGraph)
-                                latestGraph = graphNumber;
-                        }
-                        line = br.readLine();
-                    }
-                    br.close();
-                }
-
-                for (GraphPane graphPane : graphPanes) {
-                    Graph graph = graphPane.getGraph();
-
-
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(fileToSave, append));
-
-                    bw.newLine();
-
-                    latestGraph++;
-
-                    int N = graph.getN();
-                    int[][] arcs = graph.getArcs();
-                    int[] degrees = graph.getDegrees();
-
-
-                    bw.write(("Graph " + latestGraph + ":"));
-                    bw.newLine();
-                    bw.newLine();
-
-                    for (int i = 0; i < N; i++) {
-                        String writeLine = ((i + 1) + " :");
-                        for (int j = 0; j < degrees[i]; j++)
-                            writeLine += (" " + arcs[i][j]);
-                        bw.write(writeLine);
-                        bw.newLine();
-                    }
-                    bw.write("Taillenweite: ");
-                    bw.newLine();
-                    bw.newLine();
-                    bw.newLine();
-
-                    bw.close();
-
-                    append = true;
-                }
-
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }
-
-    }
-
     public void saveGraphEdgeList(String filename, GraphPane graphPane) {
         File fileToSave = new File(filename);
 
@@ -1284,6 +1129,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             fp.saveSCD(graphs, file, append);
         } else if(type == FileParser.FILE_G6){
             fp.saveGraph6(graphs, file, append);
+        } else if(type == FileParser.FILE_ASC){
+            fp.saveASC(graphs, file, append);
         }
 
     }
@@ -1445,7 +1292,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                         filename = filename + ".asc";
                                     }
 
-                                    saveGraphASC(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
+                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_ASC);
                                 } else if (extensionName.equals(graph6Name)) {
                                     settings_saveFilter = 1;
                                     String filename = jfc.getSelectedFile().getName();
@@ -1574,7 +1421,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                                 filename = filename + ".asc";
                                             }
 
-                                            saveMultipleGraphsASC(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes);
+                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_ASC);
                                         } else if (extensionName.equals(graph6Name)) {
                                             settings_saveFilter = 1;
                                             String filename = jfc.getSelectedFile().getName();
