@@ -757,7 +757,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     public void changeSelectedOption(int so) {
         selectedOption = so;
         graphPanels.setSelectedOptions(so);
-        for (int i = 0; i < choices; i++)
+        for (int i = 0; i < choices; i++) {
             if (selectedOption == i) {
                 chosen[i] = true;
                 labels[i].setIcon(icons[i][3]);
@@ -765,6 +765,17 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 chosen[i] = false;
                 labels[i].setIcon(icons[i][0]);
             }
+        }
+
+        for (int i = choices+bottomChoices; i < choices+bottomChoices+selectChoices; i++) {
+            if(selectedOption == i){
+                chosen[i] = true;
+                labels[i].setIcon(icons[i][3]);
+            } else {
+                chosen[i] = false;
+                labels[i].setIcon(icons[i][0]);
+            }
+        }
     }
 
     public void executeBottomFunction(int function) {

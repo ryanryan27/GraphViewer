@@ -151,7 +151,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             });
 
         defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-        selectedOption = -1;
+        parent.changeSelectedOption(-1);
 
         thisGraphPane = this;
     }
@@ -415,7 +415,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             repaint();
         } else {
             defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-            selectedOption = -1;
+            parent.changeSelectedOption(-1);
             startedSelection = false;
             edgeHighlighted[0] = -1;
             edgeHighlighted[1] = -1;
