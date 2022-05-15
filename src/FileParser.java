@@ -352,8 +352,207 @@ public class FileParser {
         return graphs;
     }
 
+    public GraphData[] parseSCD(File file){
+        GraphData[] graphs = new GraphData[0];
+
+        DataInputStream di = null;
 
 
+        int[] scdData = getSCDData(file);
+
+        int maxNode = scdData[0];
+        int degree = scdData[1];
+
+        int graphsToDo = scdData[2];
+        if (maxNode != 0) {
+            int[] degrees = new int[257];
+            int read;
+            int node;
+
+            try {
+                di = new DataInputStream(new FileInputStream(file));
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+
+
+            graphs = new GraphData[graphsToDo];
+
+            for (int i = 0; i < graphsToDo; i++) {
+                graphs[i] = new GraphData(new Graph(0,0));
+            }
+
+
+            for (int gr = 0; gr < graphsToDo; gr++) {
+
+                Graph graph = graphs[gr].graph;
+                graph.setN(maxNode);
+                graph.setMaxDegree(degree);
+
+
+                readStream(di);
+                for (int i = 0; i < maxNode; i++)
+                    degrees[i] = 0;
+                node = 1;
+                for (int i = 0; i < maxNode * degree / 2; i++) {
+                    read = readStream(di);
+                    degrees[node - 1]++;
+                    degrees[read - 1]++;
+                    graph.addArc(node, read);
+                    graph.addArc(read, node);
+                    while (degrees[node - 1] >= degree)
+                        node++;
+                }
+
+                graph.createCircle();
+
+            }
+        }
+
+        return graphs;
+    }
+
+
+
+
+    public int[] getSCDData(File file) {
+        DataInputStream di = null;
+        try {
+            di = new DataInputStream(new FileInputStream(file));
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        int degree = 1;
+        int graphsToDo = 0;
+
+        int[] degrees = new int[257];
+        readStream(di);
+        int oldRead = readStream(di);
+        int maxNode = oldRead;
+        degrees[oldRead - 1]++;
+        int read = readStream(di);
+        while (read > oldRead) {
+
+            maxNode = read;
+            degrees[0]++;
+            degrees[read - 1]++;
+            degree++;
+            oldRead = read;
+            read = readStream(di);
+        }
+
+        degrees[0] = degree;
+
+        boolean graphFinished = false;
+        int node = 2;
+        boolean needToStart = true;
+        while (needToStart) {
+            needToStart = false;
+            while (!graphFinished) {
+                degrees[node - 1]++;
+                degrees[read - 1]++;
+                if (read > maxNode) {
+                    maxNode = read;
+                }
+
+                graphFinished = true;
+                for (int i = 0; i < maxNode; i++) {
+                    if (degrees[i] != degree) {
+                        graphFinished = false;
+                        break;
+                    }
+                }
+
+                if (!graphFinished) {
+                    oldRead = read;
+                    read = readStream(di);
+
+                    if ((degrees[node - 1] != degree && read < oldRead) || read <= node || degrees[oldRead - 1] > degree) {
+                        degree--;
+                        for (int i = 0; i < maxNode; i++) {
+                            degrees[i] = 0;
+                        }
+
+                        maxNode = 1;
+                        node = 1;
+                        if (degree < 3) {
+                            System.out.println("SCD file is invalid");
+                            return new int[3];
+                        }
+                        try {
+                            if (di != null) {
+                                di.close();
+                            }
+                            di = new DataInputStream(new FileInputStream(file));
+                        } catch (Exception e) {
+                            System.err.println(e);
+                        }
+                        readStream(di);
+                        read = readStream(di);
+                    }
+
+                    while (degrees[node - 1] == degree) {
+                        node++;
+                    }
+                }
+            }
+
+            graphsToDo++;
+
+            int numberToSkip = readStream(di);
+            while (numberToSkip != -1) {
+                graphsToDo++;
+                for (int i = 0; i < maxNode * degree / 2 - numberToSkip; i++) {
+                    if (readStream(di) == -1) {
+                        needToStart = true;
+                        break;
+                    }
+                }
+                numberToSkip = readStream(di);
+            }
+
+            if (needToStart) {
+                graphsToDo = 0;
+                for (int i = 0; i < maxNode; i++) {
+                    degrees[i] = 0;
+                }
+
+                degree--;
+                maxNode = 1;
+                node = 1;
+                if (degree < 3) {
+                    System.out.println("SCD file is invalid");
+                    return new int[3];
+                }
+
+                try {
+                    if (di != null) {
+                        di.close();
+                    }
+                    di = new DataInputStream(new FileInputStream(file));
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
+                readStream(di);
+                read = readStream(di);
+            }
+        }
+        int[] scdData = new int[3];
+        scdData[0] = maxNode;
+        scdData[1] = degree;
+        scdData[2] = graphsToDo;
+        return scdData;
+    }
+
+    public int readStream(DataInputStream di) {
+        int read;
+        try {
+            read = Integer.parseInt("" + di.readByte());
+        } catch (Exception e) {
+            read = -1;
+        }
+        return read;
+    }
 
     public String intToBinary(int number) {
         // Assumes number will be less than 64, the following is for testing purposes only!!!

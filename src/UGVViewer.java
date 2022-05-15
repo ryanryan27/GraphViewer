@@ -1321,130 +1321,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         return scdData;
     }
 
-    public void openGraphSCD(File file) {
-        DataInputStream di = null;
 
-
-        long[] scdData = getSCDData(file);
-
-        int maxNode = (int) scdData[0];
-        int degree = (int) scdData[1];
-        int graphsToDo;
-        long graphsToDoLong = scdData[2];
-        if (maxNode != 0) {
-            int[] degrees = new int[257];
-            int read;
-            int node;
-
-            try {
-                di = new DataInputStream(new FileInputStream(file));
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-
-            if (graphsToDoLong == 1) {
-                graph = new Graph(maxNode, degree);
-                readStream(di);
-                for (int i = 0; i < maxNode; i++)
-                    degrees[i] = 0;
-                node = 1;
-                for (int i = 0; i < maxNode * degree / 2; i++) {
-                    read = readStream(di);
-                    degrees[node - 1]++;
-                    degrees[read - 1]++;
-                    graph.addArc(node, read);
-                    graph.addArc(read, node);
-                    while (degrees[node - 1] >= degree)
-                        node++;
-                }
-
-                GraphPane graphPanel = makeGraphPanel();
-
-                tabbedPane.add(graphPanel, file.getName());
-                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-                createWindowItem(graphPanel, file.getName());
-
-                validate();
-                fitToScreen();
-
-            } else {
-                boolean[] openGraphs = new boolean[0];
-                boolean useOpenGraphs = true;
-                long[][] graphChoices = new long[0][0];
-                if (graphsToDoLong > Integer.MAX_VALUE) {
-                    // TOO BIG
-                    SelectFilesBlind sfb = new SelectFilesBlind(this, graphsToDoLong);
-
-                    if (sfb.getCancelled())
-                        return;
-
-                    graphChoices = sfb.getGraphChoices();
-                    useOpenGraphs = false;
-                } else {
-                    graphsToDo = (int) graphsToDoLong;
-                    SelectFiles sf = new SelectFiles(this, file.getName(), graphsToDo);
-
-                    if (sf.getCancelled())
-                        return;
-
-                    openGraphs = sf.getOpenGraphs();
-
-                }
-
-                int[] stream = new int[maxNode * degree / 2];
-                int graphIndex = 0;
-
-                for (long graphcount = 0; graphcount < graphsToDoLong; graphcount++) {
-                    int index = readStream(di);
-                    for (int i = index; i < maxNode * degree / 2; i++)
-                        stream[i] = readStream(di);
-
-
-                    if ((useOpenGraphs && openGraphs[(int) graphcount]) || (!useOpenGraphs && graphChoices[0][graphIndex] - 1 <= graphcount && graphChoices[1][graphIndex] - 1 >= graphcount)) {
-                        if (!useOpenGraphs && graphChoices[1][graphIndex] - 1 == graphcount) graphIndex++;
-
-                        graph = new Graph(maxNode, degree);
-
-                        for (int i = 0; i < maxNode; i++) {
-                            degrees[i] = 0;
-                        }
-
-                        node = 1;
-                        for (int j : stream) {
-                            degrees[node - 1]++;
-                            degrees[j - 1]++;
-                            graph.addArc(node, j);
-                            graph.addArc(j, node);
-                            while (degrees[node - 1] >= degree) {
-                                node++;
-                            }
-                        }
-
-                        GraphPane graphPanel = makeGraphPanel();
-
-                        tabbedPane.add(graphPanel, (file.getName() + " #" + (graphcount + 1)));
-                        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-                        createWindowItem(graphPanel, file.getName() + " #" + (graphcount + 1));
-
-                        validate();
-                        fitToScreen();
-                        if (!useOpenGraphs && graphIndex >= graphChoices[0].length)
-                            break;
-                    }
-
-
-                }
-                try {
-                    if (di != null) {
-                        di.close();
-                    }
-                } catch (Exception e) {
-                    System.err.println(e);
-                }
-
-            }
-        }
-    }
 
 
 
@@ -1459,6 +1336,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             graphs = fp.parseUGV(file);
         } else if(type == FileParser.FILE_G6){
             graphs = fp.parseGraph6(file);
+        } else if(type == FileParser.FILE_SCD){
+            graphs = fp.parseSCD(file);
         } else {
             graphs = new GraphData[0];
         }
@@ -2619,7 +2498,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                 openGraphHCP(file);
                             } else if (extensionName.equals(scdName)) {
                                 settings_loadFilter = 3;
-                                openGraphSCD(file);
+                                openFile(file, FileParser.FILE_SCD);
                             } else if (extensionName.equals(edgeListName)) {
                                 settings_loadFilter = 4;
                                 openGraphEdgeList(file);
