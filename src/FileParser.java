@@ -123,12 +123,13 @@ public class FileParser {
         return new GraphData[0];
     }
 
-    public void saveGML(Graph[] graphs, File file, boolean append){
+    public void saveGML(GraphData[] graphs, File file, boolean append){
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, append));
 
-            for (Graph graph: graphs) {
+            for (GraphData graphData: graphs) {
+                Graph graph = graphData.graph;
                 int N = graph.getN();
 
                 writer.newLine();
@@ -273,6 +274,129 @@ public class FileParser {
         return graphs;
     }
 
+    public void saveUGV(GraphData[] graphs, File file, boolean append){
+        try {
+            int newGraphs = graphs.length;
+
+            BufferedWriter bw;
+
+            //DataOutputStream os;
+            if (append) {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                bw = new BufferedWriter(new FileWriter(file.getName() + ".temp"));
+
+                String line = br.readLine();
+                long graph_count = Long.parseLong(line);
+                bw.write((graph_count + newGraphs) + "");
+                bw.newLine();
+
+                for (int i = 0; i < graph_count; i++) {
+                    int N = Integer.parseInt(br.readLine());
+                    bw.write(N + "");
+                    bw.newLine();
+                    // xScale, yScale, xTopLeft, yTopLeft, radius
+                    bw.write(br.readLine());
+                    bw.newLine();
+                    // xPoses, yPoses
+                    bw.write(br.readLine());
+                    bw.newLine();
+                    bw.write(br.readLine());
+                    bw.newLine();
+
+                    // degrees
+                    bw.write(br.readLine());
+                    bw.newLine();
+                    for (int j = 0; j < N; j++) // arcs
+                    {
+                        bw.write(br.readLine());
+                        bw.newLine();
+                    }
+                    bw.write("-1");
+                    bw.newLine();
+                    br.readLine();
+                }
+                br.close();
+            } else {
+                bw = new BufferedWriter(new FileWriter(file));
+            }
+
+            if (!append) {
+                bw.write(newGraphs + "");
+                bw.newLine();
+            }
+
+            for (GraphData graphData : graphs) {
+                Graph graph = graphData.graph;
+
+
+                bw.write(graph.getN() + "");
+                bw.newLine();
+                bw.write(graphData.scale + " " + graphData.scale + " " + graphData.x_offset + " " + graphData.y_offset + " " + graphData.radius);
+                bw.newLine();
+
+                String xPosesString = "";
+                String yPosesString = "";
+                for (int i = 0; i < graph.getN(); i++) {
+                    if (i == 0) {
+                        xPosesString = (graph.getXPos(0) + "");
+                        yPosesString = (graph.getYPos(0) + "");
+                    } else {
+                        xPosesString += (" " + graph.getXPos(i));
+                        yPosesString += (" " + graph.getYPos(i));
+                    }
+                }
+
+                bw.write(xPosesString);
+                bw.newLine();
+                bw.write(yPosesString);
+                bw.newLine();
+
+                int[] degrees = graph.getDegrees();
+                String degreesString = "";
+                for (int i = 0; i < degrees.length; i++) {
+                    if (i == 0) {
+                        degreesString = (degrees[0] + "");
+                    }
+                    else {
+                        degreesString += (" " + degrees[i]);
+                    }
+                }
+
+                bw.write(degreesString);
+                bw.newLine();
+
+                int[][] arcs = graph.getArcs();
+                for (int i = 0; i < degrees.length; i++) {
+                    String arcsString = "";
+                    for (int j = 0; j < degrees[i]; j++) {
+                        if (j == 0) {
+                            arcsString = (arcs[i][0] + "");
+                        }
+                        else {
+                            arcsString += (" " + arcs[i][j]);
+                        }
+                    }
+
+                    bw.write(arcsString);
+                    bw.newLine();
+                }
+
+                bw.write("-1");
+                bw.newLine();
+            }
+            bw.close();
+
+            if (append) {
+                File newFile = new File(file.getName() + ".temp");
+                if (newFile.exists()) {
+                    file.delete();
+                    newFile.renameTo(file);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
 
     public GraphData[] parseGraph6(File file){
         GraphData[] graphs = new GraphData[0];

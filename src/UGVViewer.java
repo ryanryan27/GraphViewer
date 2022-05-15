@@ -1100,23 +1100,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-    public String intToBinary(int number) {
-        // Assumes number will be less than 64, the following is for testing purposes only!!!
-        if (number > 64)
-            System.out.println("NUMBER IS WRONG!!");
-
-        String binary = "";
-
-        for (int i = 5; i >= 0; i--)
-            if (number >= Math.pow(2, i)) {
-                binary += "1";
-                number -= Math.pow(2, i);
-            } else
-                binary += "0";
-
-        return binary;
-    }
-
     public int binaryToInt(String binary) {
         int number = 0;
         for (int i = 1; i <= binary.length(); i++)
@@ -1777,303 +1760,15 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-    public void saveGraphUGV(String filename, GraphPane graphPane) {
-        File fileToSave = new File(filename);
 
-        Graph graph = graphPane.getGraph();
-
-        boolean save = true;
-        boolean append = false;
-
-        if (fileToSave.exists()) {
-            String[] options = new String[3];
-            options[0] = "Overwrite";
-            options[1] = "Append";
-            options[2] = "Cancel";
-
-            JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-            int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[2]);
-            if (option == JOptionPane.NO_OPTION)
-                append = true;
-            if (option == JOptionPane.CANCEL_OPTION)
-                save = false;
-
-
-        }
-        if (save) {
-            try {
-                int newGraphs = 1;
-
-                BufferedWriter bw;
-
-                //DataOutputStream os;
-                if (append) {
-                    BufferedReader br = new BufferedReader(new FileReader(fileToSave));
-                    bw = new BufferedWriter(new FileWriter(filename + ".temp"));
-
-                    String line = br.readLine();
-                    long graphs = Long.parseLong(line);
-                    bw.write((graphs + newGraphs) + "");
-                    bw.newLine();
-
-                    for (int i = 0; i < graphs; i++) {
-                        int N = Integer.parseInt(br.readLine());
-                        bw.write(N + "");
-                        bw.newLine();
-                        // xScale, yScale, xTopLeft, yTopLeft, radius
-                        bw.write(br.readLine());
-                        bw.newLine();
-                        // xPoses, yPoses
-                        bw.write(br.readLine());
-                        bw.newLine();
-                        bw.write(br.readLine());
-                        bw.newLine();
-
-                        // degrees
-                        bw.write(br.readLine());
-                        bw.newLine();
-                        for (int j = 0; j < N; j++) // arcs
-                        {
-                            bw.write(br.readLine());
-                            bw.newLine();
-                        }
-                        bw.write("-1");
-                        bw.newLine();
-                        br.readLine();
-                    }
-                    br.close();
-
-                } else {
-                    bw = new BufferedWriter(new FileWriter(fileToSave));
-                }
-
-                if (!append) {
-                    bw.write(newGraphs + "");
-                    bw.newLine();
-                }
-
-                bw.write(graph.getN() + "");
-                bw.newLine();
-                bw.write(graphPane.getXScale() + " " + graphPane.getYScale() + " " + graphPane.getXTopLeft() + " " + graphPane.getYTopLeft() + " " + graphPane.getRadius());
-                bw.newLine();
-
-
-                String xPosesString = "";
-                String yPosesString = "";
-                for (int i = 0; i < graph.getN(); i++) {
-                    if (i == 0) {
-                        xPosesString = (graph.getXPos(0) + "");
-                        yPosesString = (graph.getYPos(0) + "");
-                    } else {
-                        xPosesString += (" " + graph.getXPos(i));
-                        yPosesString += (" " + graph.getYPos(i));
-                    }
-                }
-
-                bw.write(xPosesString);
-                bw.newLine();
-                bw.write(yPosesString);
-                bw.newLine();
-
-                int[] degrees = graph.getDegrees();
-                String degreesString = "";
-                for (int i = 0; i < degrees.length; i++)
-                    if (i == 0)
-                        degreesString = (degrees[0] + "");
-                    else
-                        degreesString += (" " + degrees[i]);
-
-                bw.write(degreesString);
-                bw.newLine();
-
-                int[][] arcs = graph.getArcs();
-                for (int i = 0; i < degrees.length; i++) {
-                    String arcsString = "";
-                    for (int j = 0; j < degrees[i]; j++)
-                        if (j == 0)
-                            arcsString = (arcs[i][0] + "");
-                        else
-                            arcsString += (" " + arcs[i][j]);
-
-                    bw.write(arcsString);
-                    bw.newLine();
-                }
-
-                bw.write("-1");
-                bw.close();
-
-
-                if (append) {
-                    File newFile = new File(filename + ".temp");
-                    if (newFile.exists()) {
-                        fileToSave.delete();
-                        newFile.renameTo(fileToSave);
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }
-
-
-    }
-
-    public void saveMultipleGraphsUGV(String filename, GraphPane[] graphPanes) {
-        File fileToSave = new File(filename);
-
-        boolean save = true;
-        boolean append = false;
-
-        if (fileToSave.exists()) {
-            String[] options = new String[3];
-            options[0] = "Overwrite";
-            options[1] = "Append";
-            options[2] = "Cancel";
-
-            JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-            int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[2]);
-            if (option == JOptionPane.NO_OPTION)
-                append = true;
-            if (option == JOptionPane.CANCEL_OPTION)
-                save = false;
-
-
-        }
-        if (save) {
-            try {
-                int newGraphs = graphPanes.length;
-
-                BufferedWriter bw;
-
-                //DataOutputStream os;
-                if (append) {
-                    BufferedReader br = new BufferedReader(new FileReader(fileToSave));
-                    bw = new BufferedWriter(new FileWriter(filename + ".temp"));
-
-                    String line = br.readLine();
-                    long graphs = Long.parseLong(line);
-                    bw.write((graphs + newGraphs) + "");
-                    bw.newLine();
-
-                    for (int i = 0; i < graphs; i++) {
-                        int N = Integer.parseInt(br.readLine());
-                        bw.write(N + "");
-                        bw.newLine();
-                        // xScale, yScale, xTopLeft, yTopLeft, radius
-                        bw.write(br.readLine());
-                        bw.newLine();
-                        // xPoses, yPoses
-                        bw.write(br.readLine());
-                        bw.newLine();
-                        bw.write(br.readLine());
-                        bw.newLine();
-
-                        // degrees
-                        bw.write(br.readLine());
-                        bw.newLine();
-                        for (int j = 0; j < N; j++) // arcs
-                        {
-                            bw.write(br.readLine());
-                            bw.newLine();
-                        }
-                        bw.write("-1");
-                        bw.newLine();
-                        br.readLine();
-                    }
-                    br.close();
-                } else {
-                    bw = new BufferedWriter(new FileWriter(fileToSave));
-                }
-
-                if (!append) {
-                    bw.write(newGraphs + "");
-                    bw.newLine();
-                }
-
-                for (GraphPane graphPane : graphPanes) {
-                    Graph graph = graphPane.getGraph();
-
-
-                    bw.write(graph.getN() + "");
-                    bw.newLine();
-                    bw.write(graphPane.getXScale() + " " + graphPane.getYScale() + " " + graphPane.getXTopLeft() + " " + graphPane.getYTopLeft() + " " + graphPane.getRadius());
-                    bw.newLine();
-
-                    String xPosesString = "";
-                    String yPosesString = "";
-                    for (int i = 0; i < graph.getN(); i++) {
-                        if (i == 0) {
-                            xPosesString = (graph.getXPos(0) + "");
-                            yPosesString = (graph.getYPos(0) + "");
-                        } else {
-                            xPosesString += (" " + graph.getXPos(i));
-                            yPosesString += (" " + graph.getYPos(i));
-                        }
-                    }
-
-                    bw.write(xPosesString);
-                    bw.newLine();
-                    bw.write(yPosesString);
-                    bw.newLine();
-
-                    int[] degrees = graph.getDegrees();
-                    String degreesString = "";
-                    for (int i = 0; i < degrees.length; i++) {
-                        if (i == 0) {
-                            degreesString = (degrees[0] + "");
-                        }
-                        else {
-                            degreesString += (" " + degrees[i]);
-                        }
-                    }
-
-                    bw.write(degreesString);
-                    bw.newLine();
-
-                    int[][] arcs = graph.getArcs();
-                    for (int i = 0; i < degrees.length; i++) {
-                        String arcsString = "";
-                        for (int j = 0; j < degrees[i]; j++) {
-                            if (j == 0) {
-                                arcsString = (arcs[i][0] + "");
-                            }
-                            else {
-                                arcsString += (" " + arcs[i][j]);
-                            }
-                        }
-
-                        bw.write(arcsString);
-                        bw.newLine();
-                    }
-
-                    bw.write("-1");
-                    bw.newLine();
-                }
-                bw.close();
-
-                if (append) {
-                    File newFile = new File(filename + ".temp");
-                    if (newFile.exists()) {
-                        fileToSave.delete();
-                        newFile.renameTo(fileToSave);
-                    }
-                }
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-        }
-
-    }
-
-
-    public void saveGraphGML(String filename, GraphPane gp) {
+    public void saveGraph(String filename, GraphPane gp, int type) {
         GraphPane[] gps = new GraphPane[1];
         gps[0] = gp;
-        saveGraphGML(filename, gps);
+        saveGraph(filename, gps, type);
 
     }
 
-    public void saveGraphGML(String filename, GraphPane[] graphPanes) {
+    public void saveGraph(String filename, GraphPane[] graphPanes, int type) {
 
         File file = new File(filename);
 
@@ -2100,15 +1795,24 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             return;
         }
 
-        Graph[] graphs = new Graph[graphPanes.length];
+        GraphData[] graphs = new GraphData[graphPanes.length];
 
         for (int i = 0; i < graphPanes.length; i++) {
-            graphs[i] = graphPanes[i].getGraph();
+            GraphPane gp = graphPanes[i];
+            graphs[i] = new GraphData(gp.getGraph());
+            graphs[i].scale = gp.getXScale();
+            graphs[i].x_offset = gp.getXTopLeft();
+            graphs[i].y_offset = gp.getYTopLeft();
+            graphs[i].radius = gp.getRadius();
         }
 
         FileParser fp = new FileParser();
 
-        fp.saveGML(graphs, file, append);
+        if(type == FileParser.FILE_GML) {
+            fp.saveGML(graphs, file, append);
+        } else if(type == FileParser.FILE_UGV){
+            fp.saveUGV(graphs, file, append);
+        }
 
     }
 
@@ -2312,14 +2016,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                     if (!filename.endsWith(".ugv")) {
                                         filename = filename + ".ugv";
                                     }
-                                    saveGraphUGV(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
+                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_UGV);
                                 } else if (extensionName.equals(gmlName)) {
                                     settings_saveFilter = 6;
                                     String filename = jfc.getSelectedFile().getName();
                                     if (!filename.endsWith(".gml")) {
                                         filename = filename + ".gml";
                                     }
-                                    saveGraphGML(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
+                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_GML);
                                 }
 
                                 graphPane.getUndoState().setLastSave();
@@ -2425,14 +2129,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                             if (!filename.endsWith(".ugv")) {
                                                 filename = filename + ".ugv";
                                             }
-                                            saveMultipleGraphsUGV(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes);
+                                            saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_UGV);
                                         } else if (extensionName.equals(gmlName)) {
                                             settings_saveFilter = 6;
                                             String filename = jfc.getSelectedFile().getName();
                                             if (!filename.endsWith(".gml")) {
                                                 filename = filename + ".gml";
                                             }
-                                            saveGraphGML(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes);
+                                            saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_GML);
                                         }
 
                                         for (int i = 0; i < graphPanes.length; i++) {
