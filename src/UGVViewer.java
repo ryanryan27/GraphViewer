@@ -42,6 +42,37 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                     }
                 });
 
+        initialiseColours();
+
+        loadSettings();
+
+        setLocation(settings_locationX, settings_locationY);
+
+        createMenuBar();
+
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        tabbedPane.addChangeListener(
+                new ChangeListener() {
+                    public void stateChanged(ChangeEvent e) {
+                        updateTabInfo();
+                    }
+                });
+
+        add(tabbedPane, BorderLayout.CENTER);
+
+        createGraphEditPane();
+
+        add(graphEditPane, BorderLayout.EAST);
+
+        setSize(settings_frameWidth, settings_frameHeight);
+        setVisible(true);
+        defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+
+        graphPanels = new GraphLinkedList();
+    }
+
+    private void initialiseColours(){
         defaultColors[0] = defaultBackgroundColor;
         defaultColors[1] = defaultDefaultColor;
         defaultColors[2] = defaultHighlightedVertexFillColor;
@@ -57,77 +88,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         colorStrings[3] = "Highlighted vertex/arc colour";
         colorStrings[4] = "New edge colour";
         colorStrings[5] = "Edge deletion colour";
-
-        loadSettings();
-
-        setLocation(settings_locationX, settings_locationY);
-
-        createMenuBar();
-
-        tabbedPane = new JTabbedPane();
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        tabbedPane.addChangeListener(
-                new ChangeListener() {
-                    public void stateChanged(ChangeEvent e) {
-                        if (tabbedPane.getSelectedIndex() == -1) {
-                            setTitle("Universal Graph Viewer");
-                            vertexSizeSlider.setValue(DEFAULT_VERTEX_SIZE);
-                            vertexSizeField.setText("" + DEFAULT_VERTEX_SIZE);
-                            labelSizeSlider.setValue(DEFAULT_LABEL_SIZE);
-                            labelSizeField.setText("" + DEFAULT_LABEL_SIZE);
-
-                            vertexSizeSlider.setEnabled(false);
-                            vertexSizeField.setEnabled(false);
-                            labelSizeSlider.setEnabled(false);
-                            labelSizeField.setEnabled(false);
-
-                            saveFileItem.setEnabled(false);
-                            saveMultipleGraphsFileItem.setEnabled(false);
-                            exportAsImageFileItem.setEnabled(false);
-                            undoEditItem.setEnabled(false);
-                            redoEditItem.setEnabled(false);
-                        } else {
-                            setTitle("Universal Graph Viewer - " + tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()));
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                            displayVertexLabelsItem.setState(gp.getDisplayVertexLabels());
-                            displayCrossingsItem.setState(gp.getDisplayCrossings());
-                            displayDominationItem.setState(gp.getDisplayDomination());
-
-                            vertexSizeSlider.setValue(gp.getRadius());
-                            vertexSizeField.setText("" + gp.getRadius());
-                            labelSizeSlider.setValue(gp.getTextSize());
-                            labelSizeField.setText("" + gp.getTextSize());
-
-                            vertexSizeSlider.setEnabled(true);
-                            vertexSizeField.setEnabled(true);
-                            labelSizeSlider.setEnabled(true);
-                            labelSizeField.setEnabled(true);
-
-                            domTotalItem.setState(gp.getDomTotal());
-                            domSecureItem.setState(gp.getDomSecure());
-                            domConnectedItem.setState(gp.getDomConnected());
-                            domRomanItem.setState(gp.getDomRoman());
-                            domWeakRomanItem.setState(gp.getDomWeakRoman());
-
-                            saveFileItem.setEnabled(true);
-                            saveMultipleGraphsFileItem.setEnabled(true);
-                            exportAsImageFileItem.setEnabled(true);
-
-                        }
-                    }
-                });
-
-        add(tabbedPane, BorderLayout.CENTER);
-
-        createGraphEditPane();
-
-        add(graphEditPane, BorderLayout.EAST);
-
-        setSize(settings_frameWidth, settings_frameHeight);
-        setVisible(true);
-        defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-
-        graphPanels = new GraphLinkedList();
     }
 
     public void loadSettings() {
@@ -183,12 +143,58 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
     }
 
+    private void updateTabInfo(){
+        if (tabbedPane.getSelectedIndex() == -1) {
+            setTitle("Universal Graph Viewer");
+            vertexSizeSlider.setValue(DEFAULT_VERTEX_SIZE);
+            vertexSizeField.setText("" + DEFAULT_VERTEX_SIZE);
+            labelSizeSlider.setValue(DEFAULT_LABEL_SIZE);
+            labelSizeField.setText("" + DEFAULT_LABEL_SIZE);
+
+            vertexSizeSlider.setEnabled(false);
+            vertexSizeField.setEnabled(false);
+            labelSizeSlider.setEnabled(false);
+            labelSizeField.setEnabled(false);
+
+            saveFileItem.setEnabled(false);
+            saveMultipleGraphsFileItem.setEnabled(false);
+            exportAsImageFileItem.setEnabled(false);
+            undoEditItem.setEnabled(false);
+            redoEditItem.setEnabled(false);
+        } else {
+            setTitle("Universal Graph Viewer - " + tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()));
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+            displayVertexLabelsItem.setState(gp.getDisplayVertexLabels());
+            displayCrossingsItem.setState(gp.getDisplayCrossings());
+            displayDominationItem.setState(gp.getDisplayDomination());
+
+            vertexSizeSlider.setValue(gp.getRadius());
+            vertexSizeField.setText("" + gp.getRadius());
+            labelSizeSlider.setValue(gp.getTextSize());
+            labelSizeField.setText("" + gp.getTextSize());
+
+            vertexSizeSlider.setEnabled(true);
+            vertexSizeField.setEnabled(true);
+            labelSizeSlider.setEnabled(true);
+            labelSizeField.setEnabled(true);
+
+            domTotalItem.setState(gp.getDomTotal());
+            domSecureItem.setState(gp.getDomSecure());
+            domConnectedItem.setState(gp.getDomConnected());
+            domRomanItem.setState(gp.getDomRoman());
+            domWeakRomanItem.setState(gp.getDomWeakRoman());
+
+            saveFileItem.setEnabled(true);
+            saveMultipleGraphsFileItem.setEnabled(true);
+            exportAsImageFileItem.setEnabled(true);
+
+        }
+    }
+
     public void createGraphEditPane() {
 
 
         graphEditPane = new JPanel();
-        //graphEditPane.setLayout(new BoxLayout(graphEditPane, BoxLayout.PAGE_AXIS));
-        //graphEditPane.setLayout(new SpringLayout());
         graphEditPane.setBackground(rightColor);
         graphEditPane.addMouseListener(this);
 
@@ -197,103 +203,44 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         buttonPane.addMouseListener(this);
         buttonPane.setLayout(new GridLayout((int) Math.ceil(choices / 2.0), 2));
 
-        String[] toolTipsForLabels = new String[choices + bottomChoices + selectChoices];
+        String[][] labelStrings = new String[totalChoices][2];
 
-        toolTipsForLabels[0] = "Insert vertex";
-        toolTipsForLabels[1] = "Insert edge";
-        toolTipsForLabels[2] = "Delete vertex";
-        toolTipsForLabels[3] = "Delete edge";
-        toolTipsForLabels[4] = "Relabel vertex";
-        toolTipsForLabels[5] = "Toggle dominating set";
-        toolTipsForLabels[6] = "Modify Gridlines";
-        toolTipsForLabels[7] = "Arrange vertices into a circle";
-        toolTipsForLabels[8] = "Check graph properties";
-        toolTipsForLabels[9] = "Edit edge list";
-        toolTipsForLabels[10] = "Spring layout";
-        toolTipsForLabels[11] = "Select vertices";
-        toolTipsForLabels[12] = "Rotate vertices";
-
-
-        icons = new ImageIcon[choices + bottomChoices + selectChoices][4];
-        icons[0][0] = new ImageIcon("pics/node.png");
-        icons[0][1] = new ImageIcon("pics/node_highlight.png");
-        icons[0][2] = new ImageIcon("pics/node_select.png");
-        icons[0][3] = new ImageIcon("pics/node_chosen.png");
+        labelStrings[0] = new String[]{"Insert vertex","node"};
+        labelStrings[1] = new String[]{"Insert edge", "edge"};
+        labelStrings[2] = new String[]{"Delete vertex", "eraser"};
+        labelStrings[3] = new String[]{"Delete edge", "scissors"};
+        labelStrings[4] = new String[]{"Relabel vertex", "relabel"};
+        labelStrings[5] = new String[]{"Toggle dominating set", "dom"};
+        labelStrings[6] = new String[]{"Modify Gridlines", "grid"};
+        labelStrings[7] = new String[]{"Arrange vertices into a circle", "arrange"};
+        labelStrings[8] = new String[]{"Check graph properties", "properties"};
+        labelStrings[9] = new String[]{"Edit edge list", "editedges"};
+        labelStrings[10] = new String[]{"Spring layout", "spring"};
+        labelStrings[11] = new String[]{"Select vertices", "select"};
+        labelStrings[12] = new String[]{"Rotate vertices", "rotate"};
 
 
-        icons[1][0] = new ImageIcon("pics/edge.png");
-        icons[1][1] = new ImageIcon("pics/edge_highlight.png");
-        icons[1][2] = new ImageIcon("pics/edge_select.png");
-        icons[1][3] = new ImageIcon("pics/edge_chosen.png");
+        icons = new ImageIcon[totalChoices][4];
+
+        for (int i = 0; i < totalChoices; i++) {
+            icons[i][0] = new ImageIcon("pics/"+labelStrings[i][1]+".png");
+            icons[i][1] = new ImageIcon("pics/"+labelStrings[i][1]+"_highlight.png");
+            icons[i][2] = new ImageIcon("pics/"+labelStrings[i][1]+"_select.png");
+            icons[i][3] = new ImageIcon("pics/"+labelStrings[i][1]+"_chosen.png");
+        }
 
 
-        icons[2][0] = new ImageIcon("pics/eraser.png");
-        icons[2][1] = new ImageIcon("pics/eraser_highlight.png");
-        icons[2][2] = new ImageIcon("pics/eraser_select.png");
-        icons[2][3] = new ImageIcon("pics/eraser_chosen.png");
+        highlighted = new boolean[totalChoices];
+        pressed = new boolean[totalChoices];
+        chosen = new boolean[totalChoices];
 
-
-        icons[3][0] = new ImageIcon("pics/scissors.png");
-        icons[3][1] = new ImageIcon("pics/scissors_highlight.png");
-        icons[3][2] = new ImageIcon("pics/scissors_select.png");
-        icons[3][3] = new ImageIcon("pics/scissors_chosen.png");
-
-        icons[4][0] = new ImageIcon("pics/relabel.png");
-        icons[4][1] = new ImageIcon("pics/relabel_highlight.png");
-        icons[4][2] = new ImageIcon("pics/relabel_select.png");
-        icons[4][3] = new ImageIcon("pics/relabel_chosen.png");
-
-        icons[5][0] = new ImageIcon("pics/dom.png");
-        icons[5][1] = new ImageIcon("pics/dom_highlight.png");
-        icons[5][2] = new ImageIcon("pics/dom_select.png");
-        icons[5][3] = new ImageIcon("pics/dom_chosen.png");
-
-        icons[6][0] = new ImageIcon("pics/grid.png");
-        icons[6][1] = new ImageIcon("pics/grid_highlight.png");
-        icons[6][2] = new ImageIcon("pics/grid_select.png");
-        icons[6][3] = new ImageIcon("pics/grid_chosen.png");
-
-        icons[7][0] = new ImageIcon("pics/arrange.png");
-        icons[7][1] = new ImageIcon("pics/arrange_highlight.png");
-        icons[7][2] = new ImageIcon("pics/arrange_select.png");
-        icons[7][3] = new ImageIcon("pics/arrange_chosen.png");
-
-        icons[8][0] = new ImageIcon("pics/properties.png");
-        icons[8][1] = new ImageIcon("pics/properties_highlight.png");
-        icons[8][2] = new ImageIcon("pics/properties_select.png");
-        icons[8][3] = new ImageIcon("pics/properties_chosen.png");
-
-        icons[9][0] = new ImageIcon("pics/editedges.png");
-        icons[9][1] = new ImageIcon("pics/editedges_highlight.png");
-        icons[9][2] = new ImageIcon("pics/editedges_select.png");
-        icons[9][3] = new ImageIcon("pics/editedges_chosen.png");
-
-        icons[10][0] = new ImageIcon("pics/spring.png");
-        icons[10][1] = new ImageIcon("pics/spring_highlight.png");
-        icons[10][2] = new ImageIcon("pics/spring_select.png");
-        icons[10][3] = new ImageIcon("pics/spring_chosen.png");
-
-        icons[11][0] = new ImageIcon("pics/select.png");
-        icons[11][1] = new ImageIcon("pics/select_highlight.png");
-        icons[11][2] = new ImageIcon("pics/select_select.png");
-        icons[11][3] = new ImageIcon("pics/select_chosen.png");
-
-        icons[12][0] = new ImageIcon("pics/rotate.png");
-        icons[12][1] = new ImageIcon("pics/rotate_highlight.png");
-        icons[12][2] = new ImageIcon("pics/rotate_select.png");
-        icons[12][3] = new ImageIcon("pics/rotate_chosen.png");
-
-        highlighted = new boolean[choices + bottomChoices + selectChoices];
-        pressed = new boolean[choices + bottomChoices + selectChoices];
-        chosen = new boolean[choices + bottomChoices + selectChoices];
-
-        labels = new JLabel[choices + bottomChoices + selectChoices];
+        labels = new JLabel[totalChoices];
 
         for (int i = 0; i < choices; i++) {
             labels[i] = new JLabel(icons[i][0]);
             labels[i].addMouseListener(this);
             labels[i].setMaximumSize(new Dimension(icons[i][0].getIconWidth(), icons[i][0].getIconHeight()));
-            labels[i].setToolTipText(toolTipsForLabels[i]);
+            labels[i].setToolTipText(labelStrings[i][0]);
             buttonPane.add(labels[i]);
         }
 
@@ -467,7 +414,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             labels[i] = new JLabel(icons[i][0]);
             labels[i].addMouseListener(this);
             labels[i].setMaximumSize(new Dimension(icons[i][0].getIconWidth(), icons[i][0].getIconHeight()));
-            labels[i].setToolTipText(toolTipsForLabels[i]);
+            labels[i].setToolTipText(labelStrings[i][0]);
             bottomButtonPane.add(labels[i]);
         }
 
@@ -487,11 +434,11 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         selectButtonPane.addMouseListener(this);
         selectButtonPane.setLayout(new GridLayout((int) Math.ceil(selectChoices / 2.0), 2));
 
-        for (int i = choices + bottomChoices; i < choices + bottomChoices + selectChoices; i++) {
+        for (int i = choices + bottomChoices; i < totalChoices; i++) {
             labels[i] = new JLabel(icons[i][0]);
             labels[i].addMouseListener(this);
             labels[i].setMaximumSize(new Dimension(icons[i][0].getIconWidth(), icons[i][0].getIconHeight()));
-            labels[i].setToolTipText(toolTipsForLabels[i]);
+            labels[i].setToolTipText(labelStrings[i][0]);
             selectButtonPane.add(labels[i]);
         }
 
@@ -570,7 +517,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             }
         }
 
-        for (int i = 0; i < choices + bottomChoices + selectChoices; i++)
+        for (int i = 0; i < totalChoices; i++) {
             if (e.getSource() == labels[i]) {
                 setCursor(defaultCursor);
                 if (chosen[i]) {
@@ -582,6 +529,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 }
                 highlighted[i] = true;
             }
+        }
     }
 
     public void mouseExited(MouseEvent e) {
@@ -593,7 +541,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         }
-        for (int i = 0; i < choices + bottomChoices + selectChoices; i++)
+        for (int i = 0; i < totalChoices; i++) {
             if (e.getSource() == labels[i]) {
                 setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 if (!pressed[i]) {
@@ -605,12 +553,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 }
                 highlighted[i] = false;
             }
+        }
     }
 
     public void mousePressed(MouseEvent e) {
 
         if (e.getButton() == MouseEvent.BUTTON1) {
-            for (int i = 0; i < choices + bottomChoices + selectChoices; i++)
+            for (int i = 0; i < totalChoices; i++)
                 if (e.getSource() == labels[i]) {
                     labels[i].setIcon(icons[i][2]);
                     pressed[i] = true;
@@ -637,7 +586,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
                             labels[i].setIcon(icons[i][1]);
                         } else {
-                            for (int j = 0; j < choices + bottomChoices + selectChoices; j++) {
+                            for (int j = 0; j < totalChoices; j++) {
                                 if (j >= choices && j < choices + bottomChoices)
                                     continue;
                                 if (j == i) {
@@ -655,7 +604,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 }
             }
 
-            for (int i = choices; i < choices + bottomChoices; i++)
+            for (int i = choices; i < choices + bottomChoices; i++) {
                 if (e.getSource() == labels[i]) {
                     if (pressed[i] && highlighted[i]) {
                         if (tabbedPane.getSelectedIndex() != -1) {
@@ -668,8 +617,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                         }
                     }
                 }
+            }
 
-            for (int i = choices + bottomChoices; i < choices + bottomChoices + selectChoices; i++)
+            for (int i = choices + bottomChoices; i < totalChoices; i++) {
                 if (e.getSource() == labels[i]) {
                     if (pressed[i] && highlighted[i]) {
                         if (chosen[i]) {
@@ -679,7 +629,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
                             labels[i].setIcon(icons[i][1]);
                         } else {
-                            for (int j = 0; j < choices + bottomChoices + selectChoices; j++) {
+                            for (int j = 0; j < totalChoices; j++) {
                                 if (j >= choices && j < choices + bottomChoices) continue;
                                 if (j == i) {
                                     chosen[i] = true;
@@ -691,17 +641,21 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                     labels[j].setIcon(icons[j][0]);
                                 }
                             }
-
                         }
                     }
                 }
+            }
 
 
             for (int i = 0; i < pressed.length; i++) {
                 pressed[i] = false;
-                if (chosen[i]) labels[i].setIcon(icons[i][3]);
-                else if (highlighted[i]) labels[i].setIcon(icons[i][1]);
-                else labels[i].setIcon(icons[i][0]);
+                if (chosen[i]){
+                    labels[i].setIcon(icons[i][3]);
+                } else if (highlighted[i]) {
+                    labels[i].setIcon(icons[i][1]);
+                } else {
+                    labels[i].setIcon(icons[i][0]);
+                }
             }
         }
     }
@@ -861,7 +815,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
 
 
-
         boolean[] openGraph = null;
 
         if (graphs.length > 1) {
@@ -1000,8 +953,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             if (option == JOptionPane.CANCEL_OPTION) {
                 save = false;
             }
-
-
         }
 
         if (!save) {
@@ -1449,18 +1400,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         closeFileItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            if (!((GraphPane) tabbedPane.getSelectedComponent()).getUndoState().getLastSave()) {
-                                String name = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
-                                name = name.substring(0, name.length() - 2);
-                                int value = JOptionPane.showConfirmDialog(parent, "Graph " + name + " has not been saved! Are you sure you want to close?", "Graph not saved", JOptionPane.YES_NO_OPTION);
-                                if (value == JOptionPane.NO_OPTION)
-                                    return;
-                            }
-                            windowItem.remove(graphPanels.get(tabbedPane.getSelectedIndex() + 1).getMenuItem());
-                            graphPanels.delete(tabbedPane.getSelectedIndex() + 1);
-                            tabbedPane.remove(tabbedPane.getSelectedIndex());
-                        }
+                        closeFile();
                     }
                 });
         closeFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
@@ -1713,22 +1653,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-
-
-                        GraphBuilderDialog gbd = new GraphBuilderDialog(parent, tabbedPane);
-
-                        if (!gbd.cancelled()) {
-                            buildNewGraph();
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                            tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), gbd.getName());
-                            gp.setUndoState();
-                            gp.setGraph(gbd.getGraph());
-                            fitToScreen();
-                        }
-
-
-                        validate();
-                        repaint();
+                        generateNewGraph();
                     }
                 }
         );
@@ -1753,21 +1678,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         solverItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-
-                            SolverDialog sd = new SolverDialog(parent, gp.getGraph());
-
-                            if (!sd.getCancelled()) {
-                                gp.setUndoState();
-
-                                runMILP(sd.getDomtype(), sd.getFixed());
-                                validate();
-                                repaint();
-                            }
-
-                        }
-
+                        runSolver();
                     }
                 });
         solverItem.setMnemonic(KeyEvent.VK_D);
@@ -1826,23 +1737,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         colourSettingsItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        ColorSettingsDialog csd;
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            csd = new ColorSettingsDialog(parent, ((GraphPane) tabbedPane.getSelectedComponent()).getDefaultColors(), colorStrings, true);
-                        } else {
-                            Color[] tempColors = new Color[defaultColors.length];
-                            System.arraycopy(defaultColors, 0, tempColors, 0, defaultColors.length);
-                            csd = new ColorSettingsDialog(parent, tempColors, colorStrings, false);
-                        }
-                        if (!csd.getCancelled() && csd.whichGraphs() != -1) {
-                            if (csd.whichGraphs() == 1) {
-                                graphPanels.setDefaultColors(csd.getDefaultColors());
-                            } else
-                                ((GraphPane) tabbedPane.getSelectedComponent()).setDefaultColors(csd.getDefaultColors());
-
-                            tabbedPane.getSelectedComponent().repaint();
-
-                        }
+                        changeColours();
                     }
 
                 });
@@ -1982,21 +1877,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         closeAllWindowItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        int tabs = tabbedPane.getTabCount();
-                        int offset = 0;
-                        for (int i = 0; i < tabs; i++) {
-                            if (!((GraphPane) tabbedPane.getComponentAt(i - offset)).getUndoState().getLastSave()) {
-                                String name = tabbedPane.getTitleAt(i - offset);
-                                name = name.substring(0, name.length() - 2);
-                                int value = JOptionPane.showConfirmDialog(parent, "Graph " + name + " has not been saved! Are you sure you want to close?", "Graph not saved", JOptionPane.YES_NO_OPTION);
-                                if (value == JOptionPane.NO_OPTION) continue;
-                            }
-
-                            windowItem.remove(graphPanels.get(i + 1 - offset).getMenuItem());
-                            graphPanels.delete(i + 1 - offset);
-                            tabbedPane.remove(i - offset);
-                            offset++;
-                        }
+                        closeAllWindows();
                     }
                 });
         closeAllWindowItem.setMnemonic(KeyEvent.VK_A);
@@ -2014,6 +1895,75 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         setJMenuBar(menuBar);
 
+    }
+
+    public void closeFile(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            if (!((GraphPane) tabbedPane.getSelectedComponent()).getUndoState().getLastSave()) {
+                String name = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
+                name = name.substring(0, name.length() - 2);
+                int value = JOptionPane.showConfirmDialog(parent, "Graph " + name + " has not been saved! Are you sure you want to close?", "Graph not saved", JOptionPane.YES_NO_OPTION);
+                if (value == JOptionPane.NO_OPTION)
+                    return;
+            }
+            windowItem.remove(graphPanels.get(tabbedPane.getSelectedIndex() + 1).getMenuItem());
+            graphPanels.delete(tabbedPane.getSelectedIndex() + 1);
+            tabbedPane.remove(tabbedPane.getSelectedIndex());
+        }
+    }
+
+    public void closeAllWindows(){
+        int tabs = tabbedPane.getTabCount();
+        int offset = 0;
+        for (int i = 0; i < tabs; i++) {
+            if (!((GraphPane) tabbedPane.getComponentAt(i - offset)).getUndoState().getLastSave()) {
+                String name = tabbedPane.getTitleAt(i - offset);
+                name = name.substring(0, name.length() - 2);
+                int value = JOptionPane.showConfirmDialog(parent, "Graph " + name + " has not been saved! Are you sure you want to close?", "Graph not saved", JOptionPane.YES_NO_OPTION);
+                if (value == JOptionPane.NO_OPTION) continue;
+            }
+
+            windowItem.remove(graphPanels.get(i + 1 - offset).getMenuItem());
+            graphPanels.delete(i + 1 - offset);
+            tabbedPane.remove(i - offset);
+            offset++;
+        }
+    }
+
+    public void generateNewGraph(){
+        GraphBuilderDialog gbd = new GraphBuilderDialog(parent, tabbedPane);
+
+        if (!gbd.cancelled()) {
+            buildNewGraph();
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+            tabbedPane.setTitleAt(tabbedPane.getSelectedIndex(), gbd.getName());
+            gp.setUndoState();
+            gp.setGraph(gbd.getGraph());
+            fitToScreen();
+        }
+
+        validate();
+        repaint();
+    }
+
+    public void changeColours(){
+        ColorSettingsDialog csd;
+        if (tabbedPane.getSelectedIndex() != -1) {
+            csd = new ColorSettingsDialog(parent, ((GraphPane) tabbedPane.getSelectedComponent()).getDefaultColors(), colorStrings, true);
+        } else {
+            Color[] tempColors = new Color[defaultColors.length];
+            System.arraycopy(defaultColors, 0, tempColors, 0, defaultColors.length);
+            csd = new ColorSettingsDialog(parent, tempColors, colorStrings, false);
+        }
+        if (!csd.getCancelled() && csd.whichGraphs() != -1) {
+            if (csd.whichGraphs() == 1) {
+                graphPanels.setDefaultColors(csd.getDefaultColors());
+            } else
+                ((GraphPane) tabbedPane.getSelectedComponent()).setDefaultColors(csd.getDefaultColors());
+
+            tabbedPane.getSelectedComponent().repaint();
+
+        }
     }
 
     public void setUndoAvailable(boolean available) {
@@ -2107,6 +2057,23 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
     }
 
+    public void runSolver(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+            SolverDialog sd = new SolverDialog(parent, gp.getGraph());
+
+            if (!sd.getCancelled()) {
+                gp.setUndoState();
+
+                runMILP(sd.getDomtype(), sd.getFixed());
+                validate();
+                repaint();
+            }
+
+        }
+    }
+
     public void runMILP(int domType, boolean preserve) {
         runMILP(domType, preserve, null);
     }
@@ -2191,6 +2158,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     int choices = 7;
     int bottomChoices = 4;
     int selectChoices = 2;
+    int totalChoices = choices + bottomChoices + selectChoices;
     int selectedOption = -1;
 
     final Color rightColor = new Color(0.7529f, 0.7529f, 0.7529f);
