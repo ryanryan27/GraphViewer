@@ -4,7 +4,16 @@ import java.util.Stack;
 
 public class FileParser {
 
-    public Graph[] parseGML(File file){
+    static final int FILE_GML = 0;
+    public final int FILE_UGV = 1;
+    public final int FILE_EDGE_LIST = 2;
+    public final int FILE_G6 = 3;
+    public final int FILE_ASC = 4;
+    public final int FILE_HCP = 5;
+    public final int FILE_SCD = 6;
+
+
+    public GraphData[] parseGML(File file){
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -77,14 +86,14 @@ public class FileParser {
 
             vertices.sort(Vertex::compareTo);
 
-            Graph[] graphs = new Graph[g_count + 1];
+            GraphData[] graphs = new GraphData[g_count + 1];
 
             for (int i = 0; i <= g_count; i++) {
-                graphs[i] = new Graph(0,0);
+                graphs[i] = new GraphData(new Graph(0,0));
             }
 
             for (Vertex v: vertices) {
-                Graph g = graphs[v.graph];
+                Graph g = graphs[v.graph].graph;
 
                 if(v.id != g.getN()){
                     throw new Exception("bad vertex ordering");
@@ -95,7 +104,7 @@ public class FileParser {
             }
 
             for (Edge e: edges){
-                Graph g = graphs[e.graph];
+                Graph g = graphs[e.graph].graph;
 
                 g.addEdge(e.source+1, e.target+1);
             }
@@ -110,7 +119,7 @@ public class FileParser {
         }
 
 
-        return new Graph[0];
+        return new GraphData[0];
     }
 
     public void saveGML(Graph[] graphs, File file, boolean append){
