@@ -719,7 +719,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
                 if(dist <= SCISSORS_DISTANCE){
 
-                    if(closest > dist &&closest != -1){
+                    if(closest < dist &&closest != -1){
                         continue;
                     }
 
