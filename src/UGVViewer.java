@@ -1062,6 +1062,386 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
+    public void menuItemOpen(){
+        JFileChooser jfc = new JFileChooser(".");
+        jfc.setAcceptAllFileFilterUsed(false);
+
+        String ascName = "GENREG ASC Format (*.asc)";
+        String graph6Name = "Graph6 Format (*.g6)";
+        String hcpName = "HCP Format (*.hcp)";
+        String scdName = "GENREG SCD Format (*.scd)";
+        String edgeListName = "Edge List Format (*.txt)";
+        String ugvName = "UGV Format (*.ugv)";
+        String gmlName = "GML Format (*.gml)";
+
+        FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[7];
+        extensions[0] = new FileNameExtensionFilter(ascName, "asc");
+        extensions[1] = new FileNameExtensionFilter(graph6Name, "g6");
+        extensions[2] = new FileNameExtensionFilter(hcpName, "hcp");
+        extensions[3] = new FileNameExtensionFilter(scdName, "scd");
+        extensions[4] = new FileNameExtensionFilter(edgeListName, "txt");
+        extensions[5] = new FileNameExtensionFilter(ugvName, "ugv");
+        extensions[6] = new FileNameExtensionFilter(gmlName, "gml");
+
+        for (FileNameExtensionFilter extension : extensions) {
+            jfc.addChoosableFileFilter(extension);
+        }
+        if (settings_loadFilter >= 0 && settings_loadFilter < extensions.length)
+            jfc.setFileFilter(extensions[settings_loadFilter]);
+        else
+            jfc.setFileFilter(extensions[0]);
+
+        int choice = jfc.showOpenDialog(null);
+        if (choice == JFileChooser.APPROVE_OPTION) {
+            File file = jfc.getSelectedFile();
+            String extensionName = jfc.getFileFilter().getDescription();
+
+            if (extensionName.equals(ascName)) {
+                settings_loadFilter = 0;
+                openFile(file, FileParser.FILE_ASC);
+            } else if (extensionName.equals(graph6Name)) {
+                settings_loadFilter = 1;
+                openFile(file, FileParser.FILE_G6);
+            } else if (extensionName.equals(hcpName)) {
+                settings_loadFilter = 2;
+                openFile(file, FileParser.FILE_HCP);
+            } else if (extensionName.equals(scdName)) {
+                settings_loadFilter = 3;
+                openFile(file, FileParser.FILE_SCD);
+            } else if (extensionName.equals(edgeListName)) {
+                settings_loadFilter = 4;
+                openFile(file, FileParser.FILE_EDGE_LIST);
+            } else if (extensionName.equals(ugvName)) {
+                settings_loadFilter = 5;
+                openFile(file, FileParser.FILE_UGV);
+            } else if (extensionName.equals(gmlName)) {
+                settings_loadFilter = 6;
+                openFile(file, FileParser.FILE_GML);
+            }
+
+            saveSettings();
+
+        }
+        repaint();
+    }
+
+    public void menuItemSave(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            JFileChooser jfc = new JFileChooser(".");
+            jfc.setAcceptAllFileFilterUsed(false);
+
+            String ascName = "GENREG ASC Format (*.asc)";
+            String graph6Name = "Graph6 Format (*.g6)";
+            String hcpName = "HCP Format (*.hcp)";
+            String scdName = "GENREG SCD Format (*.scd)";
+            String edgeListName = "Edge List Format (*.txt)";
+            String ugvName = "UGV Format (*.ugv)";
+            String gmlName = "GML Format (*.gml)";
+
+            FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[7];
+            extensions[0] = new FileNameExtensionFilter(ascName, "asc");
+            extensions[1] = new FileNameExtensionFilter(graph6Name, "g6");
+            extensions[2] = new FileNameExtensionFilter(hcpName, "hcp");
+            extensions[3] = new FileNameExtensionFilter(scdName, "scd");
+            extensions[4] = new FileNameExtensionFilter(edgeListName, "txt");
+            extensions[5] = new FileNameExtensionFilter(ugvName, "ugv");
+            extensions[6] = new FileNameExtensionFilter(gmlName, "gml");
+
+
+            for (FileNameExtensionFilter extension : extensions) {
+                jfc.addChoosableFileFilter(extension);
+            }
+            if (settings_saveFilter >= 0 && settings_saveFilter < extensions.length)
+                jfc.setFileFilter(extensions[settings_saveFilter]);
+            else
+                jfc.setFileFilter(extensions[0]);
+
+
+            int choice = jfc.showSaveDialog(null);
+            if (choice == JFileChooser.APPROVE_OPTION) {
+                String extensionName = jfc.getFileFilter().getDescription();
+
+                GraphPane graphPane = (GraphPane) tabbedPane.getSelectedComponent();
+
+                if (extensionName.equals(ascName)) {
+                    settings_saveFilter = 0;
+                    String filename = jfc.getSelectedFile().getName();
+                    if (!filename.endsWith(".asc")) {
+                        filename = filename + ".asc";
+                    }
+
+                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_ASC);
+                } else if (extensionName.equals(graph6Name)) {
+                    settings_saveFilter = 1;
+                    String filename = jfc.getSelectedFile().getName();
+                    if (!filename.endsWith(".g6")) {
+                        filename = filename + ".g6";
+                    }
+                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_G6);
+                } else if (extensionName.equals(hcpName)) {
+                    settings_saveFilter = 2;
+                    String filename = jfc.getSelectedFile().getName();
+                    if (!filename.endsWith(".hcp")) {
+                        filename = filename + ".hcp";
+                    }
+
+                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_HCP);
+
+                } else if (extensionName.equals(scdName)) {
+                    settings_saveFilter = 3;
+                    String filename = jfc.getSelectedFile().getName();
+                    if (!filename.endsWith(".scd")) {
+                        filename = filename + ".scd";
+                    }
+
+                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_SCD);
+
+                } else if (extensionName.equals(edgeListName)) {
+                    settings_saveFilter = 4;
+                    String filename = jfc.getSelectedFile().getName();
+                    if (!filename.endsWith(".txt")) {
+                        filename = filename + ".txt";
+                    }
+
+                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_EDGE_LIST);
+
+                } else if (extensionName.equals(ugvName)) {
+                    settings_saveFilter = 5;
+                    String filename = jfc.getSelectedFile().getName();
+                    if (!filename.endsWith(".ugv")) {
+                        filename = filename + ".ugv";
+                    }
+                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_UGV);
+                } else if (extensionName.equals(gmlName)) {
+                    settings_saveFilter = 6;
+                    String filename = jfc.getSelectedFile().getName();
+                    if (!filename.endsWith(".gml")) {
+                        filename = filename + ".gml";
+                    }
+                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_GML);
+                }
+
+                graphPane.getUndoState().setLastSave();
+                checkSave(tabbedPane.getSelectedIndex());
+
+
+                saveSettings();
+            }
+            repaint();
+        }
+    }
+
+    public void menuItemSaveMultiple(){
+
+        if (tabbedPane.getSelectedIndex() != -1) {
+            String[] graphNames = new String[tabbedPane.getTabCount()];
+            for (int i = 0; i < graphNames.length; i++)
+                graphNames[i] = tabbedPane.getTitleAt(i);
+            SaveMultipleGraphs smg = new SaveMultipleGraphs(parent, graphNames);
+
+            if (!smg.getCancelled()) {
+                boolean[] saveGraphs = smg.getSaveGraphs();
+                int[] graphsToSave = new int[saveGraphs.length];
+                int count = 0;
+                for (int i = 0; i < saveGraphs.length; i++)
+                    if (saveGraphs[i])
+                        graphsToSave[count++] = i;
+
+                int[] trimmedGraphsToSave = new int[count];
+                System.arraycopy(graphsToSave, 0, trimmedGraphsToSave, 0, count);
+                graphsToSave = trimmedGraphsToSave;
+
+                if (count > 0) {
+                    JFileChooser jfc = new JFileChooser(".");
+                    jfc.setAcceptAllFileFilterUsed(false);
+
+                    String ascName = "GENREG ASC Format (*.asc)";
+                    String graph6Name = "Graph6 Format (*.g6)";
+                    String scdName = "GENREG SCD Format (*.scd)";
+                    String ugvName = "UGV Format (*.ugv)";
+                    String gmlName = "GML Format (*.gml)";
+
+                    FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[5];
+                    extensions[0] = new FileNameExtensionFilter(ascName, "asc");
+                    extensions[1] = new FileNameExtensionFilter(graph6Name, "g6");
+                    extensions[2] = new FileNameExtensionFilter(scdName, "scd");
+                    extensions[3] = new FileNameExtensionFilter(ugvName, "ugv");
+                    extensions[4] = new FileNameExtensionFilter(gmlName, "gml");
+
+
+                    for (FileNameExtensionFilter extension : extensions) {
+                        jfc.addChoosableFileFilter(extension);
+                    }
+                    if (settings_saveFilter >= 0 && settings_saveFilter < extensions.length)
+                        jfc.setFileFilter(extensions[settings_saveFilter]);
+                    else
+                        jfc.setFileFilter(extensions[0]);
+
+
+                    int choice = jfc.showSaveDialog(null);
+                    if (choice == JFileChooser.APPROVE_OPTION) {
+                        String extensionName = jfc.getFileFilter().getDescription();
+
+                        GraphPane[] graphPanes = new GraphPane[count];
+                        for (int i = 0; i < count; i++) {
+                            graphPanes[i] = (GraphPane) tabbedPane.getComponentAt(graphsToSave[i]);
+                        }
+
+                        if (extensionName.equals(ascName)) {
+                            settings_saveFilter = 0;
+                            String filename = jfc.getSelectedFile().getName();
+                            if (!filename.endsWith(".asc")) {
+                                filename = filename + ".asc";
+                            }
+
+                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_ASC);
+                        } else if (extensionName.equals(graph6Name)) {
+                            settings_saveFilter = 1;
+                            String filename = jfc.getSelectedFile().getName();
+                            if (!filename.endsWith(".g6")) {
+                                filename = filename + ".g6";
+                            }
+
+                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_G6);
+                        } else if (extensionName.equals(scdName)) {
+                            settings_saveFilter = 3;
+                            String filename = jfc.getSelectedFile().getName();
+                            if (!filename.endsWith(".scd")) {
+                                filename = filename + ".scd";
+                            }
+
+                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_SCD);
+
+                        } else if (extensionName.equals(ugvName)) {
+                            settings_saveFilter = 5;
+                            String filename = jfc.getSelectedFile().getName();
+                            if (!filename.endsWith(".ugv")) {
+                                filename = filename + ".ugv";
+                            }
+                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_UGV);
+                        } else if (extensionName.equals(gmlName)) {
+                            settings_saveFilter = 6;
+                            String filename = jfc.getSelectedFile().getName();
+                            if (!filename.endsWith(".gml")) {
+                                filename = filename + ".gml";
+                            }
+                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_GML);
+                        }
+
+                        for (int i = 0; i < graphPanes.length; i++) {
+                            graphPanes[i].getUndoState().setLastSave();
+                            checkSave(graphsToSave[i]);
+                        }
+                        saveSettings();
+                    }
+                }
+            }
+            repaint();
+        }
+    }
+
+    public void menuItemExport(){
+        JFileChooser jfc = new JFileChooser(".");
+        jfc.setAcceptAllFileFilterUsed(false);
+
+        String bmpName = "Bitmap (*.bmp)";
+        String gifName = "GIF (*.gif)";
+        String gifTransparentName = "GIF with transparent background (*.gif)";
+        String jpgName = "JPEG (*.jpg)";
+        String pngName = "Portable Network Graphic (*.png)";
+
+        FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[5];
+        extensions[0] = new FileNameExtensionFilter(bmpName, "bmp");
+        extensions[1] = new FileNameExtensionFilter(gifName, "gif");
+        extensions[2] = new FileNameExtensionFilter(gifTransparentName, "gif");
+        extensions[3] = new FileNameExtensionFilter(jpgName, "jpg");
+        extensions[4] = new FileNameExtensionFilter(pngName, "png");
+
+        for (FileNameExtensionFilter extension : extensions) {
+            jfc.addChoosableFileFilter(extension);
+        }
+        if (settings_saveImageFilter >= 0 && settings_saveImageFilter < extensions.length) {
+            jfc.setFileFilter(extensions[settings_saveImageFilter]);
+        }
+        else {
+            jfc.setFileFilter(extensions[0]);
+        }
+
+
+        int choice = jfc.showSaveDialog(null);
+        if (choice == JFileChooser.APPROVE_OPTION) {
+            String filename = jfc.getSelectedFile().getName();
+            String extensionName = jfc.getFileFilter().getDescription();
+            String fileFormat = "";
+
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+            BufferedImage img;
+
+            if (extensionName.equals(gifTransparentName)) {
+                gp.setSavingWithTransparentBackground(true);
+            }
+
+            img = new BufferedImage(gp.getSize().width, gp.getSize().height, BufferedImage.TYPE_BYTE_INDEXED);
+            gp.paintComponent(img.getGraphics());
+            img = gp.getImage();
+
+
+            if (extensionName.equals(bmpName)) {
+                settings_saveImageFilter = 0;
+                fileFormat = "BMP";
+
+                if (!filename.endsWith(".bmp")) {
+                    filename = filename + ".bmp";
+                }
+            } else if (extensionName.equals(gifName)) {
+                settings_saveImageFilter = 1;
+                fileFormat = "GIF";
+
+                if (!filename.endsWith(".gif")) {
+                    filename = filename + ".gif";
+                }
+            } else if (extensionName.equals(gifTransparentName)) {
+                settings_saveImageFilter = 2;
+                fileFormat = "GIF";
+
+                if (!filename.endsWith(".gif")) {
+                    filename = filename + ".gif";
+                }
+            } else if (extensionName.equals(jpgName)) {
+                settings_saveImageFilter = 3;
+                fileFormat = "JPG";
+
+                if (!filename.endsWith(".jpg")) {
+                    filename = filename + ".jpg";
+                }
+            } else if (extensionName.equals(pngName)) {
+                settings_saveImageFilter = 4;
+                fileFormat = "PNG";
+
+                if (!filename.endsWith(".png")) {
+                    filename = filename + ".png";
+                }
+            }
+            try {
+                File file = new File(filename);
+                boolean save = true;
+                if (file.exists()) {
+                    int value = JOptionPane.showConfirmDialog(parent, "File " + filename + " already exists! Do you want to overwrite this file?", "File already exists!", JOptionPane.YES_NO_OPTION);
+                    if (value == JOptionPane.NO_OPTION) {
+                        save = false;
+                    }
+                }
+                if (save)
+                    ImageIO.write(img, fileFormat, file);
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+            gp.setSavingWithTransparentBackground(false);
+            saveSettings();
+        }
+        repaint();
+    }
+
 
     public void createMenuBar() {
         menuBar = new JMenuBar();
@@ -1087,66 +1467,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         openFileItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        JFileChooser jfc = new JFileChooser(".");
-                        jfc.setAcceptAllFileFilterUsed(false);
-
-                        String ascName = "GENREG ASC Format (*.asc)";
-                        String graph6Name = "Graph6 Format (*.g6)";
-                        String hcpName = "HCP Format (*.hcp)";
-                        String scdName = "GENREG SCD Format (*.scd)";
-                        String edgeListName = "Edge List Format (*.txt)";
-                        String ugvName = "UGV Format (*.ugv)";
-                        String gmlName = "GML Format (*.gml)";
-
-                        FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[7];
-                        extensions[0] = new FileNameExtensionFilter(ascName, "asc");
-                        extensions[1] = new FileNameExtensionFilter(graph6Name, "g6");
-                        extensions[2] = new FileNameExtensionFilter(hcpName, "hcp");
-                        extensions[3] = new FileNameExtensionFilter(scdName, "scd");
-                        extensions[4] = new FileNameExtensionFilter(edgeListName, "txt");
-                        extensions[5] = new FileNameExtensionFilter(ugvName, "ugv");
-                        extensions[6] = new FileNameExtensionFilter(gmlName, "gml");
-
-                        for (FileNameExtensionFilter extension : extensions) {
-                            jfc.addChoosableFileFilter(extension);
-                        }
-                        if (settings_loadFilter >= 0 && settings_loadFilter < extensions.length)
-                            jfc.setFileFilter(extensions[settings_loadFilter]);
-                        else
-                            jfc.setFileFilter(extensions[0]);
-
-                        int choice = jfc.showOpenDialog(null);
-                        if (choice == JFileChooser.APPROVE_OPTION) {
-                            File file = jfc.getSelectedFile();
-                            String extensionName = jfc.getFileFilter().getDescription();
-
-                            if (extensionName.equals(ascName)) {
-                                settings_loadFilter = 0;
-                                openFile(file, FileParser.FILE_ASC);
-                            } else if (extensionName.equals(graph6Name)) {
-                                settings_loadFilter = 1;
-                                openFile(file, FileParser.FILE_G6);
-                            } else if (extensionName.equals(hcpName)) {
-                                settings_loadFilter = 2;
-                                openFile(file, FileParser.FILE_HCP);
-                            } else if (extensionName.equals(scdName)) {
-                                settings_loadFilter = 3;
-                                openFile(file, FileParser.FILE_SCD);
-                            } else if (extensionName.equals(edgeListName)) {
-                                settings_loadFilter = 4;
-                                openFile(file, FileParser.FILE_EDGE_LIST);
-                            } else if (extensionName.equals(ugvName)) {
-                                settings_loadFilter = 5;
-                                openFile(file, FileParser.FILE_UGV);
-                            } else if (extensionName.equals(gmlName)) {
-                                settings_loadFilter = 6;
-                                openFile(file, FileParser.FILE_GML);
-                            }
-
-                            saveSettings();
-
-                        }
-                        repaint();
+                        menuItemOpen();
                     }
                 });
         openFileItem.setMnemonic(KeyEvent.VK_O);
@@ -1169,115 +1490,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                         }
                     }
                 });
-        closeFileItem.setMnemonic(KeyEvent.VK_C);
         closeFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
 
         saveFileItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            JFileChooser jfc = new JFileChooser(".");
-                            jfc.setAcceptAllFileFilterUsed(false);
-
-                            String ascName = "GENREG ASC Format (*.asc)";
-                            String graph6Name = "Graph6 Format (*.g6)";
-                            String hcpName = "HCP Format (*.hcp)";
-                            String scdName = "GENREG SCD Format (*.scd)";
-                            String edgeListName = "Edge List Format (*.txt)";
-                            String ugvName = "UGV Format (*.ugv)";
-                            String gmlName = "GML Format (*.gml)";
-
-                            FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[7];
-                            extensions[0] = new FileNameExtensionFilter(ascName, "asc");
-                            extensions[1] = new FileNameExtensionFilter(graph6Name, "g6");
-                            extensions[2] = new FileNameExtensionFilter(hcpName, "hcp");
-                            extensions[3] = new FileNameExtensionFilter(scdName, "scd");
-                            extensions[4] = new FileNameExtensionFilter(edgeListName, "txt");
-                            extensions[5] = new FileNameExtensionFilter(ugvName, "ugv");
-                            extensions[6] = new FileNameExtensionFilter(gmlName, "gml");
-
-
-                            for (FileNameExtensionFilter extension : extensions) {
-                                jfc.addChoosableFileFilter(extension);
-                            }
-                            if (settings_saveFilter >= 0 && settings_saveFilter < extensions.length)
-                                jfc.setFileFilter(extensions[settings_saveFilter]);
-                            else
-                                jfc.setFileFilter(extensions[0]);
-
-
-                            int choice = jfc.showSaveDialog(null);
-                            if (choice == JFileChooser.APPROVE_OPTION) {
-                                String extensionName = jfc.getFileFilter().getDescription();
-
-                                GraphPane graphPane = (GraphPane) tabbedPane.getSelectedComponent();
-
-                                if (extensionName.equals(ascName)) {
-                                    settings_saveFilter = 0;
-                                    String filename = jfc.getSelectedFile().getName();
-                                    if (!filename.endsWith(".asc")) {
-                                        filename = filename + ".asc";
-                                    }
-
-                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_ASC);
-                                } else if (extensionName.equals(graph6Name)) {
-                                    settings_saveFilter = 1;
-                                    String filename = jfc.getSelectedFile().getName();
-                                    if (!filename.endsWith(".g6")) {
-                                        filename = filename + ".g6";
-                                    }
-                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_G6);
-                                } else if (extensionName.equals(hcpName)) {
-                                    settings_saveFilter = 2;
-                                    String filename = jfc.getSelectedFile().getName();
-                                    if (!filename.endsWith(".hcp")) {
-                                        filename = filename + ".hcp";
-                                    }
-
-                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_HCP);
-
-                                } else if (extensionName.equals(scdName)) {
-                                    settings_saveFilter = 3;
-                                    String filename = jfc.getSelectedFile().getName();
-                                    if (!filename.endsWith(".scd")) {
-                                        filename = filename + ".scd";
-                                    }
-
-                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_SCD);
-
-                                } else if (extensionName.equals(edgeListName)) {
-                                    settings_saveFilter = 4;
-                                    String filename = jfc.getSelectedFile().getName();
-                                    if (!filename.endsWith(".txt")) {
-                                        filename = filename + ".txt";
-                                    }
-
-                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_EDGE_LIST);
-
-                                } else if (extensionName.equals(ugvName)) {
-                                    settings_saveFilter = 5;
-                                    String filename = jfc.getSelectedFile().getName();
-                                    if (!filename.endsWith(".ugv")) {
-                                        filename = filename + ".ugv";
-                                    }
-                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_UGV);
-                                } else if (extensionName.equals(gmlName)) {
-                                    settings_saveFilter = 6;
-                                    String filename = jfc.getSelectedFile().getName();
-                                    if (!filename.endsWith(".gml")) {
-                                        filename = filename + ".gml";
-                                    }
-                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_GML);
-                                }
-
-                                graphPane.getUndoState().setLastSave();
-                                checkSave(tabbedPane.getSelectedIndex());
-
-
-                                saveSettings();
-                            }
-                            repaint();
-                        }
+                        menuItemSave();
                     }
                 });
         saveFileItem.setMnemonic(KeyEvent.VK_S);
@@ -1287,111 +1505,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         saveMultipleGraphsFileItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            String[] graphNames = new String[tabbedPane.getTabCount()];
-                            for (int i = 0; i < graphNames.length; i++)
-                                graphNames[i] = tabbedPane.getTitleAt(i);
-                            SaveMultipleGraphs smg = new SaveMultipleGraphs(parent, graphNames);
-
-                            if (!smg.getCancelled()) {
-                                boolean[] saveGraphs = smg.getSaveGraphs();
-                                int[] graphsToSave = new int[saveGraphs.length];
-                                int count = 0;
-                                for (int i = 0; i < saveGraphs.length; i++)
-                                    if (saveGraphs[i])
-                                        graphsToSave[count++] = i;
-
-                                int[] trimmedGraphsToSave = new int[count];
-                                System.arraycopy(graphsToSave, 0, trimmedGraphsToSave, 0, count);
-                                graphsToSave = trimmedGraphsToSave;
-
-                                if (count > 0) {
-                                    JFileChooser jfc = new JFileChooser(".");
-                                    jfc.setAcceptAllFileFilterUsed(false);
-
-                                    String ascName = "GENREG ASC Format (*.asc)";
-                                    String graph6Name = "Graph6 Format (*.g6)";
-                                    String scdName = "GENREG SCD Format (*.scd)";
-                                    String ugvName = "UGV Format (*.ugv)";
-                                    String gmlName = "GML Format (*.gml)";
-
-                                    FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[5];
-                                    extensions[0] = new FileNameExtensionFilter(ascName, "asc");
-                                    extensions[1] = new FileNameExtensionFilter(graph6Name, "g6");
-                                    extensions[2] = new FileNameExtensionFilter(scdName, "scd");
-                                    extensions[3] = new FileNameExtensionFilter(ugvName, "ugv");
-                                    extensions[4] = new FileNameExtensionFilter(gmlName, "gml");
-
-
-                                    for (FileNameExtensionFilter extension : extensions) {
-                                        jfc.addChoosableFileFilter(extension);
-                                    }
-                                    if (settings_saveFilter >= 0 && settings_saveFilter < extensions.length)
-                                        jfc.setFileFilter(extensions[settings_saveFilter]);
-                                    else
-                                        jfc.setFileFilter(extensions[0]);
-
-
-                                    int choice = jfc.showSaveDialog(null);
-                                    if (choice == JFileChooser.APPROVE_OPTION) {
-                                        String extensionName = jfc.getFileFilter().getDescription();
-
-                                        GraphPane[] graphPanes = new GraphPane[count];
-                                        for (int i = 0; i < count; i++) {
-                                            graphPanes[i] = (GraphPane) tabbedPane.getComponentAt(graphsToSave[i]);
-                                        }
-
-                                        if (extensionName.equals(ascName)) {
-                                            settings_saveFilter = 0;
-                                            String filename = jfc.getSelectedFile().getName();
-                                            if (!filename.endsWith(".asc")) {
-                                                filename = filename + ".asc";
-                                            }
-
-                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_ASC);
-                                        } else if (extensionName.equals(graph6Name)) {
-                                            settings_saveFilter = 1;
-                                            String filename = jfc.getSelectedFile().getName();
-                                            if (!filename.endsWith(".g6")) {
-                                                filename = filename + ".g6";
-                                            }
-
-                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_G6);
-                                        } else if (extensionName.equals(scdName)) {
-                                            settings_saveFilter = 3;
-                                            String filename = jfc.getSelectedFile().getName();
-                                            if (!filename.endsWith(".scd")) {
-                                                filename = filename + ".scd";
-                                            }
-
-                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_SCD);
-
-                                        } else if (extensionName.equals(ugvName)) {
-                                            settings_saveFilter = 5;
-                                            String filename = jfc.getSelectedFile().getName();
-                                            if (!filename.endsWith(".ugv")) {
-                                                filename = filename + ".ugv";
-                                            }
-                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_UGV);
-                                        } else if (extensionName.equals(gmlName)) {
-                                            settings_saveFilter = 6;
-                                            String filename = jfc.getSelectedFile().getName();
-                                            if (!filename.endsWith(".gml")) {
-                                                filename = filename + ".gml";
-                                            }
-                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_GML);
-                                        }
-
-                                        for (int i = 0; i < graphPanes.length; i++) {
-                                            graphPanes[i].getUndoState().setLastSave();
-                                            checkSave(graphsToSave[i]);
-                                        }
-                                        saveSettings();
-                                    }
-                                }
-                            }
-                            repaint();
-                        }
+                        menuItemSaveMultiple();
                     }
                 });
         saveMultipleGraphsFileItem.setMnemonic(KeyEvent.VK_M);
@@ -1401,105 +1515,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         exportAsImageFileItem.addActionListener(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent de) {
-                        JFileChooser jfc = new JFileChooser(".");
-                        jfc.setAcceptAllFileFilterUsed(false);
-
-                        String bmpName = "Bitmap (*.bmp)";
-                        String gifName = "GIF (*.gif)";
-                        String gifTransparentName = "GIF with transparent background (*.gif)";
-                        String jpgName = "JPEG (*.jpg)";
-                        String pngName = "Portable Network Graphic (*.png)";
-
-                        FileNameExtensionFilter[] extensions = new FileNameExtensionFilter[5];
-                        extensions[0] = new FileNameExtensionFilter(bmpName, "bmp");
-                        extensions[1] = new FileNameExtensionFilter(gifName, "gif");
-                        extensions[2] = new FileNameExtensionFilter(gifTransparentName, "gif");
-                        extensions[3] = new FileNameExtensionFilter(jpgName, "jpg");
-                        extensions[4] = new FileNameExtensionFilter(pngName, "png");
-
-                        for (FileNameExtensionFilter extension : extensions) {
-                            jfc.addChoosableFileFilter(extension);
-                        }
-                        if (settings_saveImageFilter >= 0 && settings_saveImageFilter < extensions.length) {
-                            jfc.setFileFilter(extensions[settings_saveImageFilter]);
-                        }
-                        else {
-                            jfc.setFileFilter(extensions[0]);
-                        }
-
-
-                        int choice = jfc.showSaveDialog(null);
-                        if (choice == JFileChooser.APPROVE_OPTION) {
-                            String filename = jfc.getSelectedFile().getName();
-                            String extensionName = jfc.getFileFilter().getDescription();
-                            String fileFormat = "";
-
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                            BufferedImage img;
-
-                            if (extensionName.equals(gifTransparentName)) {
-                                gp.setSavingWithTransparentBackground(true);
-                            }
-
-                            img = new BufferedImage(gp.getSize().width, gp.getSize().height, BufferedImage.TYPE_BYTE_INDEXED);
-                            gp.paintComponent(img.getGraphics());
-                            img = gp.getImage();
-
-
-                            if (extensionName.equals(bmpName)) {
-                                settings_saveImageFilter = 0;
-                                fileFormat = "BMP";
-
-                                if (!filename.endsWith(".bmp")) {
-                                    filename = filename + ".bmp";
-                                }
-                            } else if (extensionName.equals(gifName)) {
-                                settings_saveImageFilter = 1;
-                                fileFormat = "GIF";
-
-                                if (!filename.endsWith(".gif")) {
-                                    filename = filename + ".gif";
-                                }
-                            } else if (extensionName.equals(gifTransparentName)) {
-                                settings_saveImageFilter = 2;
-                                fileFormat = "GIF";
-
-                                if (!filename.endsWith(".gif")) {
-                                    filename = filename + ".gif";
-                                }
-                            } else if (extensionName.equals(jpgName)) {
-                                settings_saveImageFilter = 3;
-                                fileFormat = "JPG";
-
-                                if (!filename.endsWith(".jpg")) {
-                                    filename = filename + ".jpg";
-                                }
-                            } else if (extensionName.equals(pngName)) {
-                                settings_saveImageFilter = 4;
-                                fileFormat = "PNG";
-
-                                if (!filename.endsWith(".png")) {
-                                    filename = filename + ".png";
-                                }
-                            }
-                            try {
-                                File file = new File(filename);
-                                boolean save = true;
-                                if (file.exists()) {
-                                    int value = JOptionPane.showConfirmDialog(parent, "File " + filename + " already exists! Do you want to overwrite this file?", "File already exists!", JOptionPane.YES_NO_OPTION);
-                                    if (value == JOptionPane.NO_OPTION) {
-                                        save = false;
-                                    }
-                                }
-                                if (save)
-                                    ImageIO.write(img, fileFormat, file);
-                            } catch (Exception e) {
-                                System.err.println(e);
-                            }
-                            gp.setSavingWithTransparentBackground(false);
-                            saveSettings();
-                        }
-                        repaint();
+                        menuItemExport();
                     }
                 });
         exportAsImageFileItem.setMnemonic(KeyEvent.VK_E);
@@ -1601,7 +1617,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         pasteGraph();
-                        //copySelected();
                         validate();
                         repaint();
                     }
