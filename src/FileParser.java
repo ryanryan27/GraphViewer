@@ -412,10 +412,186 @@ public class FileParser {
         return graphs;
     }
 
+    public GraphData[] parseHCP(File file){
+        GraphData[] graphs = new GraphData[0];
+
+        int[][] arcs;
+        int maxNode;
+        int maxDegree;
+        int count;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+
+            String line;
+            br.readLine();
+            br.readLine();
+            br.readLine();
+            line = br.readLine();
+
+            maxNode = Integer.parseInt(line.substring(line.indexOf(":") + 2));
+
+            br.readLine();
+            br.readLine();
+            line = br.readLine();
+
+            count = 0;
+
+            while (!line.contains("-1")) {
+                count++;
+                line = br.readLine();
+            }
+            br.close();
+
+            br = new BufferedReader(new FileReader(file));
+
+            arcs = new int[count][2];
+
+            br.readLine();
+            br.readLine();
+            br.readLine();
+            br.readLine();
+            br.readLine();
+            br.readLine();
+            line = br.readLine();
+
+            count = 0;
+            while (!line.contains("-1")) {
+                StringTokenizer tokens = new StringTokenizer(line);
+                arcs[count][0] = Integer.parseInt(tokens.nextToken());
+                arcs[count++][1] = Integer.parseInt(tokens.nextToken());
+                line = br.readLine();
+            }
+
+            br.close();
+
+            int[] degrees = new int[maxNode];
+            for (int i = 0; i < count; i++) {
+                degrees[arcs[i][0] - 1]++;
+            }
+
+            maxDegree = 0;
+            for (int i = 0; i < maxNode; i++) {
+                if (degrees[i] > maxDegree) {
+                    maxDegree = degrees[i];
+                }
+            }
+
+            graphs = new GraphData[]{new GraphData(new Graph(maxNode,maxDegree))};
+
+            Graph graph = graphs[0].graph;
+            graph.addArcs(arcs);
+
+            for (int i = 0; i < count; i++) {
+                boolean both = false;
+                for (int j = 0; j < count; j++) {
+                    if (arcs[i][0] == arcs[j][1] && arcs[i][1] == arcs[j][0]) {
+                        both = true;
+                        break;
+                    }
+                }
+                if (!both) {
+                    graph.addArc(arcs[i][1], arcs[i][0]);
+                }
+            }
+
+            graph.createCircle();
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+        return graphs;
+    }
+
+    public GraphData[] parseEdgeList(File file){
+        GraphData[] graphs = new GraphData[0];
+
+        int[][] arcs;
+        int maxNode;
+        int maxDegree;
+        int count;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+
+            String line = br.readLine();
+            count = 0;
+
+            while (line != null) {
+                count++;
+                line = br.readLine();
+            }
+            br.close();
+
+            br = new BufferedReader(new FileReader(file));
+
+            arcs = new int[count][2];
+
+            line = br.readLine();
+
+            count = 0;
+            while (line != null) {
+                StringTokenizer tokens = new StringTokenizer(line);
+                arcs[count][0] = Integer.parseInt(tokens.nextToken());
+                arcs[count++][1] = Integer.parseInt(tokens.nextToken());
+                line = br.readLine();
+            }
+
+            br.close();
+
+            maxNode = 0;
+
+            for (int i = 0; i < count; i++)
+                for (int j = 0; j < 2; j++)
+                    if (arcs[i][j] > maxNode)
+                        maxNode = arcs[i][j];
+
+
+            int[] degrees = new int[maxNode];
+            for (int i = 0; i < count; i++)
+                degrees[arcs[i][0] - 1]++;
+
+            maxDegree = 0;
+            for (int i = 0; i < maxNode; i++)
+                if (degrees[i] > maxDegree)
+                    maxDegree = degrees[i];
+
+
+            graphs = new GraphData[]{new GraphData(new Graph(maxNode,maxDegree))};
+
+            Graph graph = graphs[0].graph;
+            graph.addArcs(arcs);
+
+
+            for (int i = 0; i < count; i++) {
+                boolean both = false;
+                for (int j = 0; j < count; j++) {
+                    if (arcs[i][0] == arcs[j][1] && arcs[i][1] == arcs[j][0]) {
+                        both = true;
+                        break;
+                    }
+                }
+                if (!both) {
+
+                    graph.addArc(arcs[i][1], arcs[i][0]);
+                }
+            }
+
+
+            graph.createCircle();
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
 
 
 
-    public int[] getSCDData(File file) {
+        return graphs;
+    }
+
+
+    private int[] getSCDData(File file) {
         DataInputStream di = null;
         try {
             di = new DataInputStream(new FileInputStream(file));
@@ -544,7 +720,7 @@ public class FileParser {
         return scdData;
     }
 
-    public int readStream(DataInputStream di) {
+    private int readStream(DataInputStream di) {
         int read;
         try {
             read = Integer.parseInt("" + di.readByte());
@@ -554,7 +730,7 @@ public class FileParser {
         return read;
     }
 
-    public String intToBinary(int number) {
+    private String intToBinary(int number) {
         // Assumes number will be less than 64, the following is for testing purposes only!!!
         if (number > 64)
             System.out.println("NUMBER IS WRONG!!");
@@ -571,7 +747,7 @@ public class FileParser {
         return binary;
     }
 
-    public int binaryToInt(String binary) {
+    private int binaryToInt(String binary) {
         int number = 0;
         for (int i = 1; i <= binary.length(); i++)
             number += Math.pow(2, Integer.parseInt("" + binary.charAt(binary.length() - i)));

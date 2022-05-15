@@ -1096,94 +1096,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
     }
 
-    public void openGraphHCP(File file) {
-        int[][] arcs;
-        int maxNode;
-        int maxDegree;
-        int count;
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            String line;
-            br.readLine();
-            br.readLine();
-            br.readLine();
-            line = br.readLine();
-
-            maxNode = Integer.parseInt(line.substring(line.indexOf(":") + 2));
-
-            br.readLine();
-            br.readLine();
-            line = br.readLine();
-
-            count = 0;
-
-            while (!line.contains("-1")) {
-                count++;
-                line = br.readLine();
-            }
-            br.close();
-
-            br = new BufferedReader(new FileReader(file));
-
-            arcs = new int[count][2];
-
-            br.readLine();
-            br.readLine();
-            br.readLine();
-            br.readLine();
-            br.readLine();
-            line = br.readLine();
-
-            count = 0;
-            while (!line.contains("-1")) {
-                StringTokenizer tokens = new StringTokenizer(line);
-                arcs[count][0] = Integer.parseInt(tokens.nextToken());
-                arcs[count++][1] = Integer.parseInt(tokens.nextToken());
-                line = br.readLine();
-            }
-
-            br.close();
-
-            int[] degrees = new int[maxNode];
-            for (int i = 0; i < count; i++)
-                degrees[arcs[i][0] - 1]++;
-
-            maxDegree = 0;
-            for (int i = 0; i < maxNode; i++)
-                if (degrees[i] > maxDegree)
-                    maxDegree = degrees[i];
-
-            graph = new Graph(maxNode, maxDegree);
-            graph.addArcs(arcs);
-
-            for (int i = 0; i < count; i++) {
-                boolean both = false;
-                for (int j = 0; j < count; j++) {
-                    if (arcs[i][0] == arcs[j][1] && arcs[i][1] == arcs[j][0]) {
-                        both = true;
-                        break;
-                    }
-                }
-                if (!both) {
-                    graph.addArc(arcs[i][1], arcs[i][0]);
-                }
-            }
-
-            GraphPane graphPanel = makeGraphPanel();
-
-            tabbedPane.add(graphPanel, file.getName());
-            tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-            createWindowItem(graphPanel, file.getName());
-
-            validate();
-            fitToScreen();
-
-        } catch (Exception e) {
-            System.err.println(e);
-        }
-    }
 
     public int readStream(DataInputStream di) {
         int read;
@@ -1322,9 +1234,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
 
-
-
-
     public void openFile(File file, int type){
         FileParser fp = new FileParser();
         GraphData[] graphs;
@@ -1338,7 +1247,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             graphs = fp.parseGraph6(file);
         } else if(type == FileParser.FILE_SCD){
             graphs = fp.parseSCD(file);
-        } else {
+        } else if(type == FileParser.FILE_HCP){
+            graphs = fp.parseHCP(file);
+        } else if(type == FileParser.FILE_EDGE_LIST){
+            graphs = fp.parseEdgeList(file);
+        }
+        else {
             graphs = new GraphData[0];
         }
 
@@ -2495,13 +2409,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                 openFile(file, FileParser.FILE_G6);
                             } else if (extensionName.equals(hcpName)) {
                                 settings_loadFilter = 2;
-                                openGraphHCP(file);
+                                openFile(file, FileParser.FILE_HCP);
                             } else if (extensionName.equals(scdName)) {
                                 settings_loadFilter = 3;
                                 openFile(file, FileParser.FILE_SCD);
                             } else if (extensionName.equals(edgeListName)) {
                                 settings_loadFilter = 4;
-                                openGraphEdgeList(file);
+                                openFile(file, FileParser.FILE_EDGE_LIST);
                             } else if (extensionName.equals(ugvName)) {
                                 settings_loadFilter = 5;
                                 openFile(file, FileParser.FILE_UGV);
