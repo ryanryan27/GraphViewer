@@ -473,7 +473,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         GraphData graphData = new GraphData(gp.getGraph());
 
-        graphData.scale = gp.getXScale();
+        graphData.scale = gp.getScale();
         graphData.x_offset = gp.getXTopLeft();
         graphData.y_offset = gp.getYTopLeft();
         graphData.radius = gp.getRadius();
@@ -539,7 +539,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         for (int i = 0; i < graphPanes.length; i++) {
             GraphPane gp = graphPanes[i];
             graphs[i] = new GraphData(gp.getGraph());
-            graphs[i].scale = gp.getXScale();
+            graphs[i].scale = gp.getScale();
             graphs[i].x_offset = gp.getXTopLeft();
             graphs[i].y_offset = gp.getYTopLeft();
             graphs[i].radius = gp.getRadius();

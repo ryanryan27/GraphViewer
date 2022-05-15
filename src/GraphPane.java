@@ -751,7 +751,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
      * @param y1 y coordinate of the first endpoint of the line segment.
      * @param x2 x coordinate of the second endpoint of the line segment.
      * @param y2 y coordinate of the second endpoint of the line segment.
-     * @return
+     * @return the square of the distance from the point to the line segment.
      */
     private double distSquareToEdge(double x, double y, double x1, double y1, double x2, double y2){
         double dist;
@@ -832,6 +832,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         yClicked = (mouseY);
     }
 
+    /**
+     * Gets an array containing the default colours for this GraphPane.
+     * @return the array of default colours.
+     */
     public Color[] getDefaultColors() {
         Color[] tempColors = new Color[6];
         tempColors[0] = backgroundColor;
@@ -843,6 +847,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         return tempColors;
     }
 
+    /**
+     * Sets the given colours as the new defaults.
+     * @param colors the colours to be assigned as default colours.
+     */
     public void setDefaultColors(Color[] colors) {
         backgroundColor = colors[0];
         defaultColor = colors[1];
@@ -853,6 +861,13 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
+    /**
+     * Makes the pixel at coordinate (x,y) of image transparent.
+     * @param image the original image to make a modified copy of.
+     * @param x the x coordinate of the pixel to make transparent.
+     * @param y the y coordinate of the pixel to make transparent.
+     * @return a new image with the specified pixel transparent.
+     */
     public BufferedImage makeTransparent(BufferedImage image, int x, int y) {
         ColorModel cm = image.getColorModel();
         if (!(cm instanceof IndexColorModel))
@@ -1295,11 +1310,18 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         graph = gr;
     }
 
+    /**
+     * Gets the graph object associated with this GraphPane.
+     * @return the graph object being drawn on this panel.
+     */
     public Graph getGraph() {
         return graph;
     }
 
-
+    /**
+     * Sets the zoom level of the viewport of this GraphPane.
+     * @param new_scale the new zoom level.
+     */
     public void setScale(double new_scale) {
 
         scale = new_scale;
@@ -1309,115 +1331,203 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Sets the upper left corner of the viewport of this GraphPane.
+     * @param xl the x coordinate of the offset.
+     * @param yl the y coordinate of the offset.
+     */
     public void setTopLeft(int xl, int yl) {
         xTopLeft = xl;
         yTopLeft = yl;
     }
 
+    /**
+     * Sets the visual radius of the vertices of the current graph.
+     * @param ra the radius.
+     */
     public void setRadius(int ra) {
         radius = ra;
     }
 
+    /**
+     * Gets the current visual radius of the vertices of the current graph.
+     * @return the visual radius of vertices.
+     */
     public int getRadius() {
         return radius;
     }
 
-    public double getXScale() {
+    /**
+     * Gets the zoom level of this GraphPane.
+     * @return the zoom level.
+     */
+    public double getScale() {
         return scale;
     }
 
-    public double getYScale() {
-        return scale;
-    }
-
+    /**
+     * Gets the x offset of the current viewport of the this GraphPane.
+     * @return x offset of the current viewport.
+     */
     public int getXTopLeft() {
         return xTopLeft;
     }
 
+    /**
+     * Gets the y offset of the current viewport of this GraphPane
+     * @return y offset of the current viewport.
+     */
     public int getYTopLeft() {
         return yTopLeft;
     }
 
+    /**
+     * Sets the new default cursor.
+     * @param cursor the new look of the cursor.
+     */
     public void setDefaultCursor(Cursor cursor) {
         defaultCursor = cursor;
     }
 
+    /**
+     * Changes the currently selected tool or function.
+     * @param option the new option. One of those specified in this GraphPane.
+     */
     public void setSelectedOption(int option) {
         selectedOption = option;
     }
 
+    /**
+     * Gets whether or not vertex labels should be displayed while drawing the graph.
+     * @return whether or not labels should be displayed.
+     */
     public boolean getDisplayVertexLabels() {
         return displayVertexLabels;
     }
 
+    /**
+     * Sets whether or not vertex labels should be displayed.
+     * @param dvl whether or not vertex labels should be displayed.
+     */
     public void setDisplayVertexLabels(boolean dvl) {
         displayVertexLabels = dvl;
     }
 
+    /**
+     * Gets whether or not edge crossings should be marked.
+     * @return whether or not edge crossings should be marked.
+     */
     public boolean getDisplayCrossings() {
         return displayCrossings;
     }
 
+    /**
+     * Sets whether or not edge crossings should be marked.
+     * @param dc whether or not edge crossings should be marked.
+     */
     public void setDisplayCrossings(boolean dc) {
         displayCrossings = dc;
-        if (dc) {
-            findCrossings();
-            System.out.println();
-            System.out.println("Crossings: " + crossings);
-            for (int i = 0; i < crossings; i++){
-                System.out.println("((" + (crossingsE1[i] + 1) + "," + (crossingsE2[i] + 1) + "), (" + (crossingsE3[i] + 1) + "," + (crossingsE4[i] + 1) + "))");
-            }
-        }
     }
 
+    /**
+     * Gets whether or not the domination state of vertices should be displayed, along with the top right domination status.
+     * @return whether or not domination status should be displayed.
+     */
     public boolean getDisplayDomination() {
         return displayDomination;
     }
 
+    /**
+     * Sets whether or not the domination state of vertices should be displayed, along with the top right domination status.
+     * @param dd whether or not domination should be displayed.
+     */
     public void setDisplayDomination(boolean dd) {
         displayDomination = dd;
     }
 
+    /**
+     * Gets whether or not the domination status to show includes total domination conditions.
+     * @return whether or not total domination status is displayed.
+     */
     public boolean getDomTotal() {
         return domTotal;
     }
 
+    /**
+     * Sets whether or not the domination status to show includes total domination conditions.
+     * @param dt whether or not total domination status is displayed.
+     */
     public void setDomTotal(boolean dt) {
         domTotal = dt;
     }
 
+    /**
+     * Gets whether or not the domination status to show includes secure domination conditions.
+     * @return whether or not secure domination status is displayed.
+     */
     public boolean getDomSecure() {
         return domSecure;
     }
 
+    /**
+     * Sets whether or not the domination status to show includes secure domination conditions.
+     * @param ds whether or not secure domination status is displayed.
+     */
     public void setDomSecure(boolean ds) {
         domSecure = ds;
     }
 
+    /**
+     * Gets whether or not the domination status to show includes connected domination conditions.
+     * @return whether or not connected domination status is displayed.
+     */
     public boolean getDomConnected() {
         return domConnected;
     }
 
+    /**
+     * Sets whether or not the domination status to show includes connected domination conditions.
+     * @param dc whether or not connected domination status is displayed.
+     */
     public void setDomConnected(boolean dc) {
         domConnected = dc;
     }
 
+    /**
+     * Gets whether or not the domination status to show includes roman domination conditions.
+     * @return whether or not roman domination status is displayed.
+     */
     public boolean getDomRoman() {
         return domRoman;
     }
 
+    /**
+     * Sets whether or not the domination status to show includes roman domination conditions.
+     * @param dr whether or not roman domination status is displayed.
+     */
     public void setDomRoman(boolean dr) {
         domRoman = dr;
     }
 
+    /**
+     * Gets whether or not the domination status to show includes weak roman domination conditions.
+     * @return whether or not weak roman domination status is displayed.
+     */
     public boolean getDomWeakRoman() {
         return domWeakRoman;
     }
 
+    /**
+     * Sets whether or not the domination status to show includes weak roman domination conditions.
+     * @param dwr whether or not weak roman domination status is displayed.
+     */
     public void setDomWeakRoman(boolean dwr) {
         domWeakRoman = dwr;
     }
 
+    /**
+     * Begins a timer that updates the vertex positions using a spring algorithm.
+     */
     public void beginSpring() {
 
         setUndoState();
@@ -1437,6 +1547,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Cancels the timer that updates vertex positions using a spring condition.
+     */
     public void cancelSpring() {
         if (graph.calculatingSpring) {
             springTimer.cancel();
@@ -1444,6 +1557,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
+    /**
+     * Rotates all selected vertices around a specified point.
+     * @param rotateX x coordinate of the point of rotation.
+     * @param rotateY y coordinate of the point of rotatin.
+     */
     public void rotate(double rotateX, double rotateY) {
         for (int i = 0; i < graph.getN(); i++)
             if (graph.isSelected(i)) {
@@ -1472,31 +1590,57 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    /**
+     * Gets the size of vertex label text.
+     * @return the size of the vertex label text.
+     */
     public int getTextSize() {
         return textSize;
     }
 
+    /**
+     * Sets the size of the vertex label text.
+     * @param size the new size of the vertex label text.
+     */
     public void setTextSize(int size) {
         textSize = size;
     }
 
+    /**
+     * Sets whether or not an exported image will have a transparent background.
+     * @param swtb whether or not an exported image will have a transparent background.
+     */
     public void setSavingWithTransparentBackground(boolean swtb) {
         savingWithTransparentBackground = swtb;
     }
 
+    /**
+     * Gets the image currently being displayed on this tab.
+     * @return the image currently being displayed.
+     */
     public BufferedImage getImage() {
         return image;
     }
 
+    /**
+     * Gets the menu item for this graph, listed under the window option.
+     * @return the menu item for this graph.
+     */
     public JMenuItem getMenuItem() {
         return menuItem;
     }
 
+    /**
+     * Sets the menu item for this graph, listed under the window option.
+     * @param mi the new menu item for this graph.
+     */
     public void setMenuItem(JMenuItem mi) {
         menuItem = mi;
     }
 
-
+    /**
+     * Creates a new undo point.
+     */
     public void setUndoState() {
         undoState.addItem(graph);
         setUndoAvailable(true);
@@ -1504,6 +1648,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         parent.checkSave();
     }
 
+    /**
+     * Reverts the graph to the previous undo point.
+     */
     public void undo() {
         cancelSpring();
         graph = undoState.undo(graph);
@@ -1516,6 +1663,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    /**
+     * Reverts the graph from the most recent undo point.
+     */
     public void redo() {
 
         graph = undoState.redo(graph);
@@ -1527,22 +1677,44 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         repaint();
     }
 
+    /**
+     * Sets the ability to use the undo menu item or keybinding.
+     * @param available whether or not undo can be used.
+     */
     public void setUndoAvailable(boolean available) {
         parent.setUndoAvailable(available);
     }
 
+    /**
+     * Sets the ability to use the redo menu item or keybinding.
+     * @param available whether or not redo can be used.
+     */
     public void setRedoAvailable(boolean available) {
         parent.setRedoAvailable(available);
     }
 
+    /**
+     * Gets the stacks of undo and redo states for this graph.
+     * @return the UndoRedo object for this graph.
+     */
     public UndoRedo getUndoState() {
         return undoState;
     }
 
+    /**
+     * Gets the parent component of this tab.
+     * @return the parent component of this tab.
+     */
     public UGVViewer getParent() {
         return parent;
     }
 
+    /**
+     * Returns the smallest index of any vertex currently under the mouse coordinates specified.
+     * @param mouseX the x coordinate of the mouse.
+     * @param mouseY the y coordinate of the mouse.
+     * @return the smallest index of a vertex under the mouse.
+     */
     public int vertexContaining(double mouseX, double mouseY) {
         for (int i = 0; i < graph.getN(); i++) {
 
@@ -1554,7 +1726,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-
+    /**
+     * Finds and stores all crossings of the edges of the current graph.
+     */
     public void findCrossings() {
         int[][] arcs = graph.getArcs();
         int[] degrees = graph.getDegrees();
@@ -1612,6 +1786,9 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             }
     }
 
+    /**
+     * Does some funky crossing stuff and creates files. No longer needed probably.
+     */
     public void checkCrossings() {
    /*int [][]jjj = graph.getArcs();
    for(int i=0; i<39; i++)
@@ -1753,6 +1930,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
+    /**
+     * Pastes the specified graph relative to the top left of the current viewport of this graph.
+     * @param g the graph to paste.
+     */
     public void pasteGraph(Graph g) {
 
         setUndoState();
@@ -1760,18 +1941,29 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
+    /**
+     * Gets the variables associated with the spacing and offset of the background gridlines.
+     * @return a 3 element array [grid spacing, x offset, y offset].
+     */
     public double[] getGridData() {
 
         return new double[]{gridSpacing, gridOffsetX, gridOffsetY};
     }
 
+    /**
+     * Set whether or not gridlines should be visible.
+     * @param gridlines whether or not gridlines should be visible.
+     */
     public void setGridlines(boolean gridlines) {
         showGridlines = gridlines;
     }
 
+    /**
+     * Set whether or not new vertices can only be placed on intersections of the gridlines.
+     * @param snap whether or not new vertices can only be placed on intersections of the gridlines.
+     */
     public void setSnapToGrid(boolean snap) {
         snapToGrid = snap;
     }
-
 
 }
