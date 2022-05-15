@@ -758,6 +758,45 @@ public class FileParser {
         return graphs;
     }
 
+    public void saveHCP(GraphData graphData, File file){
+        try {
+            Graph graph = graphData.graph;
+            int N = graph.getN();
+            int[][] arcs = graph.getArcs();
+            int[] degrees = graph.getDegrees();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+            bw.write(("NAME : " + file.getName()));
+            bw.newLine();
+            bw.write("COMMENT : Hamiltonian cycle problem (Erbacci)");
+            bw.newLine();
+            bw.write("TYPE : HCP");
+            bw.newLine();
+            bw.write(("DIMENSION : " + N));
+            bw.newLine();
+            bw.write("EDGE_DATA_FORMAT : EDGE_LIST");
+            bw.newLine();
+            bw.write("EDGE_DATA_SECTION");
+            bw.newLine();
+
+            for (int i = 0; i < N; i++)
+                for (int j = 0; j < degrees[i]; j++)
+                    if ((i + 1) < arcs[i][j]) {
+                        bw.write((i + 1) + " " + arcs[i][j]);
+                        bw.newLine();
+                    }
+
+            bw.write("-1");
+            bw.newLine();
+            bw.write("EOF");
+            bw.newLine();
+            bw.close();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+
     public GraphData[] parseEdgeList(File file){
         GraphData[] graphs = new GraphData[0];
 
@@ -842,6 +881,28 @@ public class FileParser {
 
 
         return graphs;
+    }
+
+    public void saveEdgeList(GraphData graphData, File file){
+        try {
+            Graph graph = graphData.graph;
+            int[][] arcs = graph.getArcs();
+            int[] degrees = graph.getDegrees();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+
+            for (int i = 0; i < degrees.length; i++)
+                for (int j = 0; j < degrees[i]; j++)
+                    if (arcs[i][j] > i + 1) {
+                        bw.write((i + 1) + " " + arcs[i][j]);
+                        bw.newLine();
+                    }
+
+            bw.close();
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
     }
 
 

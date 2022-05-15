@@ -930,7 +930,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-
     public void buildNewGraph() {
         graph = new Graph(0, 0);
 
@@ -962,14 +961,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-    public void saveGraphEdgeList(String filename, GraphPane graphPane) {
-        File fileToSave = new File(filename);
+    public void saveGraph(String filename, GraphPane gp, int type){
+        File file = new File(filename);
 
-        Graph graph = graphPane.getGraph();
 
         boolean save = true;
 
-        if (fileToSave.exists()) {
+        if (file.exists()) {
             String[] options = new String[2];
             options[0] = "Overwrite";
             options[1] = "Cancel";
@@ -979,95 +977,24 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             if (option == JOptionPane.NO_OPTION)
                 save = false;
         }
-        if (save) {
-            try {
-                int[][] arcs = graph.getArcs();
-                int[] degrees = graph.getDegrees();
 
-                if (degrees[degrees.length - 1] == 0) {
-                    String[] options = new String[2];
-                    options[0] = "Yes";
-                    options[1] = "No";
-
-                    JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-                    int option = JOptionPane.showOptionDialog(parent, "Edge-list format does not retain isolated vertices if they are labelled with the largest number. Are you sure you want to save?", "WARNING: Edge-list format will not save full graph!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[1]);
-                    if (option == JOptionPane.NO_OPTION)
-                        return;
-                }
-
-
-                BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
-
-                for (int i = 0; i < degrees.length; i++)
-                    for (int j = 0; j < degrees[i]; j++)
-                        if (arcs[i][j] > i + 1) {
-                            bw.write((i + 1) + " " + arcs[i][j]);
-                            bw.newLine();
-                        }
-
-                bw.close();
-
-            } catch (Exception e) {
-                System.err.println(e);
-            }
+        if(!save){
+            return;
         }
 
+        GraphData graphData = new GraphData(gp.getGraph());
 
-    }
+        graphData.scale = gp.getXScale();
+        graphData.x_offset = gp.getXTopLeft();
+        graphData.y_offset = gp.getYTopLeft();
+        graphData.radius = gp.getRadius();
 
-    public void saveGraphHCP(String filename, GraphPane graphPane) {
-        File fileToSave = new File(filename);
+        FileParser fp = new FileParser();
 
-        Graph graph = graphPane.getGraph();
-
-        boolean save = true;
-
-        if (fileToSave.exists()) {
-            String[] options = new String[2];
-            options[0] = "Overwrite";
-            options[1] = "Cancel";
-
-            JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-            int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[1]);
-            if (option == JOptionPane.NO_OPTION)
-                save = false;
-        }
-        if (save) {
-            try {
-                int N = graph.getN();
-                int[][] arcs = graph.getArcs();
-                int[] degrees = graph.getDegrees();
-
-                BufferedWriter bw = new BufferedWriter(new FileWriter(fileToSave));
-
-                bw.write(("NAME : " + filename));
-                bw.newLine();
-                bw.write("COMMENT : Hamiltonian cycle problem (Erbacci)");
-                bw.newLine();
-                bw.write("TYPE : HCP");
-                bw.newLine();
-                bw.write(("DIMENSION : " + N));
-                bw.newLine();
-                bw.write("EDGE_DATA_FORMAT : EDGE_LIST");
-                bw.newLine();
-                bw.write("EDGE_DATA_SECTION");
-                bw.newLine();
-
-                for (int i = 0; i < N; i++)
-                    for (int j = 0; j < degrees[i]; j++)
-                        if ((i + 1) < arcs[i][j]) {
-                            bw.write((i + 1) + " " + arcs[i][j]);
-                            bw.newLine();
-                        }
-
-                bw.write("-1");
-                bw.newLine();
-                bw.write("EOF");
-                bw.newLine();
-                bw.close();
-            } catch (Exception e) {
-                System.err.println(e);
-            }
+        if(type == FileParser.FILE_EDGE_LIST){
+            fp.saveEdgeList(graphData, file);
+        } else if(type == FileParser.FILE_HCP){
+            fp.saveHCP(graphData, file);
         }
 
     }
@@ -1307,7 +1234,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                         filename = filename + ".hcp";
                                     }
 
-                                    saveGraphHCP(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
+                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_HCP);
 
                                 } else if (extensionName.equals(scdName)) {
                                     settings_saveFilter = 3;
@@ -1325,7 +1252,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                         filename = filename + ".txt";
                                     }
 
-                                    saveGraphEdgeList(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
+                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_EDGE_LIST);
 
                                 } else if (extensionName.equals(ugvName)) {
                                     settings_saveFilter = 5;
