@@ -591,6 +591,82 @@ public class FileParser {
     }
 
 
+    public GraphData[] parseASC(File file){
+        GraphData[] graphs = new GraphData[0];
+
+
+        try {
+            int graphsToDo = 0;
+
+
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line = br.readLine();
+            while (line != null) {
+                if (line.startsWith("Graph")) {
+                    graphsToDo++;
+                }
+                line = br.readLine();
+            }
+
+            graphs = new GraphData[graphsToDo];
+
+            for (int i = 0; i < graphsToDo; i++) {
+                graphs[i] = new GraphData(new Graph(0,0));
+            }
+
+
+            for (int gr = 0; gr < graphsToDo; gr++) {
+
+                Graph graph = graphs[gr].graph;
+
+                int node = 0;
+                br = new BufferedReader(new FileReader(file));
+                line = br.readLine();
+                while (!line.startsWith("Graph " + (gr+1))) {
+                    line = br.readLine();
+                }
+
+                br.readLine();
+                line = br.readLine();
+                int count = 0;
+                while (!line.startsWith("Taillenweite")) {
+                    count++;
+                    if (count > node) {
+                        node = count;
+                        graph.setN(node);
+                    }
+                    StringTokenizer tokens = new StringTokenizer(line);
+                    tokens.nextToken();
+                    tokens.nextToken();
+                    while (tokens.hasMoreTokens()) {
+                        int newNode = Integer.parseInt(tokens.nextToken());
+                        if (newNode > node) {
+                            node = newNode;
+                            graph.setN(node);
+                        }
+                        graph.addArc(count, newNode);
+                    }
+
+                    line = br.readLine();
+                }
+
+                int[] contour = new int[node];
+                for (int i = 0; i < node; i++) {
+                    contour[i] = i;
+                }
+                graph.setContour(contour);
+                graph.createCircle();
+
+            }
+
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+        return graphs;
+    }
+
     private int[] getSCDData(File file) {
         DataInputStream di = null;
         try {
