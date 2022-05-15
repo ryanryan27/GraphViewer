@@ -184,8 +184,11 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
     public void createGraphEditPane() {
+
+
         graphEditPane = new JPanel();
-        graphEditPane.setLayout(new VerticalLayout());
+        //graphEditPane.setLayout(new BoxLayout(graphEditPane, BoxLayout.PAGE_AXIS));
+        //graphEditPane.setLayout(new SpringLayout());
         graphEditPane.setBackground(rightColor);
         graphEditPane.addMouseListener(this);
 
@@ -490,19 +493,21 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         JPanel vertexSizeSliderPanel = new JPanel();
         vertexSizeSliderPanel.setBackground(rightColor);
-        vertexSizeSliderPanel.setLayout(new VerticalLayout());
-        vertexSizeSliderPanel.add(new JLabel(new ImageIcon("pics/vertexResizeBig.png")));
-        vertexSizeSliderPanel.add(vertexSizeSlider);
-        vertexSizeSliderPanel.add(new JLabel(new ImageIcon("pics/vertexResizeSmall.png")));
-        vertexSizeSliderPanel.add(vertexSizeField);
+        //vertexSizeSliderPanel.setLayout(new BoxLayout(vertexSizeSliderPanel, BoxLayout.Y_AXIS));
+        vertexSizeSliderPanel.setLayout(new BorderLayout());
+        vertexSizeSliderPanel.add(new JLabel(new ImageIcon("pics/vertexResizeBig.png")), BorderLayout.PAGE_START);
+        vertexSizeSliderPanel.add(vertexSizeSlider, BorderLayout.CENTER);
+        //vertexSizeSliderPanel.add(new JLabel(new ImageIcon("pics/vertexResizeSmall.png")));
+        vertexSizeSliderPanel.add(vertexSizeField, BorderLayout.PAGE_END);
 
         JPanel labelSizeSliderPanel = new JPanel();
         labelSizeSliderPanel.setBackground(rightColor);
-        labelSizeSliderPanel.setLayout(new VerticalLayout());
-        labelSizeSliderPanel.add(new JLabel(new ImageIcon("pics/labelResizeBig.png")));
-        labelSizeSliderPanel.add(labelSizeSlider);
-        labelSizeSliderPanel.add(new JLabel(new ImageIcon("pics/labelResizeSmall.png")));
-        labelSizeSliderPanel.add(labelSizeField);
+        //labelSizeSliderPanel.setLayout(new BoxLayout(labelSizeSliderPanel, BoxLayout.Y_AXIS));
+        labelSizeSliderPanel.setLayout(new BorderLayout());
+        labelSizeSliderPanel.add(new JLabel(new ImageIcon("pics/labelResizeBig.png")), BorderLayout.PAGE_START);
+        labelSizeSliderPanel.add(labelSizeSlider, BorderLayout.CENTER);
+        //labelSizeSliderPanel.add(new JLabel(new ImageIcon("pics/labelResizeSmall.png")));
+        labelSizeSliderPanel.add(labelSizeField, BorderLayout.PAGE_END);
 
         sliderPanel.add(vertexSizeSliderPanel);
         sliderPanel.add(new JLabel(""));
@@ -547,14 +552,27 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             selectButtonPane.add(labels[i]);
         }
 
-        int blankCounter = 0;
-        graphEditPane.add(blankPanels[blankCounter++]);
+
+
+        int padding = 20;
+
+        SpringLayout layout = new SpringLayout();
+        layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, buttonPane, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
+        layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, sliderPanel, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
+        layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, bottomButtonPane, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
+        layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, selectButtonPane, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
+        layout.putConstraint(SpringLayout.NORTH, buttonPane, padding, SpringLayout.NORTH, graphEditPane);
+        layout.putConstraint(SpringLayout.NORTH, sliderPanel, padding, SpringLayout.SOUTH, buttonPane);
+        layout.putConstraint(SpringLayout.NORTH, bottomButtonPane, padding, SpringLayout.SOUTH, sliderPanel);
+        layout.putConstraint(SpringLayout.NORTH, selectButtonPane, padding, SpringLayout.SOUTH, bottomButtonPane);
+
+        graphEditPane.setLayout(layout);
+        graphEditPane.setPreferredSize(new Dimension(sliderPanel.getPreferredSize().width+padding, this.getHeight()));
+
+
         graphEditPane.add(buttonPane);
-        graphEditPane.add(blankPanels[blankCounter++]);
         graphEditPane.add(sliderPanel);
-        graphEditPane.add(blankPanels[blankCounter++]);
         graphEditPane.add(bottomButtonPane);
-        graphEditPane.add(blankPanels[blankCounter]);
         graphEditPane.add(selectButtonPane);
 
     }
@@ -828,8 +846,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             if (eed.getArrangeContour()) {
                 gr.createCircle();
                 fitToScreen();
-            } else
+            } else {
                 gp.repaint();
+            }
         }
     }
 

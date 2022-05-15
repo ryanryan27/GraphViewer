@@ -60,7 +60,7 @@ public class TexDialog extends JDialog implements ActionListener
       buttonPane.add(closeButton);
 
       JPanel arrangePanel = new JPanel();
-      arrangePanel.setLayout(new VerticalLayout(0));
+      arrangePanel.setLayout(new BoxLayout(arrangePanel, BoxLayout.Y_AXIS));
 
 
       arrangePanel.add(scrollPane);

@@ -39,7 +39,7 @@
          buttons.add(incrementButton);
          buttons.add(swapButton);
          JPanel middlePanel = new JPanel();
-         middlePanel.setLayout(new VerticalLayout(0,VerticalLayout.LEFT));
+         middlePanel.setLayout(new BoxLayout(middlePanel, BoxLayout.Y_AXIS));
          middlePanel.add(incrementButton);
          middlePanel.add(swapButton);
       	
@@ -52,7 +52,7 @@
          bottomPanel.add(cancelButton);
       	
          JPanel relabelPanel = new JPanel();
-         relabelPanel.setLayout(new VerticalLayout(0,VerticalLayout.LEFT));
+         relabelPanel.setLayout(new BoxLayout(relabelPanel, BoxLayout.Y_AXIS));
          relabelPanel.add(topPanel);
          relabelPanel.add(middlePanel);
          relabelPanel.add(bottomPanel);

@@ -60,7 +60,7 @@ public class DominationDialog extends JDialog implements ActionListener
       buttonPane.add(cancelButton);
 
       JPanel arrangePanel = new JPanel();
-      arrangePanel.setLayout(new VerticalLayout(0));
+      arrangePanel.setLayout(new BoxLayout(arrangePanel, BoxLayout.Y_AXIS));
 
       arrangePanel.add(new JLabel("Edit dominating set below. A negative index indicates two guards at a vertex."));
       arrangePanel.add(scrollPane);

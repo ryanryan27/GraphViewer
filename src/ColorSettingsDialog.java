@@ -85,7 +85,7 @@
             bluePanel.add(blueFields[i]);
          
             JPanel rightLowerColorChangePanel = new JPanel();
-            rightLowerColorChangePanel.setLayout(new VerticalLayout(-2));
+            rightLowerColorChangePanel.setLayout(new BoxLayout(rightLowerColorChangePanel, BoxLayout.Y_AXIS));
             rightLowerColorChangePanel.add(redPanel);
             rightLowerColorChangePanel.add(greenPanel);
             rightLowerColorChangePanel.add(bluePanel);

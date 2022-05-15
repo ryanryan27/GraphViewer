@@ -43,7 +43,7 @@
          JLabel topLabel2 = new JLabel("Which graphs would you like to open?");
          topLabel2.setHorizontalAlignment(SwingConstants.CENTER);
          labelPanel = new JPanel();
-         labelPanel.setLayout(new VerticalLayout(3));
+         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
          labelPanel.add(new JLabel(" "));
          labelPanel.add(topLabel1);
          labelPanel.add(topLabel2);
@@ -173,7 +173,7 @@
          smartGraphChooserField.addActionListener(this);
       	
          smartGraphChooserPane = new JPanel();
-         smartGraphChooserPane.setLayout(new VerticalLayout(3));
+         smartGraphChooserPane.setLayout(new BoxLayout(smartGraphChooserPane, BoxLayout.Y_AXIS));
          smartGraphChooserPane.add(new JLabel(" "));
          smartGraphChooserPane.add(smartGraphChooserField);
          smartGraphChooserPane.add(new JLabel("List graphs to open (Example: 3,6,19-25,48)"));

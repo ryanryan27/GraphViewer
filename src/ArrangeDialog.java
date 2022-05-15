@@ -48,7 +48,7 @@
          buttonPane.add(cancelButton);
       
          JPanel arrangePanel = new JPanel();
-         arrangePanel.setLayout(new VerticalLayout(0));
+         arrangePanel.setLayout(new BoxLayout(arrangePanel, BoxLayout.Y_AXIS));
       
          arrangePanel.add(new JLabel("Enter vertex order"));
          arrangePanel.add(scrollPane);

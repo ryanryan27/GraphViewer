@@ -60,7 +60,7 @@ public class ArrangeGridDialog extends JDialog implements ActionListener
       buttonPane.add(cancelButton);
 
       JPanel arrangePanel = new JPanel();
-      arrangePanel.setLayout(new VerticalLayout(0));
+      arrangePanel.setLayout(new BoxLayout(arrangePanel, BoxLayout.Y_AXIS));
 
       arrangePanel.add(new JLabel("Choose grid options"));
       arrangePanel.add(widthPane);

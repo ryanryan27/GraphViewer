@@ -34,7 +34,7 @@
       
       
          panel = new JPanel();
-         panel.setLayout(new VerticalLayout(5));
+         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
          
          topPanel = new JPanel();
          topPanel.add(new JLabel("Select which graphs you wish to save:"));
@@ -164,7 +164,7 @@
          smartGraphChooserField.addActionListener(this);
       	
          smartGraphChooserPane = new JPanel();
-         smartGraphChooserPane.setLayout(new VerticalLayout(3));
+         smartGraphChooserPane.setLayout(new BoxLayout(smartGraphChooserPane, BoxLayout.Y_AXIS));
          smartGraphChooserPane.add(new JLabel(" "));
          smartGraphChooserPane.add(smartGraphChooserField);
          smartGraphChooserPane.add(new JLabel("List graphs to open (Example: 3,6,19-25,48)"));

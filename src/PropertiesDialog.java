@@ -192,8 +192,7 @@
       
       
          JPanel propertiesPanel = new JPanel();
-         propertiesPanel.setLayout(new VerticalLayout(0));
-      
+         propertiesPanel.setLayout(new BoxLayout(propertiesPanel, BoxLayout.Y_AXIS));
       
       
          propertiesPanel.add(titlePanel);

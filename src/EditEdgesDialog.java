@@ -67,7 +67,7 @@ public class EditEdgesDialog extends JDialog implements ActionListener
       buttonPane.add(cancelButton);
    
       JPanel editEdgesPanel = new JPanel();
-      editEdgesPanel.setLayout(new VerticalLayout(0));
+      editEdgesPanel.setLayout(new BoxLayout(editEdgesPanel, BoxLayout.Y_AXIS));
    
       editEdgesPanel.add(new JLabel("Edit the list of edges below. Note that edges may"));
       editEdgesPanel.add(new JLabel("be entered for vertices not yet created."));
