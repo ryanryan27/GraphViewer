@@ -357,24 +357,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                     public void removeUpdate(DocumentEvent de) {}
 
                     @Override
-                    public void insertUpdate(DocumentEvent de) {
-                        try {
-                            int size = Integer.parseInt(vertexSizeField.getText());
-                            if (size < MIN_VERTEX_SIZE) size = MIN_VERTEX_SIZE;
-
-                            if (size > MAX_VERTEX_SIZE) size = MAX_VERTEX_SIZE;
-
-
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                ((GraphPane) tabbedPane.getSelectedComponent()).setRadius(size);
-                                tabbedPane.getSelectedComponent().repaint();
-                            }
-                            if (vertexSizeSlider != null) vertexSizeSlider.setValue(size);
-
-                        } catch (Exception e) {
-                            System.err.println(e);
-                        }
-                    }
+                    public void insertUpdate(DocumentEvent de) {}
 
                     @Override
                     public void changedUpdate(DocumentEvent arg0) {
@@ -421,46 +404,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 new DocumentListener() {
 
                     @Override
-                    public void removeUpdate(DocumentEvent de) {
-                        try {
-
-                            int size = Integer.parseInt(labelSizeField.getText());
-                            if (size < MIN_LABEL_SIZE) size = MIN_LABEL_SIZE;
-                            if (size > MAX_LABEL_SIZE) size = MAX_LABEL_SIZE;
-
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                ((GraphPane) tabbedPane.getSelectedComponent()).setTextSize(size);
-                                tabbedPane.getSelectedComponent().repaint();
-                            }
-                            if (labelSizeSlider != null) {
-                                labelSizeSlider.setValue(size);
-                            }
-                        } catch (Exception e) {
-                            System.err.println(e);
-                        }
-
-                    }
+                    public void removeUpdate(DocumentEvent de) {}
 
                     @Override
-                    public void insertUpdate(DocumentEvent de) {
-                        try {
-
-                            int size = Integer.parseInt(labelSizeField.getText());
-                            if (size < MIN_LABEL_SIZE) size = MIN_LABEL_SIZE;
-                            if (size > MAX_LABEL_SIZE) size = MAX_LABEL_SIZE;
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                ((GraphPane) tabbedPane.getSelectedComponent()).setTextSize(size);
-
-                                tabbedPane.getSelectedComponent().repaint();
-                            }
-
-                            if (labelSizeSlider != null) {
-                                labelSizeSlider.setValue(size);
-                            }
-                        } catch (Exception e) {
-                            System.err.println(e);
-                        }
-                    }
+                    public void insertUpdate(DocumentEvent de) {}
 
                     @Override
                     public void changedUpdate(DocumentEvent arg0) {
@@ -493,20 +440,16 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         JPanel vertexSizeSliderPanel = new JPanel();
         vertexSizeSliderPanel.setBackground(rightColor);
-        //vertexSizeSliderPanel.setLayout(new BoxLayout(vertexSizeSliderPanel, BoxLayout.Y_AXIS));
         vertexSizeSliderPanel.setLayout(new BorderLayout());
         vertexSizeSliderPanel.add(new JLabel(new ImageIcon("pics/vertexResizeBig.png")), BorderLayout.PAGE_START);
         vertexSizeSliderPanel.add(vertexSizeSlider, BorderLayout.CENTER);
-        //vertexSizeSliderPanel.add(new JLabel(new ImageIcon("pics/vertexResizeSmall.png")));
         vertexSizeSliderPanel.add(vertexSizeField, BorderLayout.PAGE_END);
 
         JPanel labelSizeSliderPanel = new JPanel();
         labelSizeSliderPanel.setBackground(rightColor);
-        //labelSizeSliderPanel.setLayout(new BoxLayout(labelSizeSliderPanel, BoxLayout.Y_AXIS));
         labelSizeSliderPanel.setLayout(new BorderLayout());
         labelSizeSliderPanel.add(new JLabel(new ImageIcon("pics/labelResizeBig.png")), BorderLayout.PAGE_START);
         labelSizeSliderPanel.add(labelSizeSlider, BorderLayout.CENTER);
-        //labelSizeSliderPanel.add(new JLabel(new ImageIcon("pics/labelResizeSmall.png")));
         labelSizeSliderPanel.add(labelSizeField, BorderLayout.PAGE_END);
 
         sliderPanel.add(vertexSizeSliderPanel);
