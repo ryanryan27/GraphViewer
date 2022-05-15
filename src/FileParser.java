@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -534,6 +535,74 @@ public class FileParser {
         }
 
         return graphs;
+    }
+
+    public void saveSCD(GraphData[] graphs, File file, boolean append){
+
+        Graph graph = graphs[0].graph;
+        int[] degrees = graph.getDegrees();
+        int degree = degrees[0];
+        int maxNode = graph.getN();
+
+        try {
+            int[] stream = new int[maxNode * degree / 2];
+            if (append) {
+                int[] scdData = getSCDData(file);
+                if (scdData[0] != maxNode || scdData[1] != degree) {
+                    System.err.println(file.getName() + " contains graphs of size " + scdData[0] + " and degree " + scdData[1] + " which are incompatible with graphs of size " + maxNode + " and degree " + degree + ".");
+                    return;
+
+                }
+
+                DataInputStream dis = new DataInputStream(new FileInputStream(file));
+
+                int graphsToDo = scdData[2];
+
+                for (int graphcount = 0; graphcount < graphsToDo; graphcount++) {
+                    int index = readStream(dis);
+                    for (int i = index; i < maxNode * degree / 2; i++) {
+                        stream[i] = readStream(dis);
+                    }
+                }
+
+                dis.close();
+            }
+            DataOutputStream dos = new DataOutputStream(new FileOutputStream(file, append));
+            for (GraphData graphData : graphs) {
+                graph = graphData.graph;
+
+                int[] newStream = new int[maxNode * degree / 2];
+                int[][] arcs = graph.getArcs();
+                int count = 0;
+
+                for (int i = 0; i < maxNode; i++) {
+                    for (int j = 0; j < degrees[i]; j++) {
+                        if (arcs[i][j] > i + 1) {
+                            newStream[count++] = arcs[i][j];
+                        }
+                    }
+                }
+
+                int repeat = 0;
+                int index = 0;
+                while (index < maxNode * degree / 2 && newStream[index] == stream[index++]) {
+                    repeat++;
+                }
+
+                dos.writeByte(repeat);
+                for (int i = repeat; i < maxNode * degree / 2; i++) {
+                    dos.writeByte(newStream[i]);
+                }
+
+                stream = newStream;
+            }
+            dos.close();
+
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
     }
 
     public GraphData[] parseHCP(File file){
