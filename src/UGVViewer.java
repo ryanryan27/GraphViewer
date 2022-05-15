@@ -1600,185 +1600,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
     }
 
-    public void openGraphUGV(File file) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            int graphsToOpen;
-            long graphsToOpenLong = Long.parseLong(br.readLine());
-
-            if (graphsToOpenLong == 1) {
-
-                int N = Integer.parseInt(br.readLine());
-                String line = br.readLine();
-                StringTokenizer tokens = new StringTokenizer(line);
-                double xScale = Double.parseDouble(tokens.nextToken());
-                double yScale = Double.parseDouble(tokens.nextToken());
-                int xTopLeft = Integer.parseInt(tokens.nextToken());
-                int yTopLeft = Integer.parseInt(tokens.nextToken());
-                int radius = Integer.parseInt(tokens.nextToken());
-                String xPosesString = br.readLine();
-                String yPosesString = br.readLine();
-                StringTokenizer xTokens = new StringTokenizer(xPosesString);
-                StringTokenizer yTokens = new StringTokenizer(yPosesString);
-                double[] xPos = new double[N];
-                double[] yPos = new double[N];
-                for (int i = 0; i < N; i++) {
-                    xPos[i] = Double.parseDouble(xTokens.nextToken());
-                    yPos[i] = Double.parseDouble(yTokens.nextToken());
-                }
-                int[] degrees = new int[N];
-                int maxDegree = 0;
-                line = br.readLine();
-                tokens = new StringTokenizer(line);
-                for (int i = 0; i < N; i++) {
-                    degrees[i] = Integer.parseInt(tokens.nextToken());
-                    if (degrees[i] > maxDegree)
-                        maxDegree = degrees[i];
-                }
-
-                graph = new Graph(N, maxDegree);
-
-                for (int i = 0; i < N; i++) {
-                    String arcsString = br.readLine();
-                    tokens = new StringTokenizer(arcsString);
-                    for (int j = 0; j < degrees[i]; j++) {
-                        graph.addArc(i + 1, Integer.parseInt(tokens.nextToken()));
-                    }
-                }
-
-                br.readLine(); // Should be -1
-
-
-                for (int i = 0; i < N; i++) {
-                    graph.setXPos(i, xPos[i]);
-                    graph.setYPos(i, yPos[i]);
-                }
-
-                GraphPane graphPanel = makeGraphPanel();
-                graphPanel.setScale(xScale);
-                graphPanel.setTopLeft(xTopLeft, yTopLeft);
-                graphPanel.setRadius(radius);
-
-                tabbedPane.add(graphPanel, (file.getName()));
-                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-                createWindowItem(graphPanel, file.getName());
-
-
-                validate();
-                repaint();
-
-
-            } else {
-                boolean[] openGraphs = new boolean[0];
-                boolean useOpenGraphs = true;
-                long[][] graphChoices = new long[0][0];
-                if (graphsToOpenLong > Integer.MAX_VALUE) {
-                    // TOO BIG
-                    SelectFilesBlind sfb = new SelectFilesBlind(this, graphsToOpenLong);
-
-                    if (sfb.getCancelled())
-                        return;
-
-                    graphChoices = sfb.getGraphChoices();
-                    useOpenGraphs = false;
-                } else {
-                    graphsToOpen = (int) graphsToOpenLong;
-                    SelectFiles sf = new SelectFiles(this, file.getName(), graphsToOpen);
-
-                    if (sf.getCancelled())
-                        return;
-
-                    openGraphs = sf.getOpenGraphs();
-
-                }
-
-                int graphIndex = 0;
-
-                for (long graphcount = 0; graphcount < graphsToOpenLong; graphcount++) {
-
-                    int N = Integer.parseInt(br.readLine());
-                    String line = br.readLine();
-                    StringTokenizer tokens = new StringTokenizer(line);
-                    double xScale = Double.parseDouble(tokens.nextToken());
-                    double yScale = Double.parseDouble(tokens.nextToken());
-                    int xTopLeft = Integer.parseInt(tokens.nextToken());
-                    int yTopLeft = Integer.parseInt(tokens.nextToken());
-                    int radius = Integer.parseInt(tokens.nextToken());
-                    String xPosesString = br.readLine();
-                    String yPosesString = br.readLine();
-                    StringTokenizer xTokens = new StringTokenizer(xPosesString);
-                    StringTokenizer yTokens = new StringTokenizer(yPosesString);
-                    int[] xPos = new int[N];
-                    int[] yPos = new int[N];
-                    for (int i = 0; i < N; i++) {
-                        xPos[i] = Integer.parseInt(xTokens.nextToken());
-                        yPos[i] = Integer.parseInt(yTokens.nextToken());
-                    }
-                    int[] degrees = new int[N];
-                    int maxDegree = 0;
-                    line = br.readLine();
-                    tokens = new StringTokenizer(line);
-                    for (int i = 0; i < N; i++) {
-                        degrees[i] = Integer.parseInt(tokens.nextToken());
-                        if (degrees[i] > maxDegree)
-                            maxDegree = degrees[i];
-                    }
-
-                    int[][] arcs = new int[N][maxDegree];
-
-                    for (int i = 0; i < N; i++) {
-                        String arcsString = br.readLine();
-                        tokens = new StringTokenizer(arcsString);
-                        for (int j = 0; j < degrees[i]; j++) {
-                            arcs[i][j] = Integer.parseInt(tokens.nextToken());
-                        }
-                    }
-
-
-                    br.readLine(); // Should be -1
-
-                    if ((useOpenGraphs && openGraphs[(int) graphcount]) || (!useOpenGraphs && graphChoices[0][graphIndex] - 1 <= graphcount && graphChoices[1][graphIndex] - 1 >= graphcount)) {
-                        if (!useOpenGraphs && graphChoices[1][graphIndex] - 1 == graphcount)
-                            graphIndex++;
-                        graph = new Graph(N, maxDegree);
-
-
-                        for (int i = 0; i < N; i++)
-                            for (int j = 0; j < degrees[i]; j++)
-                                graph.addArc(i + 1, arcs[i][j]);
-
-
-                        for (int i = 0; i < N; i++) {
-                            graph.setXPos(i, xPos[i]);
-                            graph.setYPos(i, yPos[i]);
-                        }
-
-                        GraphPane graphPanel = makeGraphPanel();
-
-                        graphPanel.setScale(xScale);
-                        graphPanel.setTopLeft(xTopLeft, yTopLeft);
-                        graphPanel.setRadius(radius);
-
-                        tabbedPane.add(graphPanel, (file.getName() + " #" + (graphcount + 1)));
-                        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
-                        createWindowItem(graphPanel, file.getName() + " #" + (graphcount + 1));
-
-                        validate();
-                        repaint();
-                        if (!useOpenGraphs && graphIndex >= graphChoices[0].length) break;
-
-                    }
-                }
-                br.close();
-
-            }
-
-        } catch (Exception e) {
-            System.err.println(e);
-        }
-    }
-
     public void openFile(File file, int type){
         FileParser fp = new FileParser();
         GraphData[] graphs;
@@ -1786,7 +1607,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         if(type == FileParser.FILE_GML){
             graphs = fp.parseGML(file);
-        }else {
+        } else if(type == FileParser.FILE_UGV){
+            graphs = fp.parseUGV(file);
+        } else {
             graphs = new GraphData[0];
         }
 
@@ -2952,7 +2775,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                 openGraphEdgeList(file);
                             } else if (extensionName.equals(ugvName)) {
                                 settings_loadFilter = 5;
-                                openGraphUGV(file);
+                                openFile(file, FileParser.FILE_UGV);
                             } else if (extensionName.equals(gmlName)) {
                                 settings_loadFilter = 6;
                                 openFile(file, FileParser.FILE_GML);

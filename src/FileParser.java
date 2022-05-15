@@ -1,16 +1,17 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 public class FileParser {
 
     static final int FILE_GML = 0;
-    public final int FILE_UGV = 1;
-    public final int FILE_EDGE_LIST = 2;
-    public final int FILE_G6 = 3;
-    public final int FILE_ASC = 4;
-    public final int FILE_HCP = 5;
-    public final int FILE_SCD = 6;
+    static final int FILE_UGV = 1;
+    static final int FILE_EDGE_LIST = 2;
+    static final int FILE_G6 = 3;
+    static final int FILE_ASC = 4;
+    static final int FILE_HCP = 5;
+    static final int FILE_SCD = 6;
 
 
     public GraphData[] parseGML(File file){
@@ -190,6 +191,86 @@ public class FileParser {
         }
 
 
+    }
+
+    public GraphData[] parseUGV(File file){
+        GraphData[] graphs = new GraphData[0];
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+
+            int g_count = Integer.parseInt(br.readLine());
+
+            graphs = new GraphData[g_count];
+
+            for (int i = 0; i < g_count; i++) {
+                graphs[i] = new GraphData(new Graph(0,0));
+            }
+
+
+            for (int gr = 0; gr < g_count; gr++) {
+
+                int N = Integer.parseInt(br.readLine());
+                String line = br.readLine();
+                StringTokenizer tokens = new StringTokenizer(line);
+                double scale = Double.parseDouble(tokens.nextToken());
+                tokens.nextToken(); //skip yScale
+                int xTopLeft = Integer.parseInt(tokens.nextToken());
+                int yTopLeft = Integer.parseInt(tokens.nextToken());
+                int radius = Integer.parseInt(tokens.nextToken());
+                String xPosesString = br.readLine();
+                String yPosesString = br.readLine();
+                StringTokenizer xTokens = new StringTokenizer(xPosesString);
+                StringTokenizer yTokens = new StringTokenizer(yPosesString);
+                double[] xPos = new double[N];
+                double[] yPos = new double[N];
+                for (int i = 0; i < N; i++) {
+                    xPos[i] = Double.parseDouble(xTokens.nextToken());
+                    yPos[i] = Double.parseDouble(yTokens.nextToken());
+                }
+                int[] degrees = new int[N];
+                int maxDegree = 0;
+                line = br.readLine();
+                tokens = new StringTokenizer(line);
+                for (int i = 0; i < N; i++) {
+                    degrees[i] = Integer.parseInt(tokens.nextToken());
+                    if (degrees[i] > maxDegree) {
+                        maxDegree = degrees[i];
+                    }
+                }
+
+                Graph graph = graphs[gr].graph;
+                graph.setN(N);
+
+                for (int i = 0; i < N; i++) {
+                    String arcsString = br.readLine();
+                    tokens = new StringTokenizer(arcsString);
+                    for (int j = 0; j < degrees[i]; j++) {
+                        graph.addArc(i + 1, Integer.parseInt(tokens.nextToken()));
+                    }
+                }
+
+                br.readLine(); // Should be -1
+
+
+                for (int i = 0; i < N; i++) {
+                    graph.setXPos(i, xPos[i]);
+                    graph.setYPos(i, yPos[i]);
+                }
+
+                graphs[gr].scale = scale;
+                graphs[gr].x_offset = xTopLeft;
+                graphs[gr].y_offset = yTopLeft;
+                graphs[gr].radius = radius;
+
+            }
+
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+
+        return graphs;
     }
 
 
