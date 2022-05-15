@@ -477,6 +477,67 @@ public class FileParser {
         return graphs;
     }
 
+    public void saveGraph6(GraphData[] graphs, File file, boolean append){
+        try {
+            for (GraphData graphData : graphs) {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(file, append));
+                Graph graph = graphData.graph;
+
+                if (append) bw.newLine();
+
+                String line = "";
+
+                if (graph.getN() < 63) {
+                    line += (char) (graph.getN() + 63);
+                } else if (graph.getN() < 258048) {
+                    line += (char) (126);
+
+                    int number = graph.getN();
+
+                    String binary = "";
+                    for (int i = 17; i >= 0; i--)
+                        if (number > Math.pow(2, i)) {
+                            number -= (int) Math.pow(2, i);
+                            binary += "1";
+                        } else
+                            binary += "0";
+
+                    for (int i = 0; i < 3; i++) {
+                        String sixBinary = binary.substring(6 * i, 6 * (i + 1));
+                        int binaryNumber = binaryToInt(sixBinary);
+                        line += (char) (binaryNumber + 63);
+                    }
+                } else {
+                    System.out.println("UGV does not support graphs of this size.");
+                }
+
+                int input = 0;
+                int count = 0;
+                for (int i = 0; i < graph.getN(); i++)
+                    for (int j = 0; j < i; j++) {
+                        count++;
+                        if (graph.isArc(i + 1, j + 1))
+                            input += (int) Math.pow(2, 6 - count);
+
+                        if (count == 6) {
+                            line += (char) (63 + input);
+                            count = 0;
+                            input = 0;
+                        }
+                    }
+
+                if (count > 0)
+                    line += (char) (63 + input);
+                bw.write(line);
+                bw.close();
+
+                append = true;
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    }
+
     public GraphData[] parseSCD(File file){
         GraphData[] graphs = new GraphData[0];
 

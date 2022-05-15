@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.StringTokenizer;
 import java.awt.image.*;
 import java.awt.*;
 import javax.swing.filechooser.*;
@@ -963,14 +962,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-    public int binaryToInt(String binary) {
-        int number = 0;
-        for (int i = 1; i <= binary.length(); i++)
-            number += Math.pow(2, Integer.parseInt("" + binary.charAt(binary.length() - i)));
-
-        return number;
-    }
-
 
     public void saveGraphASC(String filename, GraphPane graphPane) {
         File fileToSave = new File(filename);
@@ -1179,174 +1170,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-    public void saveGraph6(String filename, GraphPane graphPane) {
-
-        Graph graph = graphPane.getGraph();
-
-        File fileToSave = new File(filename);
-        boolean save = true;
-        boolean append = false;
-
-        if (fileToSave.exists()) {
-            String[] options = new String[3];
-            options[0] = "Overwrite";
-            options[1] = "Append";
-            options[2] = "Cancel";
-
-            JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-            int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[2]);
-            if (option == JOptionPane.NO_OPTION)
-                append = true;
-            if (option == JOptionPane.CANCEL_OPTION)
-                save = false;
-        }
-
-        if (save) {
-            try {
-                BufferedWriter bw = new BufferedWriter(new FileWriter(fileToSave, append));
-
-                if (append)
-                    bw.newLine();
-
-                String line = "";
-
-                if (graph.getN() < 63) {
-                    line += (char) (graph.getN() + 63);
-                } else if (graph.getN() < 258048) {
-                    line += (char) (126);
-
-                    int number = graph.getN();
-
-                    String binary = "";
-                    for (int i = 17; i >= 0; i--)
-                        if (number > Math.pow(2, i)) {
-                            number -= (int) Math.pow(2, i);
-                            binary += "1";
-                        } else
-                            binary += "0";
-
-                    for (int i = 0; i < 3; i++) {
-                        String sixBinary = binary.substring(6 * i, 6 * (i + 1));
-
-                        int binaryNumber = binaryToInt(sixBinary);
-                        line += (char) (binaryNumber + 63);
-                    }
-                } else {
-                    System.out.println("UGV does not support graphs of this size.");
-                }
-
-                //System.out.println("c");
-                int input = 0;
-                int count = 0;
-                for (int i = 0; i < graph.getN(); i++)
-                    for (int j = 0; j < i; j++) {
-                        count++;
-                        if (graph.isArc(i + 1, j + 1))
-                            input += (int) Math.pow(2, 6 - count);
-
-                        if (count == 6) {
-                            line += (char) (63 + input);
-                            count = 0;
-                            input = 0;
-                        }
-                    }
-
-                if (count > 0)
-                    line += (char) (63 + input);
-                bw.write(line);
-                bw.close();
-
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-
-        }
-
-    }
-
-    public void saveMultipleGraphs6(String filename, GraphPane[] graphPanes) {
-        File fileToSave = new File(filename);
-        boolean save = true;
-        boolean append = false;
-
-        if (fileToSave.exists()) {
-            String[] options = new String[3];
-            options[0] = "Overwrite";
-            options[1] = "Append";
-            options[2] = "Cancel";
-
-            JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
-            int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[2]);
-            if (option == JOptionPane.NO_OPTION)
-                append = true;
-            if (option == JOptionPane.CANCEL_OPTION)
-                save = false;
-        }
-
-        if (save) {
-            try {
-                for (GraphPane graphPane : graphPanes) {
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(fileToSave, append));
-                    Graph graph = graphPane.getGraph();
-
-                    if (append) bw.newLine();
-
-                    String line = "";
-
-                    if (graph.getN() < 63) {
-                        line += (char) (graph.getN() + 63);
-                    } else if (graph.getN() < 258048) {
-                        line += (char) (126);
-
-                        int number = graph.getN();
-
-                        String binary = "";
-                        for (int i = 17; i >= 0; i--)
-                            if (number > Math.pow(2, i)) {
-                                number -= (int) Math.pow(2, i);
-                                binary += "1";
-                            } else
-                                binary += "0";
-
-                        for (int i = 0; i < 3; i++) {
-                            String sixBinary = binary.substring(6 * i, 6 * (i + 1));
-                            int binaryNumber = binaryToInt(sixBinary);
-                            line += (char) (binaryNumber + 63);
-                        }
-                    } else {
-                        System.out.println("UGV does not support graphs of this size.");
-                    }
-
-                    int input = 0;
-                    int count = 0;
-                    for (int i = 0; i < graph.getN(); i++)
-                        for (int j = 0; j < i; j++) {
-                            count++;
-                            if (graph.isArc(i + 1, j + 1))
-                                input += (int) Math.pow(2, 6 - count);
-
-                            if (count == 6) {
-                                line += (char) (63 + input);
-                                count = 0;
-                                input = 0;
-                            }
-                        }
-
-                    if (count > 0)
-                        line += (char) (63 + input);
-                    bw.write(line);
-                    bw.close();
-
-                    append = true;
-                }
-            } catch (Exception e) {
-                System.err.println(e);
-            }
-
-        }
-
-    }
-
     public void saveGraphHCP(String filename, GraphPane graphPane) {
         File fileToSave = new File(filename);
 
@@ -1404,14 +1227,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     }
 
-    public void saveGraph(String filename, GraphPane gp, int type) {
+    public void saveGraphMultiple(String filename, GraphPane gp, int type) {
         GraphPane[] gps = new GraphPane[1];
         gps[0] = gp;
-        saveGraph(filename, gps, type);
+        saveGraphMultiple(filename, gps, type);
 
     }
 
-    public void saveGraph(String filename, GraphPane[] graphPanes, int type) {
+    public void saveGraphMultiple(String filename, GraphPane[] graphPanes, int type) {
 
         File file = new File(filename);
 
@@ -1426,10 +1249,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
             JOptionPane jop = new JOptionPane("", JOptionPane.WARNING_MESSAGE);
             int option = JOptionPane.showOptionDialog(parent, "File " + filename + " already exists. Do you want to overwrite the file, append to the file, or cancel saving?", "WARNING: File already exists!", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, jop.getIcon(), options, options[2]);
-            if (option == JOptionPane.NO_OPTION)
+            if (option == JOptionPane.NO_OPTION) {
                 append = true;
-            if (option == JOptionPane.CANCEL_OPTION)
+            }
+            if (option == JOptionPane.CANCEL_OPTION) {
                 save = false;
+            }
 
 
         }
@@ -1457,6 +1282,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             fp.saveUGV(graphs, file, append);
         } else if(type == FileParser.FILE_SCD){
             fp.saveSCD(graphs, file, append);
+        } else if(type == FileParser.FILE_G6){
+            fp.saveGraph6(graphs, file, append);
         }
 
     }
@@ -1625,9 +1452,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                     if (!filename.endsWith(".g6")) {
                                         filename = filename + ".g6";
                                     }
-
-
-                                    saveGraph6(jfc.getSelectedFile().getParent() + "//" + filename, graphPane);
+                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_G6);
                                 } else if (extensionName.equals(hcpName)) {
                                     settings_saveFilter = 2;
                                     String filename = jfc.getSelectedFile().getName();
@@ -1644,7 +1469,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                         filename = filename + ".scd";
                                     }
 
-                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_SCD);
+                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_SCD);
 
                                 } else if (extensionName.equals(edgeListName)) {
                                     settings_saveFilter = 4;
@@ -1661,14 +1486,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                     if (!filename.endsWith(".ugv")) {
                                         filename = filename + ".ugv";
                                     }
-                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_UGV);
+                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_UGV);
                                 } else if (extensionName.equals(gmlName)) {
                                     settings_saveFilter = 6;
                                     String filename = jfc.getSelectedFile().getName();
                                     if (!filename.endsWith(".gml")) {
                                         filename = filename + ".gml";
                                     }
-                                    saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_GML);
+                                    saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPane, FileParser.FILE_GML);
                                 }
 
                                 graphPane.getUndoState().setLastSave();
@@ -1757,8 +1582,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                                 filename = filename + ".g6";
                                             }
 
-
-                                            saveMultipleGraphs6(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes);
+                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_G6);
                                         } else if (extensionName.equals(scdName)) {
                                             settings_saveFilter = 3;
                                             String filename = jfc.getSelectedFile().getName();
@@ -1766,7 +1590,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                                 filename = filename + ".scd";
                                             }
 
-                                            saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_SCD);
+                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_SCD);
 
                                         } else if (extensionName.equals(ugvName)) {
                                             settings_saveFilter = 5;
@@ -1774,14 +1598,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                                             if (!filename.endsWith(".ugv")) {
                                                 filename = filename + ".ugv";
                                             }
-                                            saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_UGV);
+                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_UGV);
                                         } else if (extensionName.equals(gmlName)) {
                                             settings_saveFilter = 6;
                                             String filename = jfc.getSelectedFile().getName();
                                             if (!filename.endsWith(".gml")) {
                                                 filename = filename + ".gml";
                                             }
-                                            saveGraph(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_GML);
+                                            saveGraphMultiple(jfc.getSelectedFile().getParent() + "//" + filename, graphPanes, FileParser.FILE_GML);
                                         }
 
                                         for (int i = 0; i < graphPanes.length; i++) {
