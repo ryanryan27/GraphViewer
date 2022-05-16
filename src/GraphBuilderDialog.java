@@ -53,6 +53,11 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    boolean cancelled;
 
+   /**
+    * Creates a dialog box to specify a new graph to generate, along with required inputs for that graph.
+    * @param frame parent frame from which to create this dialog.
+    * @param openGraphs Tabbed pane that holds all open graph panes.
+    */
    public GraphBuilderDialog(JFrame frame, JTabbedPane openGraphs)
    {
       super(frame, true);
@@ -110,6 +115,9 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Builds the component holding list of available graph families or operators.
+    */
    private void buildLeftPanel(){
       buildChoiceList();
       leftPanel = new JPanel();
@@ -128,6 +136,9 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Builds the input options for each graph family or operator.
+    */
    private void buildRightPanel(){
       buildInputList();
       rightPanel = new JPanel();
@@ -149,6 +160,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Builds the list component of the available graph families or operators.
+    * Specify new ones here.
+    */
    private void buildChoiceList(){
 
       Vector<ChoiceItem> choices = new Vector<>();
@@ -177,6 +192,9 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Builds each individual input option for each graph family or operator.
+    */
    private void buildInputList(){
       inputPanel = new JPanel();
       inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.PAGE_AXIS));
@@ -239,6 +257,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Changes visibility of different input options based on which graph family or operator is selected.
+    * @param choice the currently selected choice from the list.
+    */
    private void updateInputList(ChoiceItem choice){
 
       intInputOne.setVisible(false);
@@ -266,6 +288,9 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Calls graph builder to generate the graph from the selected option and inputs.
+    */
    private void evaluateGraph(){
       ChoiceItem choice = choiceList.getSelectedValue();
 
@@ -318,6 +343,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Creates a dialog box to generate a new graph for the Build button.
+    * @param input_num which input slot was clicked.
+    */
    private void buildGraph(int input_num){
       GraphBuilderDialog gbd = new GraphBuilderDialog(parent, openGraphs);
 
@@ -334,6 +363,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       }
    }
 
+   /**
+    * Creates a dialog box to select an existing graph for the Select button.
+    * @param input_num which input slot was clicked.
+    */
    private void selectGraph(int input_num){
 
       GraphChooserDialog gcd = new GraphChooserDialog(parent, openGraphs);
@@ -354,19 +387,32 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    }
 
+   /**
+    * Returns the graph generated from the selected options.
+    * @return the generated graph.
+    */
    public Graph getGraph(){
       return output;
    }
 
+   /**
+    * Returns the name of the generated graph.
+    * @return the name of the generated graph.
+    */
    public String getName(){
       return output_name;
    }
 
+   /**
+    * Returns whether the dialog was closed before being completed.
+    * @return whether the dialog was cancelled.
+    */
    public boolean cancelled(){
       return cancelled;
    }
 
-   private class ChoiceItem{
+
+   private static class ChoiceItem{
 
       static final int INTEGER = 0;
       static final int GRAPH = 1;
@@ -374,16 +420,31 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       int[] inputs;
       String name;
 
+      /**
+       * Creates a new list option with the given name and only one input.
+       * @param name name of the list option.
+       * @param input_type ChoiceItem.INTEGER if the input is integer or ChoiceItem.GRAPH if the input is a graph.
+       */
       ChoiceItem(String name, int input_type){
          inputs = new int[]{input_type};
          this.name = name;
       }
 
+      /**
+       * Creates a new list option with the given name and only one input.
+       * @param name name of the list option.
+       * @param input1 ChoiceItem.INTEGER if the input is integer or ChoiceItem.GRAPH if the input is a graph.
+       * @param input2 ChoiceItem.INTEGER if the input is integer or ChoiceItem.GRAPH if the input is a graph.
+       */
       ChoiceItem(String name, int input1, int input2){
          inputs = new int[]{input1, input2};
          this.name = name;
       }
 
+      /**
+       * Returns the specified name of list item.
+       * @return the name assigned to the list item.
+       */
       @Override
       public String toString(){
          return name;

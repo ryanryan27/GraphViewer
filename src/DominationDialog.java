@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class DominationDialog extends JDialog implements ActionListener
 {
@@ -19,7 +20,11 @@ public class DominationDialog extends JDialog implements ActionListener
    boolean cancelled = true;
 
 
-
+   /**
+    * Creates and shows a new dialog to edit the current graph's dominating set.
+    * @param frame parent frame for the dialog.
+    * @param domset current dominating function values for each vertex.
+    */
    public DominationDialog(JFrame frame, int[] domset)
    {
       super(frame, true);
@@ -31,18 +36,15 @@ public class DominationDialog extends JDialog implements ActionListener
       setResizable(false);
       setLocationRelativeTo(parent);
 
-      StringBuilder domstring = new StringBuilder();
+      StringJoiner domstring = new StringJoiner(" ");
 
       for (int i = 0; i < domsetorig.length; i++) {
          if(domset[i] == 1) {
-            domstring.append(i + 1);
-            domstring.append(" ");
+            domstring.add(Integer.toString(i+1));
          } else if(domset[i] == 2){
-            domstring.append(-1*(i+1));
-            domstring.append(" ");
+            domstring.add(Integer.toString(-1*(i+1)));
          }
       }
-
 
 
       domsetArea = new JTextArea(domstring.toString(), 5, 40);
@@ -52,7 +54,6 @@ public class DominationDialog extends JDialog implements ActionListener
       okButton.addActionListener(this);
       cancelButton = new JButton("Cancel");
       cancelButton.addActionListener(this);
-
 
 
       JPanel buttonPane = new JPanel();
@@ -75,13 +76,9 @@ public class DominationDialog extends JDialog implements ActionListener
    {
       if(e.getSource() == okButton)
       {
-
-
-
          try{
 
             domset = new int[domsetorig.length];
-
 
             String[] verts = domsetArea.getText().split("\\s+");
 
@@ -108,8 +105,6 @@ public class DominationDialog extends JDialog implements ActionListener
          }
 
 
-
-
       }
       if(e.getSource() == cancelButton)
       {
@@ -118,11 +113,19 @@ public class DominationDialog extends JDialog implements ActionListener
       }
    }
 
+   /**
+    * Returns whether the dialog was closed before being completed.
+    * @return whether the dialog was cancelled.
+    */
    public boolean getCancelled()
    {
       return cancelled;
    }
 
+   /**
+    * Returns an array containing the dominating function values for each vertex.
+    * @return array containing values of 0,1 or 2 for each vertex.
+    */
    public int[] getDomset(){
       return domset;
    }

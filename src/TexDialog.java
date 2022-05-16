@@ -11,7 +11,6 @@ public class TexDialog extends JDialog implements ActionListener
 
    Graph graph;
 
-
    JScrollPane scrollPane;
    JTextArea texArea;
    JButton generateButton, saveButton, closeButton;
@@ -23,9 +22,12 @@ public class TexDialog extends JDialog implements ActionListener
    boolean doNewLine = false;
 
 
-
-   public TexDialog(JFrame frame, Graph graph)
-   {
+   /**
+    * Creates a new dialog box to generate TeX code for displaying the given graph.
+    * @param frame the parent frame from which to create this dialog.
+    * @param graph the graph to be converted to TeX code.
+    */
+   public TexDialog(JFrame frame, Graph graph) {
       super(frame, true);
       parent = frame;
 
@@ -71,20 +73,13 @@ public class TexDialog extends JDialog implements ActionListener
       setVisible(true);
    }
 
-   public void actionPerformed(ActionEvent e)
-   {
-
+   public void actionPerformed(ActionEvent e) {
       doLabel = labels.getState();
       doNewLine = newLine.getState();
 
       if(e.getSource() == generateButton)
       {
-
-         //TODO print the tex to the dialog
-
          texArea.setText(generateTex());
-
-
       }
       else if(e.getSource() == saveButton){
          //TODO save the tex to a file
@@ -96,6 +91,10 @@ public class TexDialog extends JDialog implements ActionListener
       }
    }
 
+   /**
+    * Extracts the features of the current graph and generates the TeX code as one string.
+    * @return a string containing the full TeX code to display the graph.
+    */
    private String generateTex() {
 
       double[] topleft = graph.getTopLeft();

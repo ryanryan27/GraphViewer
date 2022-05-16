@@ -3,6 +3,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.StringJoiner;
 import java.util.StringTokenizer;
 
 public class EditEdgesDialog extends JDialog implements ActionListener
@@ -21,6 +22,13 @@ public class EditEdgesDialog extends JDialog implements ActionListener
    int newNodes;
    boolean cancelled = true;
 
+   /**
+    * Creates a new dialog box to modify a given edge list.
+    * @param frame parent frame from which to create the dialog.
+    * @param a 2d array where first input specifies vertex number and the associated 1d array contains the adjacent vertices.
+    * @param d number of adjacent vertices for each given vertex.
+    * @param N total number of vertices in related edge list.
+    */
    public EditEdgesDialog(JFrame frame, int[][] a, int[] d, int N)
    {
       super(frame, true);
@@ -34,14 +42,16 @@ public class EditEdgesDialog extends JDialog implements ActionListener
       setLocationRelativeTo(parent);
 
 
+      StringJoiner edgeJoiner = new StringJoiner("\n");
+      for(int i=0; i<nodes; i++) {
+         for(int j=0; j<degrees[i]; j++) {
+            if((i+1) < arcs[i][j]) {
+               edgeJoiner.add(((i+1) + " " + arcs[i][j]));
+            }
+         }
+      }
    
-      String edgeString = "";
-      for(int i=0; i<nodes; i++)
-         for(int j=0; j<degrees[i]; j++)
-            if((i+1) < arcs[i][j])
-               edgeString += ((i+1) + " " + arcs[i][j] + "\n");
-   
-      edgeArea = new JTextArea(edgeString,20,15);
+      edgeArea = new JTextArea(edgeJoiner.toString(),20,15);
       scrollPane = new JScrollPane(edgeArea);
       
       JPanel numberOfVerticesPane = new JPanel();
@@ -50,12 +60,6 @@ public class EditEdgesDialog extends JDialog implements ActionListener
       numberOfVerticesPane.add(numberOfVerticesField);
    
       contourCheckBox = new JCheckBox("Arrange vertices in a circle:   ",false);
-   
-      //JPanel contourPane = new JPanel();
-   
-   //contourPane.add(new JLabel("Arrange vertices in a circle: "));
-     // contourPane.add(
-   
    
       okButton = new JButton("OK");
       okButton.addActionListener(this);
@@ -94,13 +98,13 @@ public class EditEdgesDialog extends JDialog implements ActionListener
             numberOfVertices = Integer.parseInt(numberOfVerticesField.getText());
             if(numberOfVertices < 0)
             {
-               jop.showMessageDialog(this,("There must be a positive number of vertices!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
+               JOptionPane.showMessageDialog(this,("There must be a positive number of vertices!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
                return;
             }
          }
          catch(Exception ex)
          {
-            jop.showMessageDialog(this,("There must be an integer number of vertices!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,("There must be an integer number of vertices!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
             return;
          }
          String newEdgesString = edgeArea.getText();
@@ -109,7 +113,7 @@ public class EditEdgesDialog extends JDialog implements ActionListener
          int entries = tokens.countTokens();
          if(entries % 2 == 1)
          {
-            jop.showMessageDialog(this,("Exactly two entries per row must be entered in the edge list!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,("Exactly two entries per row must be entered in the edge list!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
             return;
          }
          int [][]readInArcs = new int[entries/2][2];
@@ -124,19 +128,19 @@ public class EditEdgesDialog extends JDialog implements ActionListener
                   continue;
                if(tokens.countTokens() != 2)
                {
-                  jop.showMessageDialog(this,("Exactly two entries per row must be entered in the edge list!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
+                  JOptionPane.showMessageDialog(this,("Exactly two entries per row must be entered in the edge list!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
                   return;
                }
                int v1 = Integer.parseInt(tokens.nextToken());
                int v2 = Integer.parseInt(tokens.nextToken());
                if(v1 < 1 || v2 < 1)
                {
-                  jop.showMessageDialog(this,("All entries in the edge list must be positive!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
+                  JOptionPane.showMessageDialog(this,("All entries in the edge list must be positive!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
                   return;
                }
                if(v1 == v2)
                {
-                  jop.showMessageDialog(this,("Self-loops are not permitted in UGV!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
+                  JOptionPane.showMessageDialog(this,("Self-loops are not permitted in UGV!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
                   return;
                }
                if(v1 > maximum)
@@ -151,7 +155,7 @@ public class EditEdgesDialog extends JDialog implements ActionListener
                      
          catch(Exception ex)
          {
-            jop.showMessageDialog(this,("Only integer values may be entered in the edge list!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,("Only integer values may be entered in the edge list!"),"Incorrect format",JOptionPane.ERROR_MESSAGE);
             return;
          }
         
@@ -160,22 +164,24 @@ public class EditEdgesDialog extends JDialog implements ActionListener
             
          if(numberOfVertices < maximum)
          {
-            //jop.showMessageDialog(this,("This edge list requires at least " + maximum + " vertices!"),"Not enough vertices",JOptionPane.ERROR_MESSAGE);
-            //return;
             numberOfVertices = maximum;
          }
       		
          newNodes = numberOfVertices;
          newDegrees = new int[numberOfVertices];
       		
-         for(int i=0; i<entries/2; i++)
-            for(int j=0; j<2; j++)
+         for(int i=0; i<entries/2; i++) {
+            for(int j=0; j<2; j++) {
                newDegrees[readInArcs[i][j]-1]++;
+            }
+         }
       	
          int maxDegree = 0;
-         for(int i=0; i<newNodes; i++)
-            if(newDegrees[i] > maxDegree)
+         for(int i=0; i<newNodes; i++) {
+            if(newDegrees[i] > maxDegree) {
                maxDegree = newDegrees[i];
+            }
+         }
       
       	
          newArcs = new int[newNodes][maxDegree];
@@ -188,20 +194,23 @@ public class EditEdgesDialog extends JDialog implements ActionListener
             int v1 = readInArcs[i][0];
             int v2 = readInArcs[i][1];
             boolean enter = true;
-            for(int j=0; j<count[v1-1]; j++)
+            for(int j=0; j<count[v1-1]; j++) {
                if(newArcs[v1-1][j] == v2)
                {
                   enter = false;
+                  break;
                }
-            for(int j=0; j<count[v2-1]; j++)
+            }
+            for(int j=0; j<count[v2-1]; j++) {
                if(newArcs[v2-1][j] == v1)
                {
                   enter = false;
+                  break;
                }
+            }
                
          
-            if(enter)
-            {
+            if(enter) {
                newArcs[v1-1][count[v1-1]++] = v2;
                newArcs[v2-1][count[v2-1]++] = v1;
             }
@@ -209,33 +218,33 @@ public class EditEdgesDialog extends JDialog implements ActionListener
       	
          int oldMaxDegree = maxDegree;
          maxDegree = 0;
-         for(int i=0; i<newNodes; i++)
-            for(int j=0; j<oldMaxDegree+1; j++)
-            {
-               if(j == oldMaxDegree)
-               {
+         for(int i=0; i<newNodes; i++) {
+            for(int j=0; j<oldMaxDegree+1; j++) {
+               if(j == oldMaxDegree) {
                   newDegrees[i] = oldMaxDegree;
-                  if(oldMaxDegree > maxDegree)
+                  if(oldMaxDegree > maxDegree) {
                      maxDegree = oldMaxDegree;
+                  }
                   break;
                }
-               if(newArcs[i][j] == 0)
-               {
+               if(newArcs[i][j] == 0) {
                   newDegrees[i] = j;
-                  if(j > maxDegree)
+                  if(j > maxDegree) {
                      maxDegree = j;
+                  }
                   break;
                }
-            
+
             }
+         }
                
                
          if(maxDegree != oldMaxDegree)
          {
-            int updatedNewArcs[][] = new int[newNodes][maxDegree];
-            for(int i=0; i<newNodes; i++)
-               for(int j=0; j<maxDegree; j++)
-                  updatedNewArcs[i][j] = newArcs[i][j];
+            int[][] updatedNewArcs = new int[newNodes][maxDegree];
+            for(int i=0; i<newNodes; i++) {
+               System.arraycopy(newArcs[i], 0, updatedNewArcs[i], 0, maxDegree);
+            }
          	
             newArcs = updatedNewArcs;	
          }
@@ -250,27 +259,47 @@ public class EditEdgesDialog extends JDialog implements ActionListener
          dispose();
       }
    }
-   
+
+   /**
+    * Returns whether the dialog was closed before being completed.
+    * @return whether the dialog was cancelled.
+    */
    public boolean getCancelled()
    {
       return cancelled;
    }
 
+   /**
+    * Gets boolean on if to arrange the vertices in a circle.
+    * @return true if vertices should be arranged, false otherwise.
+    */
    public boolean getArrangeContour()
    {
       return contourCheckBox.isSelected();
    }
-   
+
+   /**
+    * Gets the updated edge list in array form.
+    * @return 2D array where first input is vertex number and the associated array contains adjacent vertices.
+    */
    public int[][] getArcs()
    {
       return newArcs;
    }
-	
+
+   /**
+    * Gets an array containing the number of adjacent vertices for each vertex.
+    * @return array containing the number of incident edges for each vertex.
+    */
    public int[] getDegrees()
    {
       return newDegrees;
    }
-	
+
+   /**
+    * Gets the greatest of the highest number vertex specified, or the original number of vertices.
+    * @return new number of vertices.
+    */
    public int getNodes()
    {
       return newNodes;

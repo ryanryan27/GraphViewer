@@ -23,12 +23,15 @@ public class ArrangeGridDialog extends JDialog implements ActionListener
    boolean cancelled = true;
 
 
-
+   /**
+    * Creates a dialog box where a number of columns, a spacing, and which direction vertices are labelled can be specified.
+    * Used to rearrange a graph onto a grid.
+    * @param frame parent frame for the dialog box.
+    */
    public ArrangeGridDialog(JFrame frame)
    {
       super(frame, true);
       parent = frame;
-
 
       setSize(200,180);
       setResizable(false);
@@ -77,9 +80,6 @@ public class ArrangeGridDialog extends JDialog implements ActionListener
    {
       if(e.getSource() == okButton)
       {
-
-
-
          try{
 
             width = Integer.parseInt(widthBox.getText());
@@ -94,9 +94,6 @@ public class ArrangeGridDialog extends JDialog implements ActionListener
             return;
          }
 
-
-
-
       }
       if(e.getSource() == cancelButton)
       {
@@ -105,19 +102,35 @@ public class ArrangeGridDialog extends JDialog implements ActionListener
       }
    }
 
+   /**
+    * Returns whether the dialog was closed before being completed.
+    * @return whether the dialog was cancelled.
+    */
    public boolean getCancelled()
    {
       return cancelled;
    }
 
+   /**
+    * Returns the number of columns specified for the grid.
+    * @return number of columns.
+    */
    public int getGridSize(){
       return width;
    }
 
+   /**
+    * Returns whether the vertex labelling is done horizontally (first row is 1 2 3 ...) or vertically (first column is 1 2 3 ...).
+    * @return true if ordering is vertical, false if ordering is horizontal.
+    */
    public boolean getVertical(){
       return vertical;
    }
 
+   /**
+    * Returns the spacing between the centres of vertices for the grid layout.
+    * @return grid spacing in pixels (when no zoom applied).
+    */
    public double getSpacing(){
       return spacing;
    }

@@ -1,8 +1,8 @@
 //package UGV;
 
    import javax.swing.*;
-   import java.awt.*;
    import java.awt.event.*;
+   import java.util.StringJoiner;
    import java.util.StringTokenizer;
 
    public class ArrangeDialog extends JDialog implements ActionListener
@@ -15,9 +15,15 @@
       JButton okButton, cancelButton;
       boolean cancelled = true;
       int []newContour;
-   
-   
-      public ArrangeDialog(JFrame frame, int N, int []co)
+
+
+      /**
+       * Creates and displays a new dialog box to specify a new ordering for the vertices.
+       * @param frame parent frame for this dialog to be created from.
+       * @param N number of vertices in the graph.
+       * @param co current vertex ordering.
+       */
+      public ArrangeDialog(JFrame frame, int N, int[] co)
       {
          super(frame, true);
          parent = frame;
@@ -27,12 +33,14 @@
          setSize(400,180);
          setResizable(false);
          setLocationRelativeTo(parent);
+
+         StringJoiner contourSJ = new StringJoiner(" ");
+
+         for (int j : contour) {
+            contourSJ.add(Integer.toString(j + 1));
+         }
       
-         String contourString = ("" + (contour[0]+1));
-         for(int i=1; i<contour.length; i++)
-            contourString += (" " + (contour[i]+1));
-      
-         contourArea = new JTextArea(contourString,6,30);
+         contourArea = new JTextArea(contourSJ.toString(),6,30);
          contourArea.setLineWrap(true);
          contourArea.setWrapStyleWord(true);
       
@@ -63,13 +71,16 @@
       {
          if(e.getSource() == okButton)
          {
-            JOptionPane jop = new JOptionPane();
-            newContour = new int[nodes];
             String contourText = contourArea.getText();
             StringTokenizer tokens = new StringTokenizer(contourText);
-            boolean check[] = new boolean[nodes];  
-            for(int i=0; i<nodes; i++)
+            boolean[] check = new boolean[nodes];
+
+            for(int i=0; i<nodes; i++) {
                check[i] = false;
+            }
+
+            newContour = new int[nodes];
+
             try
             {
                for(int i=0; i<nodes; i++)
@@ -77,7 +88,7 @@
                   if(!tokens.hasMoreTokens())
                   {
                   // ERROR: Not enough numbers
-                     jop.showMessageDialog(this,("Only " + i + " vertices entered, but the graph contains " + nodes + " vertices!"),"Not enough vertices",JOptionPane.ERROR_MESSAGE);
+                     JOptionPane.showMessageDialog(this,("Only " + i + " vertices entered, but the graph contains " + nodes + " vertices!"),"Not enough vertices",JOptionPane.ERROR_MESSAGE);
                      return;
                   }
                   newContour[i] = Integer.parseInt(tokens.nextToken());
@@ -85,15 +96,15 @@
                   {
                   // ERROR: Input out of range
                      if(newContour[i] <= 0)
-                        jop.showMessageDialog(this,"All inputs must be positive integers!","Incorrect format",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,"All inputs must be positive integers!","Incorrect format",JOptionPane.ERROR_MESSAGE);
                      else
-                        jop.showMessageDialog(this,"Vertex " + newContour[i] + " entered, but the graph only contains " + nodes + " vertices!","Vertex entry too large",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this,"Vertex " + newContour[i] + " entered, but the graph only contains " + nodes + " vertices!","Vertex entry too large",JOptionPane.ERROR_MESSAGE);
                      return;
                   }
                   if(check[newContour[i]-1])
                   {
                   // ERROR: Repeated number 
-                     jop.showMessageDialog(this,("Vertex " + newContour[i] + " entered multiple times!"),"Multiple vertex entry",JOptionPane.ERROR_MESSAGE);
+                     JOptionPane.showMessageDialog(this,("Vertex " + newContour[i] + " entered multiple times!"),"Multiple vertex entry",JOptionPane.ERROR_MESSAGE);
                      return;
                   }
                   check[newContour[i]-1] = true;
@@ -107,7 +118,7 @@
                      tokens.nextToken();
                   }
                // ERROR: Too many numbers
-                  jop.showMessageDialog(this,("" + (nodes+count) + " vertices entered, but the graph only contains " + nodes + " vertices!"),"Too many vertices",JOptionPane.ERROR_MESSAGE);
+                  JOptionPane.showMessageDialog(this,("" + (nodes+count) + " vertices entered, but the graph only contains " + nodes + " vertices!"),"Too many vertices",JOptionPane.ERROR_MESSAGE);
                   return;
                }
                
@@ -120,7 +131,7 @@
             }
                catch(Exception ex)
                {
-                  jop.showMessageDialog(this,"All inputs must be positive integers!","Incorrect format",JOptionPane.ERROR_MESSAGE);
+                  JOptionPane.showMessageDialog(this,"All inputs must be positive integers!","Incorrect format",JOptionPane.ERROR_MESSAGE);
                   return;
                   // ERROR : Non-integer
                }
@@ -132,12 +143,20 @@
             dispose();
          }
       }
-      
+
+      /**
+       * Returns whether the dialog was closed before being completed.
+       * @return whether the dialog was cancelled.
+       */
       public boolean getCancelled()
       {
          return cancelled;
       }
-   	
+
+      /**
+       * Gets an array indicating some ordering of the vertices, which may not be the numerical order.
+       * @return array in order of intended vertex order.
+       */
       public int[] getContour()
       {
          int []returnedContour = new int[nodes];

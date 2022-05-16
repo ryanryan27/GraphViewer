@@ -31,6 +31,11 @@ public class SolverDialog extends JDialog implements ActionListener
    int[] fixed;
 
 
+   /**
+    * Creates a dialog box to specify options for solving a domination formulation.
+    * @param frame the parent frame from which to create this dialog.
+    * @param graph the graph for which the domination variant should be solved.
+    */
    public SolverDialog(JFrame frame, Graph graph)
    {
       super(frame, true);
@@ -140,9 +145,6 @@ public class SolverDialog extends JDialog implements ActionListener
    {
       if(e.getSource() == okButton)
       {
-
-
-
          try{
 
             if(dom_button.isSelected()){
@@ -207,12 +209,9 @@ public class SolverDialog extends JDialog implements ActionListener
             return;
          }
 
-
-
-
       }
-      if(e.getSource() == cancelButton)
-      {
+
+      if(e.getSource() == cancelButton) {
          setVisible(false);
          dispose();
       }
@@ -263,7 +262,6 @@ public class SolverDialog extends JDialog implements ActionListener
             if(domset[i] == 1){
                sj_o.add("" + (i+1));
             }
-
          }
 
          ones_area.setText(sj_o.toString());
@@ -279,7 +277,6 @@ public class SolverDialog extends JDialog implements ActionListener
             if(domset[i] == 2){
                sj_t.add("" + (i+1));
             }
-
          }
 
          twos_area.setText(sj_t.toString());
@@ -291,15 +288,31 @@ public class SolverDialog extends JDialog implements ActionListener
 
    }
 
-   public boolean getCancelled()
-   {
+   /**
+    * Returns whether the dialog was closed before being completed.
+    * @return whether the dialog was cancelled.
+    */
+   public boolean getCancelled() {
       return cancelled;
    }
 
+   /**
+    * Gets which variant of domination was selected to be solved.
+    * @return which variant of domination. One of those indicated in MILPRunner (e.g. MILPRunner.DOMINATION)
+    */
    public int getDomtype(){return domination_type;}
 
+   /**
+    * Gets the array containing what domination state each vertex should be fixed to.
+    * @return an array of values for each vertex in the graph with the following meanings {-1: not fixed, 0: no guard, 1: 1 guard, 2: two guards}
+    */
    public int[] getFixed(){return fixed;}
 
+   /**
+    * Creates a new left-aligned label with the given string.
+    * @param s the text to write to the label,
+    * @return a left aligned label with the specified text.
+    */
    private JLabel label(String s){
       JLabel l = new JLabel(s);
       l.setHorizontalAlignment(SwingConstants.LEFT);
