@@ -61,15 +61,15 @@ public class SolverDialog extends JDialog implements ActionListener
 
 
 
-      ones_area = new JTextArea("", 1, 40);
+      ones_area = new JTextArea("", 2, 40);
       ones_pane = new JScrollPane(ones_area);
 
 
-      twos_area = new JTextArea("", 1, 40);
+      twos_area = new JTextArea("", 2, 40);
       twos_pane = new JScrollPane(twos_area);
 
 
-      zeros_area = new JTextArea("", 1, 40);
+      zeros_area = new JTextArea("", 2, 40);
       zeros_pane = new JScrollPane(zeros_area);
 
 
