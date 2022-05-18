@@ -136,6 +136,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
         edgeToDelete[0] = -1;
         edgeToDelete[1] = -1;
 
+        if(System.getProperty("java.version").startsWith("1.")){
+            mouseOffsetX2 = 8;
+            mouseOffsetY2 = 52;
+        }
+
 
         setDefaultColors(parent.getDefaultColors());
 
