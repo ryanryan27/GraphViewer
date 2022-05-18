@@ -1651,14 +1651,32 @@ public class Graph
    }
 
 
+   /**
+    * Creates a new graph using the currently selected vertices, copying position, domination value and edges.
+    * Optionally aligns the new graph so its top left boundary is at (0,0).
+    * @param align whether the graph should be aligned to (0,0).
+    * @return a new graph object created from the currently selected vertices.
+    */
    public Graph getSelectedSubgraph(boolean align){
       return getSubgraph(selected, align);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * @param vertices an array of length N, where vertex with index i will be in the new graph if vertices[i] is true.
+    * @return a new graph created from the indicated vertices.
+    */
    public Graph getSubgraph(boolean[] vertices){
       return getSubgraph(vertices, false);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * Optionally aligns the new graph so its top left boundary is at (0,0).
+    * @param vertices an array of length N, where vertex with index i will be in the new graph if vertices[i] is true.
+    * @param align whether the graph should be aligned to (0,0).
+    * @return a new graph created from the indicated vertices, optionally aligned to (0,0).
+    */
    public Graph getSubgraph(boolean[] vertices, boolean align){
       int subN = 0;
       for (boolean v : vertices) {
@@ -1681,10 +1699,22 @@ public class Graph
       return getSubgraph(verts, align);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * @param vertices an array where each element is the index of a vertex to be included in the new graph.
+    * @return a new graph created from the indicated vertices.
+    */
    public Graph getSubgraph(int[] vertices){
       return getSubgraph(vertices, false);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * Optionally aligns the new graph so its top left boundary is at (0,0).
+    * @param vertices an array where each element is the index of a vertex to be included in the new graph.
+    * @param align whether the graph should be aligned to (0,0).
+    * @return a new graph created from the indicated vertices, optionally aligned to (0,0).
+    */
    public Graph getSubgraph(int[] vertices, boolean align){
       int subN = vertices.length;
       int mDegree = 0;
@@ -1714,6 +1744,11 @@ public class Graph
       return g;
    }
 
+   /**
+    * Adds a new vertex to the graph, with the given x and y coordinates.
+    * @param x the x coordinate of the new vertex.
+    * @param y the y coordinate of the new vertex.
+    */
    public void addVertex(double x, double y){
       this.setN(N+1);
 
@@ -1721,19 +1756,43 @@ public class Graph
       setYPos(N-1, y);
    }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values and coordinates are kept.
+    * @param g the graph to add to this one.
+    */
    public void addSubgraph(Graph g){
-
       addSubgraph(g, 0,0, 1);
-}
+   }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values are kept and coordinates are scaled by
+    * the specified value.
+    * @param g the graph to add to this one.
+    * @param scale the factor by which the vertex coordinates will be divided.
+    */
    public void addSubgraph(Graph g, double scale){
       addSubgraph(g, 0, 0, scale);
    }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values are kept, and coordinates are shifted
+    * by the given offsets.
+    * @param g the graph to add to this one.
+    * @param xOffset how much the x coordinates of the vertices are offset by.
+    * @param yOffset how much the y coordinates of the vertices are offset by.
+    */
    public void addSubgraph(Graph g, double xOffset, double yOffset){
       addSubgraph(g, xOffset, yOffset, 1);
    }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values are kept, and coordinates are scaled
+    * by the given amount then shifted by the given offsets.
+    * @param g the graph to add to this one.
+    * @param xOffset how much the x coordinates of the vertices are offset by.
+    * @param yOffset how much the y coordinates of the vertices are offset by.
+    * @param scale inverse of how much the original coordinates are scaled by.
+    */
    public void addSubgraph(Graph g, double xOffset, double yOffset, double scale){
       int oldN = N;
 
@@ -1765,6 +1824,12 @@ public class Graph
 
    }
 
+   /**
+    * Gets the coordinates of the closest vertex to the vertex with the given index.
+    * @param vertex the index of the vertex to find a neighbour of.
+    * @return a two element array containing the x and y coordinates (respectively) of the closest vertex.
+    * Has a default value of (15,15).
+    */
    public double[] distToClosestNeighbour(int vertex){
       double[] closestXY = {15,15};
 
@@ -1796,12 +1861,21 @@ public class Graph
       return closestXY;
    }
 
+   /**
+    * Aligns this graph such that the top left boundary of the graph is at (0,0).
+    */
    public void alignTopLeft(){
       alignTopLeft(0,0, 1);
    }
 
 
-
+   /**
+    * Rescales all coordinates using the given scale, then aligns this graph such that the top left boundary
+    * of the graph is at (xOffset, yOffset).
+    * @param xOffset x coordinate that the top left should be aligned to.
+    * @param yOffset y coordinate that the top left should be aligned to.
+    * @param scale inverse how much the coordinates should be scaled by before aligning them.
+    */
    public void alignTopLeft(double xOffset, double yOffset, double scale){
 
       if(N == 0) return;
@@ -1822,6 +1896,12 @@ public class Graph
 
    }
 
+   /**
+    * Gets the coordinates of the top left boundary of the given vertices. This is given by the smallest x coordinate
+    * and smallest y coordinate among all vertices (not necessarily the same vertex).
+    * @return a two element array containing the x coordinate and y coordinate (respectively) of the top left boundary
+    * of this graph.
+    */
    public double[] getTopLeft(){
 
       if(N == 0) return new double[2];
@@ -1844,6 +1924,12 @@ public class Graph
 
    }
 
+   /**
+    * Gets the coordinates of the bottom right boundary of the given vertices. This is given by the largest x coordinate
+    * and largest y coordinate among all vertices (not necessarily the same vertex).
+    * @return a two element array containing the x coordinate and y coordinate (respectively) of the bottom right boundary
+    * of this graph.
+    */
    public double[] getBottomRight(){
       if(N == 0) return new double[2];
 
@@ -1860,12 +1946,14 @@ public class Graph
 
       }
 
-
       return bottomRight;
-
 
    }
 
+   /**
+    * Divides the coordinates of every vertex in this graph by the given scale.
+    * @param scale factor by which the coordinates are reduced.
+    */
    public void rescale(double scale){
 
       for (int i = 0; i < N; i++) {
@@ -1875,10 +1963,19 @@ public class Graph
 
    }
 
+   /**
+    * Divides the coordinates of every selected vertex in this graph by the given scale.
+    * @param scale factor by which the coordinates are reduced.
+    */
    public void rescaleSelected(double scale){
       rescaleList(scale, selected);
    }
 
+   /**
+    * Divides the coordinates of every indicated vertex in this graph by the given scale.
+    * @param scale factor by which the coordinates are reduced.
+    * @param toRescale an array of length N, where vertex with index i will be rescaled if toRescale[i] is true.
+    */
    public void rescaleList(double scale, boolean[] toRescale){
 
       if(N == 0) return;
@@ -1905,6 +2002,10 @@ public class Graph
 
    }
 
+   /**
+    * Creates a new graph with the same vertices, edges, domination values and selected vertices as this one.
+    * @return a copy of this graph.
+    */
    public Graph getCopy(){
       boolean[] all = new boolean[N];
       Arrays.fill(all, true);
@@ -1915,6 +2016,10 @@ public class Graph
 
    }
 
+   /**
+    * Adjusts all x and y coordinates of vertices of this graph to the nearest multiple of the given spacing.
+    * @param spacing distance between points where vertices are aligned.
+    */
    public void alignToGrid(double spacing){
       boolean[] all = new boolean[N];
       Arrays.fill(all, true);
@@ -1922,6 +2027,14 @@ public class Graph
       alignToGrid(spacing, all, 0, 0);
    }
 
+   /**
+    * Adjusts x and y coordinates of vertices of this graph to the nearest multiple of the given spacing, then offset
+    * by the given amount. If any vertex is selected, only the selected vertices will be adjusted, otherwise all vertices
+    * are adjusted.
+    * @param spacing distance between points where vertices are aligned.
+    * @param offsetX how much the x coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    * @param offsetY how much the y coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    */
    public void alignToGrid(double spacing, double offsetX, double offsetY){
 
       for (int i = 0; i < N; i++) {
@@ -1937,6 +2050,14 @@ public class Graph
       alignToGrid(spacing, all, offsetX, offsetY);
    }
 
+   /**
+    * Adjusts x and y coordinates of the selected vertices of this graph to the nearest multiple of the given spacing, then offset
+    * by the given amount.
+    * @param spacing distance between points where vertices are aligned.
+    * @param toAlign an array of length N, where vertex with index i will be realigned if toAlign[i] is true.
+    * @param offsetX how much the x coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    * @param offsetY how much the y coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    */
    public void alignToGrid(double spacing, boolean[] toAlign, double offsetX, double offsetY){
 
       for (int i = 0; i < N; i++) {
@@ -1946,9 +2067,7 @@ public class Graph
          }
       }
 
-
    }
-
 
 
 }
