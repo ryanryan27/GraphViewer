@@ -762,6 +762,7 @@ public class Graph
 
       for (int i = 0; i < N; i++) {
          double x = (i % width)*spacing;
+         //noinspection IntegerDivisionInFloatingPointContext
          double y = (i/width)*spacing;
 
          if(vertical){
@@ -1242,7 +1243,7 @@ public class Graph
     * Gets the number of arcs in the shortest path between the specified vertices.
     * @param v1 the index of the first vertex.
     * @param v2 the index of the second vertex.
-    * @return
+    * @return the number of arcs in shortest path between the v1 and v2.
     */
    public int dist(int v1, int v2){
       if (dists == null || dists.length != N) {
@@ -1256,7 +1257,7 @@ public class Graph
     * Gets the square of euclidean distance between the two specified vertices.
     * @param v1 the index of the first vertex.
     * @param v2 the index of the second vertex.
-    * @return
+    * @return the square of the Euclidean distance between v1 and v2.
     */
    public double distL2(int v1, int v2){
       return Math.pow(getXPos(v1)-getXPos(v2),2) + Math.pow(getYPos(v1)-getYPos(v2),2);
