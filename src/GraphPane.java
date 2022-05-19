@@ -76,16 +76,16 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     int selectedOption;
 
 
-    final int DEFAULT_OPTION = -1;
-    final int VERTEX_OPTION = 0;
-    final int EDGE_OPTION = 1;
-    final int ERASER_OPTION = 2;
-    final int SCISSORS_OPTION = 3;
-    final int RELABEL_OPTION = 4;
-    final int DOM_OPTION = 5;
-    final int GRID_OPTION = 6;
-    final int SELECT_OPTION = 11;
-    final int ROTATE_OPTION = 12;
+    static final int DEFAULT_OPTION = -1;
+    static final int VERTEX_OPTION = 0;
+    static final int EDGE_OPTION = 1;
+    static final int ERASER_OPTION = 2;
+    static final int SCISSORS_OPTION = 3;
+    static final int RELABEL_OPTION = 4;
+    static final int DOM_OPTION = 5;
+    static final int GRID_OPTION = 6;
+    static final int SELECT_OPTION = 11;
+    static final int ROTATE_OPTION = 12;
 
 
     final int SCISSORS_DISTANCE = 15;
@@ -156,7 +156,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             });
 
         defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-        parent.changeSelectedOption(-1);
+        parent.changeTool(DEFAULT_OPTION);
 
         thisGraphPane = this;
     }
@@ -420,12 +420,11 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             repaint();
         } else {
             defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-            parent.changeSelectedOption(-1);
             startedSelection = false;
             edgeHighlighted[0] = -1;
             edgeHighlighted[1] = -1;
             parent.changeCursor(defaultCursor);
-            parent.changeSelectedOption(-1);
+            parent.changeTool(DEFAULT_OPTION);
         }
     }
 

@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.awt.image.*;
 import java.awt.*;
+import java.util.ArrayList;
 import javax.swing.filechooser.*;
 import javax.imageio.ImageIO;
 
@@ -43,33 +44,16 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     JPanel graphEditPane;
     JPanel buttonPane;
     JPanel bottomButtonPane;
-    JPanel selectButtonPane;
     JSlider vertexSizeSlider;
     JSlider labelSizeSlider;
     JTextField vertexSizeField;
     JTextField labelSizeField;
-    JLabel[] labels;
+
+
+    ArrayList<ToolButton> tools;
+    ArrayList<ToolButton> functions;
 
     //icons for the toolbar buttons
-    ImageIcon[][] icons;
-
-    //stores the state of each button
-    boolean[] highlighted;
-    boolean[] pressed;
-    boolean[] chosen;
-
-
-    //Number of graph interaction buttons in the toolbar.
-    final int choices = 7;
-
-    //number of graph property buttons in the toolbar
-    final int bottomChoices = 4;
-
-    //number of selection based buttons in the toolbar
-    final int selectChoices = 2;
-
-    //total number of buttons in the toolbar
-    final int totalChoices = choices + bottomChoices + selectChoices;
 
 
     final Color toolbarColour = new Color(0.7529f, 0.7529f, 0.7529f);
@@ -81,10 +65,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     final int MAX_LABEL_SIZE = 50;
     final int DEFAULT_LABEL_SIZE = 12;
 
-    final int BOTTOM_ARRANGE = choices;
-    final int BOTTOM_PROPERTIES = choices + 1;
-    final int BOTTOM_EDIT_EDGES = choices + 2;
-    final int BOTTOM_SPRING = choices + 3;
 
     //currently selected tool
     int selectedOption = -1;
@@ -150,6 +130,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 });
 
         add(tabbedPane, BorderLayout.CENTER);
+
+        createToolButtons();
+        createFunctionButtons();
 
         createGraphEditPane();
 
@@ -245,7 +228,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
      * @param cursor the cursor object to apply.
      */
     public void changeCursor(Cursor cursor) {
-        setCursor(cursor);
         defaultCursor = cursor;
         graphPanels.setDefaultCursors(cursor);
         repaint();
@@ -260,67 +242,71 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     public void changeSelectedOption(int so) {
         selectedOption = so;
         graphPanels.setSelectedOptions(so);
-        for (int i = 0; i < choices; i++) {
-            if (selectedOption == i) {
-                chosen[i] = true;
-                labels[i].setIcon(icons[i][3]);
-            } else {
-                chosen[i] = false;
-                labels[i].setIcon(icons[i][0]);
-            }
-        }
+    }
 
-        for (int i = choices + bottomChoices; i < choices + bottomChoices + selectChoices; i++) {
-            if (selectedOption == i) {
-                chosen[i] = true;
-                labels[i].setIcon(icons[i][3]);
-            } else {
-                chosen[i] = false;
-                labels[i].setIcon(icons[i][0]);
-            }
+    public void buttonCircleAlign(){
+        Graph gr = ((GraphPane) tabbedPane.getSelectedComponent()).getGraph();
+        ArrangeDialog ad = new ArrangeDialog(this, gr.getN(), gr.getContour());
+
+        if (!ad.getCancelled()) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setUndoState();
+
+            gr.setContour(ad.getContour());
+            gr.createCircle();
+            fitToScreen();
         }
     }
 
     /**
-     * Executes the function associated with the clicked function button.
-     *
-     * @param function the ID of the clicked function button.
+     * Triggers the result of the properties button. Creates a graph properties dialog.
      */
-    public void executeBottomFunction(int function) {
-        if (function < choices || function >= choices + bottomChoices)
-            return;
+    public void buttonGraphProperties(){
+        GraphPane gp = ((GraphPane) tabbedPane.getSelectedComponent());
+        new PropertiesDialog(this, gp);
+    }
 
-        if (function == BOTTOM_ARRANGE) {
-            Graph gr = ((GraphPane) tabbedPane.getSelectedComponent()).getGraph();
-            ArrangeDialog ad = new ArrangeDialog(this, gr.getN(), gr.getContour());
+    /**
+     * Triggers the result of the edge list button.
+     */
+    public void buttonEdgeList(){
+        editEdgeList();
+    }
 
-            if (!ad.getCancelled()) {
-                ((GraphPane) tabbedPane.getSelectedComponent()).setUndoState();
-
-                gr.setContour(ad.getContour());
-                gr.createCircle();
-                fitToScreen();
-            }
+    /**
+     * Triggers the result of the spring button.
+     */
+    public void buttonSpring(){
+        GraphPane gp = ((GraphPane) tabbedPane.getSelectedComponent());
+        Graph gr = gp.getGraph();
+        if (!gr.calculatingSpring) {
+            gp.beginSpring();
         }
-        if (function == BOTTOM_PROPERTIES) {
-            GraphPane gp = ((GraphPane) tabbedPane.getSelectedComponent());
-            new PropertiesDialog(this, gp);
-        }
-        if (function == BOTTOM_EDIT_EDGES) {
-            editEdgeList();
-        }
-        if (function == BOTTOM_SPRING) {
-            GraphPane gp = ((GraphPane) tabbedPane.getSelectedComponent());
-            Graph gr = gp.getGraph();
-            if (!gr.calculatingSpring) {
-                gp.beginSpring();
-            }
+    }
+
+    /**
+     * Sets the current active tool to the specified tool. Adjusts the cursor accordingly.
+     * @param tool
+     */
+    public void changeTool(int tool){
+        deselectToolButtons();
+        if(tool == GraphPane.DEFAULT_OPTION){
+            changeCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        } else {
+            changeCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         }
 
-        chosen[function] = false;
-        labels[function].setIcon(icons[function][0]);
-        repaint();
+        changeSelectedOption(tool);
+    }
 
+    /**
+     * Deselects all tools and changes to the default tool.
+     */
+    public void deselectToolButtons(){
+        changeCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        for (int i = 0; i < tools.size(); i++) {
+            tools.get(i).deselect();
+        }
+        changeSelectedOption(GraphPane.DEFAULT_OPTION);
     }
 
     /**
@@ -1734,6 +1720,37 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
     /**
+     * Creates all tool buttons on the toolbar;
+     */
+    private void createToolButtons(){
+        tools = new ArrayList<>();
+
+        tools.add(new ToolButton(this, "Insert vertex", "node", GraphPane.VERTEX_OPTION, null));
+        tools.add(new ToolButton(this, "Insert edge", "edge", GraphPane.EDGE_OPTION, null));
+        tools.add(new ToolButton(this, "Delete vertex", "eraser", GraphPane.ERASER_OPTION, null));
+        tools.add(new ToolButton(this, "Delete edge", "scissors", GraphPane.SCISSORS_OPTION, null));
+        tools.add(new ToolButton(this, "Relabel vertex", "relabel", GraphPane.RELABEL_OPTION, null));
+        tools.add(new ToolButton(this, "Toggle dominating set", "dom", GraphPane.DOM_OPTION, null));
+        tools.add(new ToolButton(this, "Modify Gridlines", "grid", GraphPane.GRID_OPTION, null));
+        tools.add(new ToolButton(this, "Select vertices", "select", GraphPane.SELECT_OPTION, null));
+        tools.add(new ToolButton(this, "Rotate vertices", "rotate", GraphPane.ROTATE_OPTION, null));
+
+
+    }
+
+    /**
+     * Creates all function buttons on the toolbar;
+     */
+    private void createFunctionButtons(){
+        functions = new ArrayList<>();
+
+        functions.add(new ToolButton(this, "Arrange vertices into a circle", "arrange", -2, this::buttonCircleAlign));
+        functions.add(new ToolButton(this, "Check graph properties", "properties", -2, this::buttonGraphProperties));
+        functions.add(new ToolButton(this, "Edit edge list", "editedges", -2, this::buttonEdgeList));
+        functions.add(new ToolButton(this, "Spring layout", "spring", -2, this::buttonSpring));
+    }
+
+    /**
      * Initialises the toolbar with buttons and sliders.
      */
     private void createGraphEditPane() {
@@ -1745,48 +1762,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         buttonPane = new JPanel();
         buttonPane.setBackground(toolbarColour);
         buttonPane.addMouseListener(this);
-        buttonPane.setLayout(new GridLayout((int) Math.ceil(choices / 2.0), 2));
-
-        String[][] labelStrings = new String[totalChoices][2];
-
-        labelStrings[0] = new String[]{"Insert vertex", "node"};
-        labelStrings[1] = new String[]{"Insert edge", "edge"};
-        labelStrings[2] = new String[]{"Delete vertex", "eraser"};
-        labelStrings[3] = new String[]{"Delete edge", "scissors"};
-        labelStrings[4] = new String[]{"Relabel vertex", "relabel"};
-        labelStrings[5] = new String[]{"Toggle dominating set", "dom"};
-        labelStrings[6] = new String[]{"Modify Gridlines", "grid"};
-        labelStrings[7] = new String[]{"Arrange vertices into a circle", "arrange"};
-        labelStrings[8] = new String[]{"Check graph properties", "properties"};
-        labelStrings[9] = new String[]{"Edit edge list", "editedges"};
-        labelStrings[10] = new String[]{"Spring layout", "spring"};
-        labelStrings[11] = new String[]{"Select vertices", "select"};
-        labelStrings[12] = new String[]{"Rotate vertices", "rotate"};
+        buttonPane.setLayout(new GridLayout((int) Math.ceil(tools.size() / 2.0), 2));
 
 
-        icons = new ImageIcon[totalChoices][4];
-
-        for (int i = 0; i < totalChoices; i++) {
-            icons[i][0] = new ImageIcon("pics/" + labelStrings[i][1] + ".png");
-            icons[i][1] = new ImageIcon("pics/" + labelStrings[i][1] + "_highlight.png");
-            icons[i][2] = new ImageIcon("pics/" + labelStrings[i][1] + "_select.png");
-            icons[i][3] = new ImageIcon("pics/" + labelStrings[i][1] + "_chosen.png");
+        for (int i = 0; i < tools.size(); i++) {
+            buttonPane.add(tools.get(i));
         }
 
-
-        highlighted = new boolean[totalChoices];
-        pressed = new boolean[totalChoices];
-        chosen = new boolean[totalChoices];
-
-        labels = new JLabel[totalChoices];
-
-        for (int i = 0; i < choices; i++) {
-            labels[i] = new JLabel(icons[i][0]);
-            labels[i].addMouseListener(this);
-            labels[i].setMaximumSize(new Dimension(icons[i][0].getIconWidth(), icons[i][0].getIconHeight()));
-            labels[i].setToolTipText(labelStrings[i][0]);
-            buttonPane.add(labels[i]);
-        }
 
         JPanel sliderPanel = new JPanel();
         sliderPanel.setBackground(toolbarColour);
@@ -1830,40 +1812,11 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         bottomButtonPane.addMouseListener(this);
 
-        bottomButtonPane.setLayout(new GridLayout((int) Math.ceil(bottomChoices / 2.0), 2));
+        bottomButtonPane.setLayout(new GridLayout((int) Math.ceil(functions.size() / 2.0), 2));
 
-        for (int i = choices; i < choices + bottomChoices; i++) {
-            labels[i] = new JLabel(icons[i][0]);
-            labels[i].addMouseListener(this);
-            labels[i].setMaximumSize(new Dimension(icons[i][0].getIconWidth(), icons[i][0].getIconHeight()));
-            labels[i].setToolTipText(labelStrings[i][0]);
-            bottomButtonPane.add(labels[i]);
+        for (int i = 0; i < functions.size(); i++) {
+            bottomButtonPane.add(functions.get(i));
         }
-
-
-        int blanks = 4;
-        JPanel[] blankPanels = new JPanel[blanks];
-        JLabel[] blankLabels = new JLabel[blanks];
-        for (int i = 0; i < blanks; i++) {
-            blankPanels[i] = new JPanel();
-            blankPanels[i].setBackground(toolbarColour);
-            blankLabels[i] = new JLabel(new ImageIcon("pics/blank.png"));
-            blankPanels[i].add(blankLabels[i]);
-        }
-
-        selectButtonPane = new JPanel();
-        selectButtonPane.setBackground(toolbarColour);
-        selectButtonPane.addMouseListener(this);
-        selectButtonPane.setLayout(new GridLayout((int) Math.ceil(selectChoices / 2.0), 2));
-
-        for (int i = choices + bottomChoices; i < totalChoices; i++) {
-            labels[i] = new JLabel(icons[i][0]);
-            labels[i].addMouseListener(this);
-            labels[i].setMaximumSize(new Dimension(icons[i][0].getIconWidth(), icons[i][0].getIconHeight()));
-            labels[i].setToolTipText(labelStrings[i][0]);
-            selectButtonPane.add(labels[i]);
-        }
-
 
         int padding = 20;
 
@@ -1871,11 +1824,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, buttonPane, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
         layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, sliderPanel, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
         layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, bottomButtonPane, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
-        layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, selectButtonPane, 0, SpringLayout.HORIZONTAL_CENTER, graphEditPane);
         layout.putConstraint(SpringLayout.NORTH, buttonPane, padding, SpringLayout.NORTH, graphEditPane);
         layout.putConstraint(SpringLayout.NORTH, sliderPanel, padding, SpringLayout.SOUTH, buttonPane);
         layout.putConstraint(SpringLayout.NORTH, bottomButtonPane, padding, SpringLayout.SOUTH, sliderPanel);
-        layout.putConstraint(SpringLayout.NORTH, selectButtonPane, padding, SpringLayout.SOUTH, bottomButtonPane);
 
         graphEditPane.setLayout(layout);
         graphEditPane.setPreferredSize(new Dimension(sliderPanel.getPreferredSize().width + padding, this.getHeight()));
@@ -1884,7 +1835,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         graphEditPane.add(buttonPane);
         graphEditPane.add(sliderPanel);
         graphEditPane.add(bottomButtonPane);
-        graphEditPane.add(selectButtonPane);
 
     }
 
@@ -2105,63 +2055,23 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
     public void mouseEntered(MouseEvent e) {
-        if (e.getSource() == graphEditPane || e.getSource() == buttonPane) {
-            setCursor(defaultCursor);
-        }
         if (tabbedPane.getSelectedIndex() != -1) {
             if (e.getSource() == tabbedPane.getSelectedComponent()) {
                 setCursor(defaultCursor);
-            }
-        }
-
-        for (int i = 0; i < totalChoices; i++) {
-            if (e.getSource() == labels[i]) {
-                setCursor(defaultCursor);
-                if (chosen[i]) {
-                    labels[i].setIcon(icons[i][3]);
-                } else if (pressed[i]) {
-                    labels[i].setIcon(icons[i][2]);
-                } else {
-                    labels[i].setIcon(icons[i][1]);
-                }
-                highlighted[i] = true;
             }
         }
     }
 
     public void mouseExited(MouseEvent e) {
-        if (e.getSource() == graphEditPane || e.getSource() == buttonPane || e.getSource() == bottomButtonPane) {
-            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-        }
         if (tabbedPane.getSelectedIndex() != -1) {
             if (e.getSource() == tabbedPane.getSelectedComponent()) {
                 setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         }
-        for (int i = 0; i < totalChoices; i++) {
-            if (e.getSource() == labels[i]) {
-                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                if (!pressed[i]) {
-                    if (chosen[i]) {
-                        labels[i].setIcon(icons[i][3]);
-                    } else {
-                        labels[i].setIcon(icons[i][0]);
-                    }
-                }
-                highlighted[i] = false;
-            }
-        }
+
     }
 
     public void mousePressed(MouseEvent e) {
-
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            for (int i = 0; i < totalChoices; i++)
-                if (e.getSource() == labels[i]) {
-                    labels[i].setIcon(icons[i][2]);
-                    pressed[i] = true;
-                }
-        }
 
         //cancel spring timer here
         GraphPane gp = ((GraphPane) tabbedPane.getSelectedComponent());
@@ -2171,90 +2081,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
     public void mouseReleased(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            for (int i = 0; i < choices; i++) {
-                if (e.getSource() == labels[i]) {
-                    if (pressed[i] && highlighted[i]) {
 
-                        if (chosen[i]) {
-                            chosen[i] = false;
-                            changeSelectedOption(-1);
-                            changeCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
-                            labels[i].setIcon(icons[i][1]);
-                        } else {
-                            for (int j = 0; j < totalChoices; j++) {
-                                if (j >= choices && j < choices + bottomChoices)
-                                    continue;
-                                if (j == i) {
-                                    chosen[i] = true;
-                                    changeSelectedOption(i);
-                                    changeCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-                                    labels[i].setIcon(icons[i][3]);
-                                } else {
-                                    chosen[j] = false;
-                                    labels[j].setIcon(icons[j][0]);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (int i = choices; i < choices + bottomChoices; i++) {
-                if (e.getSource() == labels[i]) {
-                    if (pressed[i] && highlighted[i]) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            chosen[i] = true;
-                            labels[i].setIcon(icons[i][3]);
-                            repaint();
-                            executeBottomFunction(i);
-                            chosen[i] = false;
-                            repaint();
-                        }
-                    }
-                }
-            }
-
-            for (int i = choices + bottomChoices; i < totalChoices; i++) {
-                if (e.getSource() == labels[i]) {
-                    if (pressed[i] && highlighted[i]) {
-                        if (chosen[i]) {
-                            chosen[i] = false;
-                            changeSelectedOption(-1);
-                            changeCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
-                            labels[i].setIcon(icons[i][1]);
-                        } else {
-                            for (int j = 0; j < totalChoices; j++) {
-                                if (j >= choices && j < choices + bottomChoices) continue;
-                                if (j == i) {
-                                    chosen[i] = true;
-                                    changeSelectedOption(i);
-                                    changeCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-                                    labels[i].setIcon(icons[i][3]);
-                                } else {
-                                    chosen[j] = false;
-                                    labels[j].setIcon(icons[j][0]);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            for (int i = 0; i < pressed.length; i++) {
-                pressed[i] = false;
-                if (chosen[i]) {
-                    labels[i].setIcon(icons[i][3]);
-                } else if (highlighted[i]) {
-                    labels[i].setIcon(icons[i][1]);
-                } else {
-                    labels[i].setIcon(icons[i][0]);
-                }
-            }
-        }
     }
 
 }
