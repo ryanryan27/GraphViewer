@@ -36,6 +36,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     JCheckBoxMenuItem domConnectedItem;
     JCheckBoxMenuItem domRomanItem;
     JCheckBoxMenuItem domWeakRomanItem;
+    JCheckBoxMenuItem gridSnapItem;
+    JCheckBoxMenuItem gridlinesItem;
 
     //Toolbar Components
     JPanel graphEditPane;
@@ -322,21 +324,114 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
      * Opens a dialog box to edit the edge list of the currently viewed graph.
      */
     public void editEdgeList() {
-        GraphPane gp = ((GraphPane) tabbedPane.getSelectedComponent());
-        Graph gr = gp.getGraph();
-        int N = gr.getN();
-        EditEdgesDialog eed = new EditEdgesDialog(this, gr.getArcs(), gr.getDegrees(), N);
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = ((GraphPane) tabbedPane.getSelectedComponent());
+            Graph gr = gp.getGraph();
+            int N = gr.getN();
+            EditEdgesDialog eed = new EditEdgesDialog(this, gr.getArcs(), gr.getDegrees(), N);
 
-        if (!eed.getCancelled()) {
-            gp.setUndoState();
+            if (!eed.getCancelled()) {
+                gp.setUndoState();
 
-            gr.setArcs(eed.getArcs(), eed.getDegrees(), eed.getNodes(), true);
-            if (eed.getArrangeContour()) {
-                gr.createCircle();
-                fitToScreen();
-            } else {
-                gp.repaint();
+                gr.setArcs(eed.getArcs(), eed.getDegrees(), eed.getNodes(), true);
+                if (eed.getArrangeContour()) {
+                    gr.createCircle();
+                    fitToScreen();
+                } else {
+                    gp.repaint();
+                }
             }
+        }
+    }
+
+    /**
+     * Increases the spacing of the currently selected vertices by 10 percent.
+     */
+    public void growSelected(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+            gp.setUndoState();
+            Graph g = gp.getGraph();
+            g.rescaleSelected(1.0 / 1.1);
+            validate();
+            repaint();
+        }
+    }
+
+
+    /**
+     * Shrinks the spacing of the currently selected vertices by 10 percent.
+     */
+    public void shrinkSelected(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+            gp.setUndoState();
+            Graph g = gp.getGraph();
+            g.rescaleSelected(1.1);
+
+            validate();
+            repaint();
+
+        }
+    }
+
+    /**
+     * Moves vertices of the current graph to the nearest intersection of gridlines.
+     */
+    public void snapToGrid(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+            gp.setUndoState();
+            Graph g = gp.getGraph();
+
+            double[] gridData = gp.getGridData();
+            g.alignToGrid(gridData[0], gridData[1], gridData[2]);
+
+            validate();
+            repaint();
+        }
+    }
+
+    /**
+     * Opens a dialog box to align the currently viewed graph to a grid.
+     */
+    public void alignToGrid() {
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+            Graph g = gp.getGraph();
+
+            ArrangeGridDialog ad = new ArrangeGridDialog(parent);
+
+            if (!ad.getCancelled()) {
+                gp.setUndoState();
+
+                g.createGrid(ad.getGridSize(), ad.getVertical(), ad.getSpacing());
+                fitToScreen();
+            }
+
+        }
+    }
+
+    /**
+     * Opens a dialog box to edit the dominating set of the currently viewed graph.
+     */
+    public void editDominatingSet() {
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+            Graph g = gp.getGraph();
+
+            DominationDialog dd = new DominationDialog(parent, g.getDomset());
+
+            if (!dd.getCancelled()) {
+                gp.setUndoState();
+
+                g.setDomset(dd.getDomset());
+                validate();
+                repaint();
+            }
+
         }
     }
 
@@ -897,6 +992,110 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
     /**
+     * Sets whether or not vertices of the current graph should be aligned to a grid when moved or added.
+     * Based on the state of the snap to grid menu checkbox.
+     */
+    public void setSnapToGrid(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setSnapToGrid(gridSnapItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets whether or not gridlines should be shown in the current view, based on the state of the gridlines menu item.
+     */
+    public void setShowGridLines(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets the state of displaying vertex labels for the current graph, based on the menu item state.
+     */
+    public void setVertexLabelDisplay() {
+        settings_displayVertexLabels = displayVertexLabelsItem.getState();
+        saveSettings();
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDisplayVertexLabels(displayVertexLabelsItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+
+    /**
+     * Sets the state of displaying crossings for the current graph, based on the menu item state.
+     */
+    public void setCrossingDisplay() {
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDisplayCrossings(displayCrossingsItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets the state of displaying domination for the current graph, based on the menu item state.
+     */
+    public void setDominationDisplay() {
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDisplayDomination(displayDominationItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets the state of calculating total domination for the current graph, based on the menu item state.
+     */
+    public void setDomTotal() {
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDomTotal(domTotalItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets the state of calculating connected domination for the current graph, based on the menu item state.
+     */
+    public void setDomConnected() {
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDomConnected(domConnectedItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets the state of calculating secure domination for the current graph, based on the menu item state.
+     */
+    public void setDomSecure() {
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDomSecure(domSecureItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets the state of calculating roman domination for the current graph, based on the menu item state.
+     */
+    public void setDomRoman(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDomRoman(domRomanItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Sets the state of calculating weak roman domination for the current graph, based on the menu item state.
+     */
+    public void setDomWeakRoman(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setDomWeakRoman(domWeakRomanItem.getState());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
      * Toggles the ability to click the undo menu item, based on whether or not an undo is available.
      * @param available the desired state of menu item usability.
      */
@@ -925,6 +1124,26 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
     }
 
+
+
+    /**
+     * Reverts the previous action from the currently viewed graph.
+     */
+    public void undo(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).undo();
+        }
+    }
+
+    /**
+     * Reverts the previous undo action from the currently viewed graph.
+     */
+    public void redo(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).redo();
+        }
+    }
+
     /**
      * Paste the copied graph to the top left of the current tab.
      */
@@ -932,6 +1151,21 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         if (copiedGraph != null && tabbedPane.getSelectedIndex() != -1) {
             GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
             gp.pasteGraph(copiedGraph);
+            validate();
+            repaint();
+        }
+    }
+
+    /**
+     * Trigger a dialog box to convert the current graph to tex code.
+     */
+    public void texDialog(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
+
+            Graph g = gp.getGraph();
+
+            new TexDialog(parent, g);
         }
     }
 
@@ -1662,99 +1896,21 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
      */
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-
         JMenu fileItem = new JMenu("File");
-        JMenuItem newFileItem = new JMenuItem("New");
-        JMenuItem openFileItem = new JMenuItem("Open");
-        JMenuItem closeFileItem = new JMenuItem("Close");
-        saveFileItem = new JMenuItem("Save");
-        saveMultipleGraphsFileItem = new JMenuItem("Save multiple graphs...");
-        exportAsImageFileItem = new JMenuItem("Export as image..");
 
 
-        newFileItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        buildNewGraph();
-                    }
-                });
-        newFileItem.setMnemonic(KeyEvent.VK_N);
-        newFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+        JMenuItem newFileItem = createMenuItem("New", this::buildNewGraph, KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem openFileItem = createMenuItem("Open", this::openFileDialog, KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem closeFileItem = createMenuItem("Close", this::closeFile, KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK);
+        saveFileItem = createMenuItem("Save", this::saveGraphDialog, KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK);
+        saveMultipleGraphsFileItem = createMenuItem("Save multiple graphs...", this::saveMultipleGraphDialog, KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK);
+        exportAsImageFileItem = createMenuItem("Export as image..", this::exportAsImage, KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
+        JMenuItem texItem = createMenuItem("Export to Tex", this::texDialog, KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem exitFileItem = createMenuItem("Exit", this::exit, KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK);
 
-        openFileItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        openFileDialog();
-                    }
-                });
-        openFileItem.setMnemonic(KeyEvent.VK_O);
-        openFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-
-        closeFileItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        closeFile();
-                    }
-                });
-        closeFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
-
-        saveFileItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        saveGraphDialog();
-                    }
-                });
-        saveFileItem.setMnemonic(KeyEvent.VK_S);
-        saveFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-        saveFileItem.setEnabled(false);
-
-        saveMultipleGraphsFileItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        saveMultipleGraphDialog();
-                    }
-                });
-        saveMultipleGraphsFileItem.setMnemonic(KeyEvent.VK_M);
-        saveMultipleGraphsFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK));
-        saveMultipleGraphsFileItem.setEnabled(false);
-
-        exportAsImageFileItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent de) {
-                        exportAsImage();
-                    }
-                });
-        exportAsImageFileItem.setMnemonic(KeyEvent.VK_E);
-        exportAsImageFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
         exportAsImageFileItem.setEnabled(false);
-
-
-        JMenuItem texItem = new JMenuItem("Export to Tex");
-        texItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-
-                            Graph g = gp.getGraph();
-
-                            new TexDialog(parent, g);
-                        }
-                    }
-                });
-        texItem.setMnemonic(KeyEvent.VK_T);
-        texItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
-
-        JMenuItem exitFileItem = new JMenuItem("Exit");
-        exitFileItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        exit();
-                    }
-                });
-        exitFileItem.setMnemonic(KeyEvent.VK_X);
-        exitFileItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
-
+        saveMultipleGraphsFileItem.setEnabled(false);
+        saveFileItem.setEnabled(false);
 
         fileItem.add(newFileItem);
         fileItem.add(openFileItem);
@@ -1770,201 +1926,18 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         fileItem.setMnemonic(KeyEvent.VK_F);
 
         JMenu editItem = menuBar.add(new JMenu("Edit"));
-
-        undoEditItem = new JMenuItem("Undo");
-        undoEditItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).undo();
-                        }
-                    }
-                });
-        undoEditItem.setMnemonic(KeyEvent.VK_U);
-        undoEditItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
-
-        redoEditItem = new JMenuItem("Redo");
-        redoEditItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).redo();
-                        }
-                    }
-                });
-        redoEditItem.setMnemonic(KeyEvent.VK_R);
-        redoEditItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
-
-
-        copyItem = new JMenuItem("Copy Selected");
-        copyItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        copySelected();
-
-                    }
-                });
-        copyItem.setMnemonic(KeyEvent.VK_K);
-        copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-
-        pasteItem = new JMenuItem("Paste Selected");
-        pasteItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        pasteGraph();
-                        validate();
-                        repaint();
-                    }
-                });
-        pasteItem.setMnemonic(KeyEvent.VK_C);
-        pasteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
-
-        JMenuItem growItem = new JMenuItem("Enlarge Selected");
-        growItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                            gp.setUndoState();
-                            Graph g = gp.getGraph();
-                            g.rescaleSelected(1.0 / 1.1);
-                            validate();
-                            repaint();
-                        }
-
-                    }
-                });
-        growItem.setMnemonic(KeyEvent.VK_K);
-        growItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.CTRL_DOWN_MASK));
-
-
-        JMenuItem shrinkItem = new JMenuItem("Shrink Selected");
-        shrinkItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                            gp.setUndoState();
-                            Graph g = gp.getGraph();
-                            g.rescaleSelected(1.1);
-
-                            validate();
-                            repaint();
-
-                        }
-
-                    }
-                });
-        shrinkItem.setMnemonic(KeyEvent.VK_K);
-        shrinkItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.CTRL_DOWN_MASK));
-
-        JMenuItem snapGridItem = new JMenuItem("Snap to Grid");
-        snapGridItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-                            gp.setUndoState();
-                            Graph g = gp.getGraph();
-
-                            double[] gridData = gp.getGridData();
-                            g.alignToGrid(gridData[0], gridData[1], gridData[2]);
-
-                            validate();
-                            repaint();
-
-                        }
-
-                    }
-                });
-        snapGridItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, InputEvent.CTRL_DOWN_MASK));
-
-        JMenuItem gridItem = new JMenuItem("Arrange Grid");
-        gridItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-
-                            Graph g = gp.getGraph();
-
-                            ArrangeGridDialog ad = new ArrangeGridDialog(parent);
-
-                            if (!ad.getCancelled()) {
-                                gp.setUndoState();
-
-                                g.createGrid(ad.getGridSize(), ad.getVertical(), ad.getSpacing());
-                                fitToScreen();
-                            }
-
-                        }
-
-                    }
-                });
-        gridItem.setMnemonic(KeyEvent.VK_K);
-        gridItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK));
-
-        JMenuItem domsetItem = new JMenuItem("Edit Dominating Set");
-        domsetItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
-
-                            Graph g = gp.getGraph();
-
-                            DominationDialog dd = new DominationDialog(parent, g.getDomset());
-
-                            if (!dd.getCancelled()) {
-                                gp.setUndoState();
-
-                                g.setDomset(dd.getDomset());
-                                validate();
-                                repaint();
-                            }
-
-                        }
-
-                    }
-                });
-        domsetItem.setMnemonic(KeyEvent.VK_D);
-        domsetItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK));
-
-        JMenuItem generateItem = new JMenuItem("Generate New Graph");
-        generateItem.addActionListener(
-                new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        generateNewGraph();
-                    }
-                }
-        );
-        generateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-
-        JMenuItem editEdgeItem = new JMenuItem("Edit Edge List");
-        editEdgeItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            editEdgeList();
-
-                        }
-
-                    }
-                });
-        editEdgeItem.setMnemonic(KeyEvent.VK_E);
-        editEdgeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK));
-
-
-        JMenuItem solverItem = new JMenuItem("Run Solver");
-        solverItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        solverDialog();
-                    }
-                });
-        solverItem.setMnemonic(KeyEvent.VK_D);
-        solverItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+        undoEditItem = createMenuItem("Undo", this::undo, KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK);
+        redoEditItem = createMenuItem("Redo", this::redo, KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK);
+        copyItem = createMenuItem("Copy Selected", this::copySelected, KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK);
+        pasteItem = createMenuItem("Paste Selected", this::pasteGraph, KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem growItem = createMenuItem("Enlarge Selected", this::growSelected, KeyEvent.VK_EQUALS, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem shrinkItem = createMenuItem("Shrink Selected", this::shrinkSelected, KeyEvent.VK_MINUS, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem snapGridItem = createMenuItem("Snap to Grid", this::snapToGrid,KeyEvent.VK_SLASH, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem gridItem = createMenuItem("Arrange Grid", this::alignToGrid, KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem domsetItem = createMenuItem("Edit Dominating Set", this::editDominatingSet, KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem generateItem = createMenuItem("Generate New Graph", this::generateNewGraph, KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
+        JMenuItem editEdgeItem = createMenuItem("Edit Edge List", this::editEdgeList, KeyEvent.VK_E, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem solverItem = createMenuItem("Run Solver", this::solverDialog, KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
 
         editItem.add(copyItem);
         editItem.add(pasteItem);
@@ -1990,154 +1963,20 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         JMenu viewItem = new JMenu("View");
 
-        JMenuItem fitToScreenItem = new JMenuItem("Fit to screen");
-        fitToScreenItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        fitToScreen();
-                    }
-                });
-        fitToScreenItem.setMnemonic(KeyEvent.VK_F);
-        fitToScreenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
-
-        displayVertexLabelsItem = new JCheckBoxMenuItem("Display vertex labels", settings_displayVertexLabels);
-        displayVertexLabelsItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        settings_displayVertexLabels = displayVertexLabelsItem.getState();
-                        saveSettings();
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDisplayVertexLabels(displayVertexLabelsItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        displayVertexLabelsItem.setMnemonic(KeyEvent.VK_B);
-        displayVertexLabelsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK));
-
-        JMenuItem colourSettingsItem = new JMenuItem("Colour settings...");
-        colourSettingsItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        changeColours();
-                    }
-
-                });
-        colourSettingsItem.setMnemonic(KeyEvent.VK_L);
-        colourSettingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
-
-        displayCrossingsItem = new JCheckBoxMenuItem("Display crossings");
-        displayCrossingsItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDisplayCrossings(displayCrossingsItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        displayCrossingsItem.setMnemonic(KeyEvent.VK_R);
-        displayCrossingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
-
-        displayDominationItem = new JCheckBoxMenuItem("Display domination");
-        displayDominationItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDisplayDomination(displayDominationItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        displayDominationItem.setMnemonic(KeyEvent.VK_I);
-        displayDominationItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK));
-
+        JMenuItem fitToScreenItem = createMenuItem("Fit to screen", this::fitToScreen, KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK);
         JMenu displayDominationTypeMenu = new JMenu("Domination type");
-        domTotalItem = new JCheckBoxMenuItem("Total domination");
-        domTotalItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDomTotal(domTotalItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        domTotalItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, InputEvent.CTRL_DOWN_MASK));
+        JMenuItem colourSettingsItem = createMenuItem("Colour settings...", this::changeColours, KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK);
+        displayVertexLabelsItem = createCheckboxMenuItem("Display vertex labels", this::setVertexLabelDisplay, KeyEvent.VK_B, InputEvent.CTRL_DOWN_MASK);
+        displayCrossingsItem = createCheckboxMenuItem("Display crossings", this::setCrossingDisplay, KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK);
+        displayDominationItem = createCheckboxMenuItem("Display domination", this::setDominationDisplay, KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK);
+        domTotalItem = createCheckboxMenuItem("Total domination", this::setDomTotal, KeyEvent.VK_1, InputEvent.CTRL_DOWN_MASK);
+        domConnectedItem = createCheckboxMenuItem("Connected domination", this::setDomConnected, KeyEvent.VK_2, InputEvent.CTRL_DOWN_MASK);
+        domSecureItem = createCheckboxMenuItem("Secure domination", this::setDomSecure, KeyEvent.VK_3, InputEvent.CTRL_DOWN_MASK);
+        domWeakRomanItem = createCheckboxMenuItem("Weak Roman Domination", this::setDomWeakRoman, KeyEvent.VK_4, InputEvent.CTRL_DOWN_MASK);
+        domRomanItem = createCheckboxMenuItem("Roman Domination", this::setDomRoman, KeyEvent.VK_5, InputEvent.CTRL_DOWN_MASK);
+        gridlinesItem = createCheckboxMenuItem("Show gridlines", this::setShowGridLines, KeyEvent.VK_PERIOD, InputEvent.CTRL_DOWN_MASK);
+        gridSnapItem = createCheckboxMenuItem("Snap vertices to gridlines", this::setSnapToGrid, KeyEvent.VK_COMMA, InputEvent.CTRL_DOWN_MASK);
 
-        domConnectedItem = new JCheckBoxMenuItem("Connected domination");
-        domConnectedItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDomConnected(domConnectedItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        domConnectedItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, InputEvent.CTRL_DOWN_MASK));
-
-        domSecureItem = new JCheckBoxMenuItem("Secure domination");
-        domSecureItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDomSecure(domSecureItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        domSecureItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, InputEvent.CTRL_DOWN_MASK));
-
-        domWeakRomanItem = new JCheckBoxMenuItem("Weak Roman domination");
-        domWeakRomanItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDomWeakRoman(domWeakRomanItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        domWeakRomanItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, InputEvent.CTRL_DOWN_MASK));
-
-        domRomanItem = new JCheckBoxMenuItem("Roman domination");
-        domRomanItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setDomRoman(domRomanItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        domRomanItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, InputEvent.CTRL_DOWN_MASK));
-
-
-        JCheckBoxMenuItem gridlinesItem = new JCheckBoxMenuItem("Show Gridlines");
-        gridlinesItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-
-                    }
-                });
-        gridlinesItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, InputEvent.CTRL_DOWN_MASK));
-
-        JCheckBoxMenuItem gridSnapItem = new JCheckBoxMenuItem("Snap vertices to gridlines");
-        gridSnapItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setSnapToGrid(gridSnapItem.getState());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
-        gridSnapItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, InputEvent.CTRL_DOWN_MASK));
 
         displayDominationTypeMenu.add(domTotalItem);
         displayDominationTypeMenu.add(domConnectedItem);
@@ -2155,15 +1994,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         viewItem.add(displayDominationTypeMenu);
         viewItem.setMnemonic(KeyEvent.VK_V);
 
-        JMenuItem closeAllWindowItem = new JMenuItem("Close All");
-        closeAllWindowItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        closeAllWindows();
-                    }
-                });
-        closeAllWindowItem.setMnemonic(KeyEvent.VK_A);
-        closeAllWindowItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK));
+        JMenuItem closeAllWindowItem = createMenuItem("Close All", this::closeAllWindows, KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK);
 
         windowItem = new JMenu("Window");
         windowItem.add(closeAllWindowItem);
@@ -2177,6 +2008,52 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         setJMenuBar(menuBar);
 
+    }
+
+    /**
+     * Creates a new JMenuItem with the given properties.
+     * @param name the name of the menu item, displayed in the menu.
+     * @param method the method that clicking this menu item triggers
+     * @param hotkey a KeyEvent int value referring to a key. -1 if no keypress should be mapped.
+     * @param hotkey_modifier an InputEvent keydown mask.
+     * @return a new JMenuItem with the given properties.
+     */
+    private JMenuItem createMenuItem(String name, Runnable method, int hotkey, int hotkey_modifier){
+        JMenuItem menuItem = new JMenuItem(name);
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                method.run();
+            }
+        });
+        if(hotkey != -1){
+            menuItem.setAccelerator(KeyStroke.getKeyStroke(hotkey, hotkey_modifier));
+        }
+
+        return menuItem;
+    }
+
+    /**
+     * Creates a new JCheckboxMenuItem with the given properties.
+     * @param name the name of the menu item, displayed in the menu.
+     * @param method the method that clicking this menu item triggers
+     * @param hotkey a KeyEvent int value referring to a key. -1 if no keypress should be mapped.
+     * @param hotkey_modifier an InputEvent keydown mask.
+     * @return a new JCheckboxMenuItem with the given properties.
+     */
+    private JCheckBoxMenuItem createCheckboxMenuItem(String name, Runnable method, int hotkey, int hotkey_modifier){
+        JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(name);
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                method.run();
+            }
+        });
+        if(hotkey != -1){
+            menuItem.setAccelerator(KeyStroke.getKeyStroke(hotkey, hotkey_modifier));
+        }
+
+        return menuItem;
     }
 
     public void windowActivated(WindowEvent e) {
