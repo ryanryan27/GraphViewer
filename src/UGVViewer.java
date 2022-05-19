@@ -1568,6 +1568,135 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
     /**
+     * Updates the vertex size based on the text box value.
+     */
+    public void updateVertexTextBox(){
+        try {
+            int size = Integer.parseInt(vertexSizeField.getText());
+            if (size < MIN_VERTEX_SIZE){
+                vertexSizeField.setText("" + MIN_VERTEX_SIZE);
+                size = MIN_VERTEX_SIZE;
+            }
+            else if (size > MAX_VERTEX_SIZE){
+                vertexSizeField.setText("" + MAX_VERTEX_SIZE);
+                size = MAX_VERTEX_SIZE;
+            }
+
+            if (tabbedPane.getSelectedIndex() != -1) {
+                ((GraphPane) tabbedPane.getSelectedComponent()).setRadius(size);
+                tabbedPane.getSelectedComponent().repaint();
+            }
+            if (vertexSizeSlider != null) {
+                vertexSizeSlider.setValue(size);
+            }
+        } catch (Exception e) {
+            if (tabbedPane.getSelectedIndex() != -1) {
+                vertexSizeField.setText("" + ((GraphPane) tabbedPane.getSelectedComponent()).getRadius());
+            } else
+                vertexSizeField.setText("" + DEFAULT_VERTEX_SIZE);
+        }
+    }
+
+    /**
+     * Updates the label size based on the text box value.
+     */
+    public void updateLabelTextBox(){
+        try {
+            int size = Integer.parseInt(labelSizeField.getText());
+            if (size < MIN_LABEL_SIZE){
+                labelSizeField.setText("" + MIN_LABEL_SIZE);
+                size = MIN_LABEL_SIZE;
+            }
+            if (size > MAX_LABEL_SIZE){
+                labelSizeField.setText("" + MAX_LABEL_SIZE);
+                size = MAX_LABEL_SIZE;
+            }
+
+            if (tabbedPane.getSelectedIndex() != -1) {
+                ((GraphPane) tabbedPane.getSelectedComponent()).setTextSize(size);
+                tabbedPane.getSelectedComponent().repaint();
+            }
+            if (labelSizeSlider != null) {
+                labelSizeSlider.setValue(size);
+            }
+
+        } catch (Exception e) {
+            if (tabbedPane.getSelectedIndex() != -1) {
+                labelSizeField.setText("" + ((GraphPane) tabbedPane.getSelectedComponent()).getTextSize());
+            } else {
+                labelSizeField.setText("" + DEFAULT_LABEL_SIZE);
+            }
+        }
+    }
+
+    /**
+     * Updates the label size based on the slider value.
+     */
+    public void updateVertexSlider(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setRadius(vertexSizeSlider.getValue());
+            if (vertexSizeField != null)
+                vertexSizeField.setText("" + vertexSizeSlider.getValue());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Updates the label size based on the slider value.
+     */
+    public void updateLabelSlider(){
+        if (tabbedPane.getSelectedIndex() != -1) {
+            ((GraphPane) tabbedPane.getSelectedComponent()).setTextSize(labelSizeSlider.getValue());
+            if (labelSizeField != null)
+                labelSizeField.setText("" + labelSizeSlider.getValue());
+            tabbedPane.getSelectedComponent().repaint();
+        }
+    }
+
+    /**
+     * Updates the tooltip text, background colour, and slide action of the given JSlider.
+     * @param slider the JSlider to update.
+     * @param tooltip desired tooltip text.
+     * @param background desired background colour.
+     * @param action method to call upon moving slider.
+     * @param enabled true if the slider is usable, false otherwise.
+     * @param size size of the slider bar, as a Dimension.
+     */
+    public void setSliderOptions(JSlider slider, String tooltip, Color background, Runnable action, boolean enabled, Dimension size){
+        slider.setToolTipText(tooltip);
+
+        slider.setBackground(background);
+        slider.addChangeListener(
+                new ChangeListener() {
+                    public void stateChanged(ChangeEvent e) {
+                        action.run();
+                    }
+                });
+        slider.setEnabled(enabled);
+        slider.setPreferredSize(size);
+    }
+
+    /**
+     * Updates the tooltip text, box width, update action, and enabled setting of the given JTextField.
+     * @param box which text field to update.
+     * @param tooltip desired tooltip text.
+     * @param columns number of text columns in the box.
+     * @param action action to run upon updating the text.
+     * @param enabled true if box is usable, false otherwise.
+     */
+    public void setSliderBoxOptions(JTextField box, String tooltip, int columns, Runnable action, boolean enabled){
+        box.setColumns(columns);
+        box.setToolTipText(tooltip);
+        box.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                action.run();
+            }
+        });
+        box.setEnabled(enabled);
+    }
+
+    /**
      * Creates a new panel using the specified graph.
      * @param g the graph to assign to the tab.
      * @return a new tab with default settings.
@@ -1650,141 +1779,19 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         sliderPanel.setLayout(new GridLayout(1, 3));
 
         vertexSizeSlider = new JSlider(SwingConstants.VERTICAL, MIN_VERTEX_SIZE, MAX_VERTEX_SIZE, DEFAULT_VERTEX_SIZE);
-        vertexSizeSlider.setToolTipText("Resize vertices");
         labelSizeSlider = new JSlider(SwingConstants.VERTICAL, MIN_LABEL_SIZE, MAX_LABEL_SIZE, DEFAULT_LABEL_SIZE);
-        labelSizeSlider.setToolTipText("Resize vertex labels");
 
-        vertexSizeSlider.setBackground(toolbarColour);
-        vertexSizeSlider.addChangeListener(
-                new ChangeListener() {
-                    public void stateChanged(ChangeEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setRadius(vertexSizeSlider.getValue());
-                            if (vertexSizeField != null)
-                                vertexSizeField.setText("" + vertexSizeSlider.getValue());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
+        Dimension sliderSize = new Dimension(16, 150);
 
-        labelSizeSlider.setBackground(toolbarColour);
-        labelSizeSlider.addChangeListener(
-                new ChangeListener() {
-                    public void stateChanged(ChangeEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).setTextSize(labelSizeSlider.getValue());
-                            if (labelSizeField != null)
-                                labelSizeField.setText("" + labelSizeSlider.getValue());
-                            tabbedPane.getSelectedComponent().repaint();
-                        }
-                    }
-                });
+        setSliderOptions(vertexSizeSlider, "Resize vertices", toolbarColour, this::updateVertexSlider, false, sliderSize);
+        setSliderOptions(labelSizeSlider, "Resize vertex labels", toolbarColour, this::updateLabelSlider, false, sliderSize);
 
         vertexSizeField = new JTextField("" + DEFAULT_VERTEX_SIZE);
-        vertexSizeField.setColumns(2);
-        vertexSizeField.setToolTipText("Resize vertices");
-        vertexSizeField.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent ae) {
-                        try {
-                            int size = Integer.parseInt(vertexSizeField.getText());
-                            if (size < MIN_VERTEX_SIZE) vertexSizeField.setText("" + MIN_VERTEX_SIZE);
-                            if (size > MAX_VERTEX_SIZE) vertexSizeField.setText("" + MAX_VERTEX_SIZE);
-                        } catch (Exception e) {
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                vertexSizeField.setText("" + ((GraphPane) tabbedPane.getSelectedComponent()).getRadius());
-                            } else
-                                vertexSizeField.setText("" + DEFAULT_VERTEX_SIZE);
-                        }
-                    }
-                });
-        vertexSizeField.getDocument().addDocumentListener(
-                new DocumentListener() {
-
-                    @Override
-                    public void removeUpdate(DocumentEvent de) {}
-
-                    @Override
-                    public void insertUpdate(DocumentEvent de) {}
-
-                    @Override
-                    public void changedUpdate(DocumentEvent arg0) {
-                        try {
-                            int size = Integer.parseInt(vertexSizeField.getText());
-                            if (size < MIN_VERTEX_SIZE) size = MIN_VERTEX_SIZE;
-                            if (size > MAX_VERTEX_SIZE) size = MAX_VERTEX_SIZE;
-
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                ((GraphPane) tabbedPane.getSelectedComponent()).setRadius(size);
-                                tabbedPane.getSelectedComponent().repaint();
-                            }
-                            if (vertexSizeSlider != null) {
-                                vertexSizeSlider.setValue(size);
-                            }
-                        } catch (Exception e) {
-                            System.err.println(e);
-                        }
-                    }
-                });
-
-
         labelSizeField = new JTextField("" + DEFAULT_LABEL_SIZE);
-        labelSizeField.setColumns(2);
-        labelSizeField.setToolTipText("Resize vertex labels");
-        labelSizeField.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent ae) {
-                        try {
-                            int size = Integer.parseInt(labelSizeField.getText());
-                            if (size < MIN_LABEL_SIZE) labelSizeField.setText("" + MIN_LABEL_SIZE);
-                            if (size > MAX_LABEL_SIZE) labelSizeField.setText("" + MAX_LABEL_SIZE);
-                        } catch (Exception e) {
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                labelSizeField.setText("" + ((GraphPane) tabbedPane.getSelectedComponent()).getTextSize());
-                            } else {
-                                labelSizeField.setText("" + DEFAULT_LABEL_SIZE);
-                            }
-                        }
-                    }
-                });
 
-        labelSizeField.getDocument().addDocumentListener(
-                new DocumentListener() {
+        setSliderBoxOptions(vertexSizeField, "Resize vertices", 2, this::updateVertexTextBox, false);
+        setSliderBoxOptions(labelSizeField, "Resize vertex labels", 2, this::updateLabelTextBox, false);
 
-                    @Override
-                    public void removeUpdate(DocumentEvent de) {}
-
-                    @Override
-                    public void insertUpdate(DocumentEvent de) {}
-
-                    @Override
-                    public void changedUpdate(DocumentEvent arg0) {
-                        try {
-
-                            int size = Integer.parseInt(labelSizeField.getText());
-                            if (size < MIN_LABEL_SIZE) size = MIN_LABEL_SIZE;
-                            if (size > MAX_LABEL_SIZE) size = MAX_LABEL_SIZE;
-
-                            if (tabbedPane.getSelectedIndex() != -1) {
-                                ((GraphPane) tabbedPane.getSelectedComponent()).setTextSize(size);
-                                tabbedPane.getSelectedComponent().repaint();
-                            }
-                            if (labelSizeSlider != null)
-                                labelSizeSlider.setValue(size);
-
-                        } catch (Exception e) {
-                            System.err.println(e);
-                        }
-                    }
-                });
-
-
-        vertexSizeSlider.setEnabled(false);
-        vertexSizeField.setEnabled(false);
-        labelSizeSlider.setEnabled(false);
-        labelSizeField.setEnabled(false);
-        vertexSizeSlider.setPreferredSize(new Dimension(16, 150));
-        labelSizeSlider.setPreferredSize(new Dimension(16, 150));
 
         JPanel vertexSizeSliderPanel = new JPanel();
         vertexSizeSliderPanel.setBackground(toolbarColour);
