@@ -182,13 +182,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             for (int i = 0; i < defaultColors.length; i++)
                 defaultColors[i] = new Color(di.readInt(), di.readInt(), di.readInt());
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
         try {
             if (di != null)
                 di.close();
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
 
         }
     }
@@ -217,7 +217,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
             dos.close();
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -1237,7 +1237,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 repaint();
 
             } catch (Exception e) {
-                System.err.println(e);
+                e.printStackTrace();
             }
         }
 
@@ -1340,7 +1340,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 if (save)
                     ImageIO.write(img, fileFormat, file);
             } catch (Exception e) {
-                System.err.println(e);
+                e.printStackTrace();
             }
             gp.setSavingWithTransparentBackground(false);
             saveSettings();
