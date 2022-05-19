@@ -241,6 +241,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Changes the look of the cursor to that specified by cursor.
+     *
      * @param cursor the cursor object to apply.
      */
     public void changeCursor(Cursor cursor) {
@@ -253,6 +254,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Changes the current tool to that specified by so.
+     *
      * @param so the ID of the tool to change to.
      */
     public void changeSelectedOption(int so) {
@@ -268,8 +270,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             }
         }
 
-        for (int i = choices+bottomChoices; i < choices+bottomChoices+selectChoices; i++) {
-            if(selectedOption == i){
+        for (int i = choices + bottomChoices; i < choices + bottomChoices + selectChoices; i++) {
+            if (selectedOption == i) {
                 chosen[i] = true;
                 labels[i].setIcon(icons[i][3]);
             } else {
@@ -281,6 +283,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Executes the function associated with the clicked function button.
+     *
      * @param function the ID of the clicked function button.
      */
     public void executeBottomFunction(int function) {
@@ -347,7 +350,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Increases the spacing of the currently selected vertices by 10 percent.
      */
-    public void growSelected(){
+    public void growSelected() {
         if (tabbedPane.getSelectedIndex() != -1) {
             GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
             gp.setUndoState();
@@ -362,7 +365,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Shrinks the spacing of the currently selected vertices by 10 percent.
      */
-    public void shrinkSelected(){
+    public void shrinkSelected() {
         if (tabbedPane.getSelectedIndex() != -1) {
             GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
             gp.setUndoState();
@@ -378,7 +381,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Moves vertices of the current graph to the nearest intersection of gridlines.
      */
-    public void snapToGrid(){
+    public void snapToGrid() {
         if (tabbedPane.getSelectedIndex() != -1) {
             GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
             gp.setUndoState();
@@ -440,7 +443,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
      */
     public void buildNewGraph() {
 
-        GraphPane graphPanel = createGraphPanel(new Graph(0,0));
+        GraphPane graphPanel = createGraphPanel(new Graph(0, 0));
 
         int newGraph = 1;
         String newName = ("New Graph #" + newGraph);
@@ -470,30 +473,30 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Creates a new GraphPane for each graph stored in the file, with a format indicated by type.
+     *
      * @param file the file to open.
      * @param type the type of graph to read from the file. Use one of the variable specified in FileParser.
      */
-    public void openFile(File file, int type){
+    public void openFile(File file, int type) {
         FileParser fp = new FileParser();
         GraphData[] graphs;
 
 
-        if(type == FileParser.FILE_GML){
+        if (type == FileParser.FILE_GML) {
             graphs = fp.parseGML(file);
-        } else if(type == FileParser.FILE_UGV){
+        } else if (type == FileParser.FILE_UGV) {
             graphs = fp.parseUGV(file);
-        } else if(type == FileParser.FILE_G6){
+        } else if (type == FileParser.FILE_G6) {
             graphs = fp.parseGraph6(file);
-        } else if(type == FileParser.FILE_SCD){
+        } else if (type == FileParser.FILE_SCD) {
             graphs = fp.parseSCD(file);
-        } else if(type == FileParser.FILE_HCP){
+        } else if (type == FileParser.FILE_HCP) {
             graphs = fp.parseHCP(file);
-        } else if(type == FileParser.FILE_EDGE_LIST){
+        } else if (type == FileParser.FILE_EDGE_LIST) {
             graphs = fp.parseEdgeList(file);
-        } else if(type == FileParser.FILE_ASC){
+        } else if (type == FileParser.FILE_ASC) {
             graphs = fp.parseASC(file);
-        }
-        else {
+        } else {
             graphs = new GraphData[0];
         }
 
@@ -541,11 +544,12 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Saves the graph from gp to a file, with filetype type.
+     *
      * @param filename the full path and name of the file to be written to.
-     * @param gp the GraphPane which the graph will be read from.
-     * @param type the type of graph to store in the file. Use one of the variable specified in FileParser.
+     * @param gp       the GraphPane which the graph will be read from.
+     * @param type     the type of graph to store in the file. Use one of the variable specified in FileParser.
      */
-    public void saveGraph(String filename, GraphPane gp, int type){
+    public void saveGraph(String filename, GraphPane gp, int type) {
         File file = new File(filename);
 
 
@@ -562,7 +566,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 save = false;
         }
 
-        if(!save){
+        if (!save) {
             return;
         }
 
@@ -575,9 +579,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         FileParser fp = new FileParser();
 
-        if(type == FileParser.FILE_EDGE_LIST){
+        if (type == FileParser.FILE_EDGE_LIST) {
             fp.saveEdgeList(graphData, file);
-        } else if(type == FileParser.FILE_HCP){
+        } else if (type == FileParser.FILE_HCP) {
             fp.saveHCP(graphData, file);
         }
 
@@ -585,9 +589,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Saves the graph from gp to a file, with filetype type. Has the option to append the graph to an existing file.
+     *
      * @param filename the full path and name of the file to be written to.
-     * @param gp the GraphPane which the graph will be read from.
-     * @param type the type of graph to store in the file. Use one of the variable specified in FileParser.
+     * @param gp       the GraphPane which the graph will be read from.
+     * @param type     the type of graph to store in the file. Use one of the variable specified in FileParser.
      */
     public void saveGraphMultiple(String filename, GraphPane gp, int type) {
         GraphPane[] gps = new GraphPane[1];
@@ -598,9 +603,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Saves a graph from each GraphPane to a file, with filetype type. Has the option to append the graphs to an existing file.
-     * @param filename the full path and name of the file to be written to.
+     *
+     * @param filename   the full path and name of the file to be written to.
      * @param graphPanes the GraphPanes which the graphs will be read from.
-     * @param type the type of graph to be stored in the file. Use one of the variable specified in FileParser.
+     * @param type       the type of graph to be stored in the file. Use one of the variable specified in FileParser.
      */
     public void saveGraphMultiple(String filename, GraphPane[] graphPanes, int type) {
 
@@ -642,15 +648,15 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         FileParser fp = new FileParser();
 
-        if(type == FileParser.FILE_GML) {
+        if (type == FileParser.FILE_GML) {
             fp.saveGML(graphs, file, append);
-        } else if(type == FileParser.FILE_UGV){
+        } else if (type == FileParser.FILE_UGV) {
             fp.saveUGV(graphs, file, append);
-        } else if(type == FileParser.FILE_SCD){
+        } else if (type == FileParser.FILE_SCD) {
             fp.saveSCD(graphs, file, append);
-        } else if(type == FileParser.FILE_G6){
+        } else if (type == FileParser.FILE_G6) {
             fp.saveGraph6(graphs, file, append);
-        } else if(type == FileParser.FILE_ASC){
+        } else if (type == FileParser.FILE_ASC) {
             fp.saveASC(graphs, file, append);
         }
 
@@ -659,7 +665,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Triggers a dialog box to open a new graph or graphs from a file.
      */
-    public void openFileDialog(){
+    public void openFileDialog() {
         JFileChooser jfc = new JFileChooser(".");
         jfc.setAcceptAllFileFilterUsed(false);
 
@@ -725,7 +731,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Triggers a dialog box to save the current graph.
      */
-    public void saveGraphDialog(){
+    public void saveGraphDialog() {
         if (tabbedPane.getSelectedIndex() != -1) {
             JFileChooser jfc = new JFileChooser(".");
             jfc.setAcceptAllFileFilterUsed(false);
@@ -834,7 +840,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Triggers a dialog box to save a graph or multiple graphs int a file type that allows for multiple graph.
      */
-    public void saveMultipleGraphDialog(){
+    public void saveMultipleGraphDialog() {
 
         if (tabbedPane.getSelectedIndex() != -1) {
             String[] graphNames = new String[tabbedPane.getTabCount()];
@@ -946,7 +952,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Triggers a dialog box to create a new graph from a given list of families or operations.
      */
-    public void generateNewGraph(){
+    public void generateNewGraph() {
         GraphBuilderDialog gbd = new GraphBuilderDialog(parent, tabbedPane);
 
         if (!gbd.cancelled()) {
@@ -995,7 +1001,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
      * Sets whether or not vertices of the current graph should be aligned to a grid when moved or added.
      * Based on the state of the snap to grid menu checkbox.
      */
-    public void setSnapToGrid(){
+    public void setSnapToGrid() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).setSnapToGrid(gridSnapItem.getState());
             tabbedPane.getSelectedComponent().repaint();
@@ -1005,7 +1011,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Sets whether or not gridlines should be shown in the current view, based on the state of the gridlines menu item.
      */
-    public void setShowGridLines(){
+    public void setShowGridLines() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).setGridlines(gridlinesItem.getState());
             tabbedPane.getSelectedComponent().repaint();
@@ -1078,7 +1084,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Sets the state of calculating roman domination for the current graph, based on the menu item state.
      */
-    public void setDomRoman(){
+    public void setDomRoman() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).setDomRoman(domRomanItem.getState());
             tabbedPane.getSelectedComponent().repaint();
@@ -1088,7 +1094,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Sets the state of calculating weak roman domination for the current graph, based on the menu item state.
      */
-    public void setDomWeakRoman(){
+    public void setDomWeakRoman() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).setDomWeakRoman(domWeakRomanItem.getState());
             tabbedPane.getSelectedComponent().repaint();
@@ -1097,6 +1103,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Toggles the ability to click the undo menu item, based on whether or not an undo is available.
+     *
      * @param available the desired state of menu item usability.
      */
     public void setUndoAvailable(boolean available) {
@@ -1105,6 +1112,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Toggles the ability to click the redo menu item, based on whether or not a redo is available.
+     *
      * @param available the desired state of menu item usability.
      */
     public void setRedoAvailable(boolean available) {
@@ -1125,11 +1133,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     }
 
 
-
     /**
      * Reverts the previous action from the currently viewed graph.
      */
-    public void undo(){
+    public void undo() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).undo();
         }
@@ -1138,7 +1145,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Reverts the previous undo action from the currently viewed graph.
      */
-    public void redo(){
+    public void redo() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).redo();
         }
@@ -1159,7 +1166,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Trigger a dialog box to convert the current graph to tex code.
      */
-    public void texDialog(){
+    public void texDialog() {
         if (tabbedPane.getSelectedIndex() != -1) {
             GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
 
@@ -1172,7 +1179,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Trigger a dialog box to run a CPLEX instance for some implemented domination variant.
      */
-    public void solverDialog(){
+    public void solverDialog() {
         if (tabbedPane.getSelectedIndex() != -1) {
             GraphPane gp = (GraphPane) tabbedPane.getSelectedComponent();
 
@@ -1191,8 +1198,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Run a CPLEX instance to solve a domination problem for the current graph.
+     *
      * @param domType the type of domination problem to solve.
-     * @param fixed the value for which each vertex should be fixed in the solve. (-1: not fixed ,0: no guard ,1: one guard,2: two guards).
+     * @param fixed   the value for which each vertex should be fixed in the solve. (-1: not fixed ,0: no guard ,1: one guard,2: two guards).
      */
     public void runMILP(int domType, int[] fixed) {
         runMILP(domType, false, fixed);
@@ -1200,9 +1208,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Run a CPLEX instance to solve a domination problem for the current graph.
-     * @param domType the type of domination problem to solve.
+     *
+     * @param domType  the type of domination problem to solve.
      * @param preserve whether or not the current guards should remain dominated. Does not apply unless fixed is null.
-     * @param fixed the value for which each vertex should be fixed in the solve. (-1: not fixed ,0: no guard ,1: one guard,2: two guards).
+     * @param fixed    the value for which each vertex should be fixed in the solve. (-1: not fixed ,0: no guard ,1: one guard,2: two guards).
      */
     public void runMILP(int domType, boolean preserve, int[] fixed) {
         if (tabbedPane.getSelectedIndex() != -1) {
@@ -1246,7 +1255,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Opens a dialog to export the current view of the tab as an image. This includes the graph and any overlaying text.
      */
-    public void exportAsImage(){
+    public void exportAsImage() {
         JFileChooser jfc = new JFileChooser(".");
         jfc.setAcceptAllFileFilterUsed(false);
 
@@ -1268,8 +1277,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
         if (settings_saveImageFilter >= 0 && settings_saveImageFilter < extensions.length) {
             jfc.setFileFilter(extensions[settings_saveImageFilter]);
-        }
-        else {
+        } else {
             jfc.setFileFilter(extensions[0]);
         }
 
@@ -1357,6 +1365,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Updates the status of the tab at index, to whether or not is has been edited since creation or its previous save.
+     *
      * @param index the index of the tab to check.
      */
     public void checkSave(int index) {
@@ -1380,7 +1389,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Closes the current tab. Triggers a warning if the graph has been edited since its last save.
      */
-    public void closeFile(){
+    public void closeFile() {
         if (tabbedPane.getSelectedIndex() != -1) {
             if (!((GraphPane) tabbedPane.getSelectedComponent()).getUndoState().getLastSave()) {
                 String name = tabbedPane.getTitleAt(tabbedPane.getSelectedIndex());
@@ -1398,7 +1407,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Closes all tabs. Triggers a warning if any graph has been edited since its last save.
      */
-    public void closeAllWindows(){
+    public void closeAllWindows() {
         int tabs = tabbedPane.getTabCount();
         int offset = 0;
         for (int i = 0; i < tabs; i++) {
@@ -1419,7 +1428,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Opens a dialog to change the colours used in either the current graph or all graphs.
      */
-    public void changeColours(){
+    public void changeColours() {
         ColorSettingsDialog csd;
         if (tabbedPane.getSelectedIndex() != -1) {
             csd = new ColorSettingsDialog(parent, ((GraphPane) tabbedPane.getSelectedComponent()).getDefaultColors(), colorStrings, true);
@@ -1441,6 +1450,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Gets an array containing the saved default colours.
+     *
      * @return an array containing the saved default colours.
      */
     public Color[] getDefaultColors() {
@@ -1451,6 +1461,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Saves the array of colours as the new default colours.
+     *
      * @param dc the array of colours to save.
      */
     public void saveDefaultColors(Color[] dc) {
@@ -1460,6 +1471,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Gets an array containing the original colour scheme.
+     *
      * @return the array containing the original colours.
      */
     public Color[] getOriginalDefaultColors() {
@@ -1471,7 +1483,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Loads colours into arrays for use.
      */
-    private void initialiseColours(){
+    private void initialiseColours() {
         defaultColors[0] = defaultBackgroundColor;
         defaultColors[1] = defaultDefaultColor;
         defaultColors[2] = defaultHighlightedVertexFillColor;
@@ -1492,7 +1504,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Updates the frame location and size settings whenever the windows is moved or stretched.
      */
-    private void updateLocationSettings(){
+    private void updateLocationSettings() {
         getContentPane().addHierarchyBoundsListener(
                 new HierarchyBoundsListener() {
 
@@ -1519,7 +1531,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Updates various visual components to reflect the settings of the current tab.
      */
-    private void updateTabInfo(){
+    private void updateTabInfo() {
         if (tabbedPane.getSelectedIndex() == -1) {
             setTitle("Universal Graph Viewer");
             vertexSizeSlider.setValue(DEFAULT_VERTEX_SIZE);
@@ -1570,14 +1582,13 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Updates the vertex size based on the text box value.
      */
-    public void updateVertexTextBox(){
+    public void updateVertexTextBox() {
         try {
             int size = Integer.parseInt(vertexSizeField.getText());
-            if (size < MIN_VERTEX_SIZE){
+            if (size < MIN_VERTEX_SIZE) {
                 vertexSizeField.setText("" + MIN_VERTEX_SIZE);
                 size = MIN_VERTEX_SIZE;
-            }
-            else if (size > MAX_VERTEX_SIZE){
+            } else if (size > MAX_VERTEX_SIZE) {
                 vertexSizeField.setText("" + MAX_VERTEX_SIZE);
                 size = MAX_VERTEX_SIZE;
             }
@@ -1600,14 +1611,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Updates the label size based on the text box value.
      */
-    public void updateLabelTextBox(){
+    public void updateLabelTextBox() {
         try {
             int size = Integer.parseInt(labelSizeField.getText());
-            if (size < MIN_LABEL_SIZE){
+            if (size < MIN_LABEL_SIZE) {
                 labelSizeField.setText("" + MIN_LABEL_SIZE);
                 size = MIN_LABEL_SIZE;
             }
-            if (size > MAX_LABEL_SIZE){
+            if (size > MAX_LABEL_SIZE) {
                 labelSizeField.setText("" + MAX_LABEL_SIZE);
                 size = MAX_LABEL_SIZE;
             }
@@ -1632,7 +1643,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Updates the label size based on the slider value.
      */
-    public void updateVertexSlider(){
+    public void updateVertexSlider() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).setRadius(vertexSizeSlider.getValue());
             if (vertexSizeField != null)
@@ -1644,7 +1655,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     /**
      * Updates the label size based on the slider value.
      */
-    public void updateLabelSlider(){
+    public void updateLabelSlider() {
         if (tabbedPane.getSelectedIndex() != -1) {
             ((GraphPane) tabbedPane.getSelectedComponent()).setTextSize(labelSizeSlider.getValue());
             if (labelSizeField != null)
@@ -1655,14 +1666,15 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Updates the tooltip text, background colour, and slide action of the given JSlider.
-     * @param slider the JSlider to update.
-     * @param tooltip desired tooltip text.
+     *
+     * @param slider     the JSlider to update.
+     * @param tooltip    desired tooltip text.
      * @param background desired background colour.
-     * @param action method to call upon moving slider.
-     * @param enabled true if the slider is usable, false otherwise.
-     * @param size size of the slider bar, as a Dimension.
+     * @param action     method to call upon moving slider.
+     * @param enabled    true if the slider is usable, false otherwise.
+     * @param size       size of the slider bar, as a Dimension.
      */
-    public void setSliderOptions(JSlider slider, String tooltip, Color background, Runnable action, boolean enabled, Dimension size){
+    public void setSliderOptions(JSlider slider, String tooltip, Color background, Runnable action, boolean enabled, Dimension size) {
         slider.setToolTipText(tooltip);
 
         slider.setBackground(background);
@@ -1678,13 +1690,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Updates the tooltip text, box width, update action, and enabled setting of the given JTextField.
-     * @param box which text field to update.
+     *
+     * @param box     which text field to update.
      * @param tooltip desired tooltip text.
      * @param columns number of text columns in the box.
-     * @param action action to run upon updating the text.
+     * @param action  action to run upon updating the text.
      * @param enabled true if box is usable, false otherwise.
      */
-    public void setSliderBoxOptions(JTextField box, String tooltip, int columns, Runnable action, boolean enabled){
+    public void setSliderBoxOptions(JTextField box, String tooltip, int columns, Runnable action, boolean enabled) {
         box.setColumns(columns);
         box.setToolTipText(tooltip);
         box.addActionListener(new ActionListener() {
@@ -1698,6 +1711,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Creates a new panel using the specified graph.
+     *
      * @param g the graph to assign to the tab.
      * @return a new tab with default settings.
      */
@@ -1735,7 +1749,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         String[][] labelStrings = new String[totalChoices][2];
 
-        labelStrings[0] = new String[]{"Insert vertex","node"};
+        labelStrings[0] = new String[]{"Insert vertex", "node"};
         labelStrings[1] = new String[]{"Insert edge", "edge"};
         labelStrings[2] = new String[]{"Delete vertex", "eraser"};
         labelStrings[3] = new String[]{"Delete edge", "scissors"};
@@ -1753,10 +1767,10 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         icons = new ImageIcon[totalChoices][4];
 
         for (int i = 0; i < totalChoices; i++) {
-            icons[i][0] = new ImageIcon("pics/"+labelStrings[i][1]+".png");
-            icons[i][1] = new ImageIcon("pics/"+labelStrings[i][1]+"_highlight.png");
-            icons[i][2] = new ImageIcon("pics/"+labelStrings[i][1]+"_select.png");
-            icons[i][3] = new ImageIcon("pics/"+labelStrings[i][1]+"_chosen.png");
+            icons[i][0] = new ImageIcon("pics/" + labelStrings[i][1] + ".png");
+            icons[i][1] = new ImageIcon("pics/" + labelStrings[i][1] + "_highlight.png");
+            icons[i][2] = new ImageIcon("pics/" + labelStrings[i][1] + "_select.png");
+            icons[i][3] = new ImageIcon("pics/" + labelStrings[i][1] + "_chosen.png");
         }
 
 
@@ -1851,7 +1865,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         }
 
 
-
         int padding = 20;
 
         SpringLayout layout = new SpringLayout();
@@ -1865,7 +1878,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         layout.putConstraint(SpringLayout.NORTH, selectButtonPane, padding, SpringLayout.SOUTH, bottomButtonPane);
 
         graphEditPane.setLayout(layout);
-        graphEditPane.setPreferredSize(new Dimension(sliderPanel.getPreferredSize().width+padding, this.getHeight()));
+        graphEditPane.setPreferredSize(new Dimension(sliderPanel.getPreferredSize().width + padding, this.getHeight()));
 
 
         graphEditPane.add(buttonPane);
@@ -1877,8 +1890,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Creates a new tab using the specified panel and name.
+     *
      * @param graphPanel the panel to be assigned to the new tab.
-     * @param name the name to be assigned to the new tab.
+     * @param name       the name to be assigned to the new tab.
      */
     private void createWindowItem(GraphPane graphPanel, String name) {
         JMenuItem newGraphItem = new JMenuItem(name);
@@ -1939,7 +1953,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         pasteItem = createMenuItem("Paste Selected", this::pasteGraph, KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK);
         JMenuItem growItem = createMenuItem("Enlarge Selected", this::growSelected, KeyEvent.VK_EQUALS, InputEvent.CTRL_DOWN_MASK);
         JMenuItem shrinkItem = createMenuItem("Shrink Selected", this::shrinkSelected, KeyEvent.VK_MINUS, InputEvent.CTRL_DOWN_MASK);
-        JMenuItem snapGridItem = createMenuItem("Snap to Grid", this::snapToGrid,KeyEvent.VK_SLASH, InputEvent.CTRL_DOWN_MASK);
+        JMenuItem snapGridItem = createMenuItem("Snap to Grid", this::snapToGrid, KeyEvent.VK_SLASH, InputEvent.CTRL_DOWN_MASK);
         JMenuItem gridItem = createMenuItem("Arrange Grid", this::alignToGrid, KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK);
         JMenuItem domsetItem = createMenuItem("Edit Dominating Set", this::editDominatingSet, KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK);
         JMenuItem generateItem = createMenuItem("Generate New Graph", this::generateNewGraph, KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK);
@@ -2019,13 +2033,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Creates a new JMenuItem with the given properties.
-     * @param name the name of the menu item, displayed in the menu.
-     * @param method the method that clicking this menu item triggers
-     * @param hotkey a KeyEvent int value referring to a key. -1 if no keypress should be mapped.
+     *
+     * @param name            the name of the menu item, displayed in the menu.
+     * @param method          the method that clicking this menu item triggers
+     * @param hotkey          a KeyEvent int value referring to a key. -1 if no keypress should be mapped.
      * @param hotkey_modifier an InputEvent keydown mask.
      * @return a new JMenuItem with the given properties.
      */
-    private JMenuItem createMenuItem(String name, Runnable method, int hotkey, int hotkey_modifier){
+    private JMenuItem createMenuItem(String name, Runnable method, int hotkey, int hotkey_modifier) {
         JMenuItem menuItem = new JMenuItem(name);
         menuItem.addActionListener(new ActionListener() {
             @Override
@@ -2033,7 +2048,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 method.run();
             }
         });
-        if(hotkey != -1){
+        if (hotkey != -1) {
             menuItem.setAccelerator(KeyStroke.getKeyStroke(hotkey, hotkey_modifier));
         }
 
@@ -2042,13 +2057,14 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     /**
      * Creates a new JCheckboxMenuItem with the given properties.
-     * @param name the name of the menu item, displayed in the menu.
-     * @param method the method that clicking this menu item triggers
-     * @param hotkey a KeyEvent int value referring to a key. -1 if no keypress should be mapped.
+     *
+     * @param name            the name of the menu item, displayed in the menu.
+     * @param method          the method that clicking this menu item triggers
+     * @param hotkey          a KeyEvent int value referring to a key. -1 if no keypress should be mapped.
      * @param hotkey_modifier an InputEvent keydown mask.
      * @return a new JCheckboxMenuItem with the given properties.
      */
-    private JCheckBoxMenuItem createCheckboxMenuItem(String name, Runnable method, int hotkey, int hotkey_modifier){
+    private JCheckBoxMenuItem createCheckboxMenuItem(String name, Runnable method, int hotkey, int hotkey_modifier) {
         JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(name);
         menuItem.addActionListener(new ActionListener() {
             @Override
@@ -2056,7 +2072,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
                 method.run();
             }
         });
-        if(hotkey != -1){
+        if (hotkey != -1) {
             menuItem.setAccelerator(KeyStroke.getKeyStroke(hotkey, hotkey_modifier));
         }
 
@@ -2156,7 +2172,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            for (int i = 0; i < choices; i++){
+            for (int i = 0; i < choices; i++) {
                 if (e.getSource() == labels[i]) {
                     if (pressed[i] && highlighted[i]) {
 
@@ -2230,7 +2246,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
             for (int i = 0; i < pressed.length; i++) {
                 pressed[i] = false;
-                if (chosen[i]){
+                if (chosen[i]) {
                     labels[i].setIcon(icons[i][3]);
                 } else if (highlighted[i]) {
                     labels[i].setIcon(icons[i][1]);
