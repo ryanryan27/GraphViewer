@@ -1795,17 +1795,6 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
         redoEditItem.setMnemonic(KeyEvent.VK_R);
         redoEditItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
 
-        JMenuItem checkCrossingsItem = new JMenuItem("Check Crossings");
-        checkCrossingsItem.addActionListener(
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        if (tabbedPane.getSelectedIndex() != -1) {
-                            ((GraphPane) tabbedPane.getSelectedComponent()).checkCrossings();
-                        }
-                    }
-                });
-        checkCrossingsItem.setMnemonic(KeyEvent.VK_C);
-        checkCrossingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK));
 
         copyItem = new JMenuItem("Copy Selected");
         copyItem.addActionListener(
