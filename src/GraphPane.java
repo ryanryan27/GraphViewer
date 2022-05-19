@@ -192,7 +192,7 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
 
         if (e.getButton() == MouseEvent.BUTTON3) {
 
-            if(selectedOption != SELECT_OPTION){
+            if(selectedOption == DEFAULT_OPTION){
                 graph.deselectAll();
             }
 
