@@ -120,6 +120,8 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     Color[] defaultColors = new Color[colorTypes];
     String[] colorStrings = new String[colorTypes];
 
+    String prev_open_path = ".";
+
 
     public UGVViewer() {
         setTitle("Universal Graph Viewer");
@@ -565,8 +567,9 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
      * Triggers a dialog box to open a new graph or graphs from a file.
      */
     public void openFileDialog(){
-        JFileChooser jfc = new JFileChooser(".");
+        JFileChooser jfc = new JFileChooser(prev_open_path);
         jfc.setAcceptAllFileFilterUsed(false);
+        jfc.setMultiSelectionEnabled(true);
 
         String ascName = "GENREG ASC Format (*.asc)";
         String graph6Name = "Graph6 Format (*.g6)";
@@ -595,32 +598,34 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
 
         int choice = jfc.showOpenDialog(null);
         if (choice == JFileChooser.APPROVE_OPTION) {
-            File file = jfc.getSelectedFile();
+            File[] files = jfc.getSelectedFiles();
             String extensionName = jfc.getFileFilter().getDescription();
+            for(File file : files) {
+                prev_open_path = file.getParent();
 
-            if (extensionName.equals(ascName)) {
-                settings_loadFilter = 0;
-                openFile(file, FileParser.FILE_ASC);
-            } else if (extensionName.equals(graph6Name)) {
-                settings_loadFilter = 1;
-                openFile(file, FileParser.FILE_G6);
-            } else if (extensionName.equals(hcpName)) {
-                settings_loadFilter = 2;
-                openFile(file, FileParser.FILE_HCP);
-            } else if (extensionName.equals(scdName)) {
-                settings_loadFilter = 3;
-                openFile(file, FileParser.FILE_SCD);
-            } else if (extensionName.equals(edgeListName)) {
-                settings_loadFilter = 4;
-                openFile(file, FileParser.FILE_EDGE_LIST);
-            } else if (extensionName.equals(ugvName)) {
-                settings_loadFilter = 5;
-                openFile(file, FileParser.FILE_UGV);
-            } else if (extensionName.equals(gmlName)) {
-                settings_loadFilter = 6;
-                openFile(file, FileParser.FILE_GML);
+                if (extensionName.equals(ascName)) {
+                    settings_loadFilter = 0;
+                    openFile(file, FileParser.FILE_ASC);
+                } else if (extensionName.equals(graph6Name)) {
+                    settings_loadFilter = 1;
+                    openFile(file, FileParser.FILE_G6);
+                } else if (extensionName.equals(hcpName)) {
+                    settings_loadFilter = 2;
+                    openFile(file, FileParser.FILE_HCP);
+                } else if (extensionName.equals(scdName)) {
+                    settings_loadFilter = 3;
+                    openFile(file, FileParser.FILE_SCD);
+                } else if (extensionName.equals(edgeListName)) {
+                    settings_loadFilter = 4;
+                    openFile(file, FileParser.FILE_EDGE_LIST);
+                } else if (extensionName.equals(ugvName)) {
+                    settings_loadFilter = 5;
+                    openFile(file, FileParser.FILE_UGV);
+                } else if (extensionName.equals(gmlName)) {
+                    settings_loadFilter = 6;
+                    openFile(file, FileParser.FILE_GML);
+                }
             }
-
             saveSettings();
 
         }
