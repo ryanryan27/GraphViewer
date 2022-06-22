@@ -4,8 +4,7 @@
    import java.awt.*;
    import java.awt.event.*;
 
-   public class RelabelDialog extends JDialog implements ActionListener
-   {
+   public class RelabelDialog extends JDialog implements ActionListener {
       JFrame parent;
       JTextField newLabelField;
       JRadioButton incrementButton, swapButton;
@@ -13,9 +12,14 @@
       int original;
       boolean cancelled = true;
       int nodes;
-   
-      public RelabelDialog(JFrame frame, int current, int N)
-      {
+
+      /**
+       * Creates a dialog box to update the label of the provided vertex.
+       * @param frame the frame from which this dialog is created.
+       * @param current the vertex selected to be changed.
+       * @param N the total number of vertices.
+       */
+      public RelabelDialog(JFrame frame, int current, int N) {
          super(frame, true);
          parent = frame;
          original = current;
@@ -23,9 +27,6 @@
          setSize(200,150);
          setResizable(false);
          setLocationRelativeTo(parent);
-         //Math.max(0,mouseX-220),mouseY+20);
-      
-         
       
          newLabelField = new JTextField(""+current);
          newLabelField.setColumns(3);
@@ -63,37 +64,29 @@
       	
       }
       
-      public void actionPerformed(ActionEvent e)
-      {
-         if(e.getSource() == okButton)
-         {
-            JOptionPane jop = new JOptionPane();
+      public void actionPerformed(ActionEvent e) {
+         if(e.getSource() == okButton) {
             boolean processed = false;
             int newVertex = -1;
-            try
-            {
+            try {
                newVertex = Integer.parseInt(newLabelField.getText());
                processed = true;
+            } catch(Exception ex) {
+               System.err.println(ex.getMessage());
             }
-               catch(Exception ex)
-               {
-               }
             
-            if(!processed)
-               jop.showMessageDialog(this,"Vertex label must be an integer!","Incorrect format",JOptionPane.ERROR_MESSAGE);
-            else if(newVertex < 0)
-               jop.showMessageDialog(this,"Vertex label must be positive!","Incorrect format",JOptionPane.ERROR_MESSAGE);
-            else{
-               //boolean relabel = true;
-               if(newVertex == original)
-               {
-                  int choice = jop.showConfirmDialog(this,"You have not changed the label, are you sure?","Same label chosen",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+            if(!processed) {
+               JOptionPane.showMessageDialog(this,"Vertex label must be an integer!","Incorrect format",JOptionPane.ERROR_MESSAGE);
+            } else if(newVertex < 0) {
+               JOptionPane.showMessageDialog(this,"Vertex label must be positive!","Incorrect format",JOptionPane.ERROR_MESSAGE);
+            } else{
+               if(newVertex == original) {
+                  int choice = JOptionPane.showConfirmDialog(this,"You have not changed the label, are you sure?","Same label chosen",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
                   if(choice == JOptionPane.NO_OPTION)
                      return; 
                }
-               if(newVertex > nodes)
-               {
-                  jop.showMessageDialog(this,("You have chosen " + newVertex + " but the graph only contains " + nodes + " vertices!"),"Label is bigger than graph",JOptionPane.ERROR_MESSAGE);
+               if(newVertex > nodes) {
+                  JOptionPane.showMessageDialog(this,("You have chosen " + newVertex + " but the graph only contains " + nodes + " vertices!"),"Label is bigger than graph",JOptionPane.ERROR_MESSAGE);
                   return;
                }
                cancelled = false;
@@ -101,41 +94,43 @@
                dispose();
                
             }
-               
-               
-               
-            
-            
          	
          }
-         if(e.getSource() == cancelButton)
-         {
+         if(e.getSource() == cancelButton) {
             setVisible(false);
             dispose();
          }
       }
-      
+
+      /**
+       * Returns whether the dialog was closed before being completed.
+       * @return whether the dialog was cancelled.
+       */
       public boolean getCancelled()
       {
          return cancelled;
       }
-   	
-      public int getNewLabel()
-      {
-         try
-         {
-            if(newLabelField != null)
-            {
-               int newLabel = Integer.parseInt(newLabelField.getText());
-               return newLabel;
+
+      /**
+       * Gets the new label to be assigned to the specified vertex.
+       * @return the new label for the vertex.
+       */
+      public int getNewLabel() {
+         try {
+            if(newLabelField != null) {
+               return Integer.parseInt(newLabelField.getText());
             }
          }
-            catch(Exception e)
-            {
-            }
+         catch(Exception e) {
+            System.err.println(e.getMessage());
+         }
          return -1;
       }
-      
+
+      /**
+       * Gets whether the vertices with labels higher than the selected one should be incremented.
+       * @return true if the labels should be incremented, false otherwise.
+       */
       public boolean getIncrement()
       {
          return incrementButton.isSelected();

@@ -1,0 +1,89 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="GraphViewer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/GraphViewer_jar</output-path>
+    <root id="archive" name="GraphViewer.jar">
+      <element id="module-output" name="GraphViewer" />
+      <element id="directory" name="pics">
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/arrange_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/blank.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/blank.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/dom.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/dom_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/dom_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/dom_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/edge_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/editedges_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/eraser_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/labelResizeBig.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/labelResizeBig.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/labelResizeSmall.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/labelResizeSmall.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/node_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/properties_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/relabel_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors_chosen.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors_chosen.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors_highlight.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors_highlight.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors_select.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/scissors_select.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/Thumbs.db" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/vertexResizeBig.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/vertexResizeBig.png" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/vertexResizeSmall.bmp" />
+        <element id="file-copy" path="$PROJECT_DIR$/src/pics/vertexResizeSmall.png" />
+      </element>
+    </root>
+  </artifact>
+</component>

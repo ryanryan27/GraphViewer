@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
+
 public class GraphChooserDialog extends JDialog implements ActionListener {
 
     JFrame parent;
@@ -18,6 +19,11 @@ public class GraphChooserDialog extends JDialog implements ActionListener {
     Graph chosenGraph;
     boolean cancelled;
 
+    /**
+     * Creates a dialog box to select a currently open graph.
+     * @param parent the parent frame from which to create this dialog.
+     * @param openGraphs Tabbed pane that holds all open graph panes.
+     */
     public GraphChooserDialog(JFrame parent, JTabbedPane openGraphs){
         super(parent,true);
 
@@ -76,6 +82,9 @@ public class GraphChooserDialog extends JDialog implements ActionListener {
 
     }
 
+    /**
+     * Builds the displayed list of currently open graphs.
+     */
     private void buildList(){
 
         if(openGraphs.getTabCount() < 1){
@@ -97,27 +106,48 @@ public class GraphChooserDialog extends JDialog implements ActionListener {
 
     }
 
+    /**
+     * Returns whether the dialog was closed before being completed.
+     * @return whether the dialog was cancelled.
+     */
     public boolean cancelled(){
         return cancelled;
     }
 
+    /**
+     * Get the name of the selected graph.
+     * @return the name of the selected graph.
+     */
     public String getChosenName(){
         return chosenName;
     }
 
+    /**
+     * Get the selected graph.
+     * @return the selected graph.
+     */
     public Graph getChosenGraph(){
         return chosenGraph;
     }
 
-    private class ListItem{
+    private static class ListItem{
         Graph graph;
         String name;
 
+        /**
+         * Creates a new item to add to the list.
+         * @param graph the graph associated with the list item.
+         * @param name the name of the graph.
+         */
         ListItem(Graph graph, String name){
             this.graph = graph;
             this.name = name;
         }
 
+        /**
+         * The name of the graph associated with this list item.
+         * @return the name of the graph.
+         */
         @Override
         public String toString(){
             return this.name;

@@ -1,6 +1,5 @@
 //package UGV;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,8 +30,12 @@ public class Graph
    final int DOM_TYPE_SECURE = 3;
    final int DOM_TYPE_CONNECTED = 4;
 
-   public Graph(int inN, int inMaxDegree)
-   {
+   /**
+    * Create a new Graph with a specified number of vertices.
+    * @param inN number of vertices in the graph.
+    * @param inMaxDegree greatest number of incident edges on any vertex.
+    */
+   public Graph(int inN, int inMaxDegree) {
       N = inN;
       maxDegree = inMaxDegree;
       arcs = new int[N][maxDegree];
@@ -49,11 +52,19 @@ public class Graph
       createCircle();
    }
 
+   /**
+    * Gets the number of vertices in the graph.
+    * @return the number of vertices in the graph.
+    */
    public int getN()
    {
       return N;
    }
 
+   /**
+    * Get the total number of (undirected) edges in the graph.
+    * @return the total number of edges in the graph.
+    */
    public int getEdgeCount(){
       int count = 0;
       for (int i = 0; i < N; i++) {
@@ -62,13 +73,21 @@ public class Graph
       return count/2;
    }
 
+   /**
+    * Get the greatest number of edges incident on any vertex.
+    * @return the greatest number of edges incident on any vertex.
+    */
    public int getMaxDegree()
    {
       return maxDegree;
    }
 
-   public void setN(int inN)
-   {
+   /**
+    * Set the number of vertices of the graph. If this is greater than the original number, new vertices are added.
+    * If this is less than the original number of vertices, the highest indexed vertices are deleted.
+    * @param inN
+    */
+   public void setN(int inN) {
       if(N != inN)
       {
          int oldN = N;
@@ -184,8 +203,11 @@ public class Graph
       }
    }
 
-   public void deleteVertex(int vertex)
-   {
+   /**
+    * Deletes the vertex with the specified label, and removes associated edges.
+    * @param vertex the label of the vertex to be removed.
+    */
+   public void deleteVertex(int vertex) {
       if(vertex >= 1 && vertex <= N)
       {
          int []newDomset = new int[N-1];
@@ -288,8 +310,12 @@ public class Graph
 
    }
 
-   public void deleteArc(int v1, int v2)
-   {
+   /**
+    * Deletes the arc (single direction) between vertices with the specified labels.
+    * @param v1 label of the first vertex.
+    * @param v2 label of the second vertex.
+    */
+   public void deleteArc(int v1, int v2) {
       for(int i=0; i<degrees[v1-1]; i++)
       {
          if(arcs[v1-1][i] == v2)
@@ -311,14 +337,22 @@ public class Graph
       }
    }
 
+   /**
+    * Deletes the edge (both directions) between vertices with the specified labels.
+    * @param v1 label of the first vertex.
+    * @param v2 label of the second vertex.
+    */
    public void deleteEdge(int v1, int v2)
    {
       deleteArc(v1,v2);
       deleteArc(v2,v1);
    }
 
-   public void setMaxDegree(int inMaxDegree)
-   {
+   /**
+    * Sets the new maximum degree of any vertex within the graph.
+    * @param inMaxDegree new max degree.
+    */
+   public void setMaxDegree(int inMaxDegree) {
       if(maxDegree != inMaxDegree)
       {
          int oldMaxDegree = maxDegree;
@@ -349,6 +383,12 @@ public class Graph
       }
    }
 
+   /**
+    * Checks if there is an arc (single direction) between the vertices with the specified labels.
+    * @param v1 label of the first vertex.
+    * @param v2 label of the second vertex.
+    * @return true if the arc exists, false otherwise.
+    */
    public boolean isArc(int v1, int v2)
    {
       for(int i=0; i<degrees[v1-1]; i++)
@@ -358,6 +398,11 @@ public class Graph
       return false;
    }
 
+   /**
+    * Adds a new arc (single direction) between the vertices with the given labels.
+    * @param v1 label of the first vertex.
+    * @param v2 label of the second vertex.
+    */
    public void addArc(int v1, int v2)
    {
       if(degrees[v1-1] == maxDegree)
@@ -367,14 +412,22 @@ public class Graph
       orderArcs(v2);
    }
 
-   public void addArcs(int [][]newArcs)
-   {
+   /**
+    * Adds a set of new arcs (single direction) to the graph.
+    * @param newArcs a k x 2 array (int[k][2]) where k is the number of arcs, [i][0] is the start vertex label
+    *                and [i][1] is the goal vertex label for each arc.
+    */
+   public void addArcs(int [][]newArcs) {
       for(int i=0; i<newArcs.length; i++)
          addArc(newArcs[i][0],newArcs[i][1]);
    }
 
-   public void orderArcs(int row)
-   {
+   /**
+    * Sorts the list of arcs associated with a given vertex.
+    * Does not remove duplicates.
+    * @param row label of the vertex whose arcs are to be sorted.
+    */
+   public void orderArcs(int row) {
       int []newRow = new int[degrees[row-1]];
       for(int i=0; i<degrees[row-1]; i++)
          newRow[i] = arcs[row-1][i];
@@ -385,8 +438,11 @@ public class Graph
          arcs[row-1][i] = newRow[i];
    }
 
-   public void setDegrees(int []newDegrees)
-   {
+   /**
+    * A method for updating the degree of every vertex in bulk.
+    * @param newDegrees an array containing the new degree of each vertex, in index order.
+    */
+   public void setDegrees(int []newDegrees) {
       degrees = newDegrees;
       maxDegree = 0;
       for(int i=0; i<N; i++)
@@ -394,48 +450,61 @@ public class Graph
             maxDegree = degrees[i];
    }
 
-   public boolean isEdge(int v1, int v2)
-   {
-      boolean check = false;
-      for(int i=0; i<degrees[v1-1]; i++)
-         if(arcs[v1-1][i] == v2)
-         {
-            check = true;
-            break;
-         }
-
-      if(check)
-      {
-         for(int i=0; i<degrees[v2-1]; i++)
-            if(arcs[v2-1][i] == v1)
-               return true;
-      }
-
-      return false;
+   /**
+    * Checks if an edge (two directions) exists between the specified vertices.
+    * @param v1 label of the first vertex.
+    * @param v2 label of the second vertex.
+    * @return true if an edge (two directions) exists between the vertices, false otherwise.
+    */
+   public boolean isEdge(int v1, int v2) {
+      return (isArc(v1, v2) && isArc(v2, v1));
    }
 
+   /**
+    * Adds an edge (two directions) between the specified vertices.
+    * @param v1 label of the first vertex.
+    * @param v2 label of the second vertex.
+    */
    public void addEdge(int v1, int v2)
    {
-      if(degrees[v1-1] == maxDegree || degrees[v2-1] == maxDegree)
-         setMaxDegree(maxDegree+1);
-
-      arcs[v1-1][degrees[v1-1]++] = v2;
-      arcs[v2-1][degrees[v2-1]++] = v1;
+      addArc(v1, v2);
+      addArc(v2, v1);
    }
 
+   /**
+    * Adds a set of new edges (two directions) to the graph.
+    * @param newEdges a k x 2 array (int[k][2]) where k is the number of edges, [i][0] is the start vertex label
+    *                and [i][1] is the goal vertex label for each edge.
+    */
    public void addEdges(int [][]newEdges)
    {
       for(int i=0; i<newEdges.length; i++)
          addEdge(newEdges[i][0],newEdges[i][1]);
    }
 
+   /**
+    * Gets an array containing all arcs (single direction) of the graph.
+    * The number of elements in each array[i] is recorded in the array given by getDegrees.
+    * Each element in array[i] is either the label of a target vertex, or 0. 0 is never the label of a graph, hence it
+    * corresponds to an empty slot.
+    * @return an N x maxDegree array (int[N][maxDegree]) where N is the number of vertices, and maxDegree is the greatest
+    * degree of any vertex. If a given vertex has degree fewer than maxDegree, then array[i] will be filled out with 0s.
+    */
    public int[][] getArcs()
    {
       return arcs;
    }
 
-   public void setArcs(int [][]a, int []d, int nodes, boolean requiresSorting)
-   {
+   /**
+    * Deletes all existing arcs and overwrites them with an array of new arcs.
+    * @param a an N x maxDegree array (int[N][maxDegree]) where N is the number of vertices, and maxDegree is the greatest
+    *          degree of any vertex. Non-zero entries of a[i] indicate labels of vertices adjacent to vertex with index i.
+    *          If a given vertex has degree fewer than maxDegree, then the remainder of array[i] will be filled out with 0s.
+    * @param d an array of length N, where the value of d[i] is equal to the number of non-zero entries in a[i].
+    * @param nodes the number of vertices described in a and d. (N).
+    * @param requiresSorting whether or not the arcs should be sorted after being added.
+    */
+   public void setArcs(int[][] a, int[] d, int nodes, boolean requiresSorting) {
       // THIS FUNCTION ASSUMES arcs AND degrees HAVE BEEN PROCESSED AND ARE ACCURATE!
       if(N != nodes)
          setN(nodes);
@@ -450,40 +519,37 @@ public class Graph
       }
    }
 
+   /**
+    * Swaps all vertex information between the specified vertices.
+    * @param v1 the label of the first vertex.
+    * @param v2 the label of the second vertex.
+    */
    public void swapVertices(int v1, int v2)
    {
 
-      if(v1 == v2 || v1 <= 0 || v2 <= 0 || v1 > N || v2 > N)
+      if(v1 == v2 || v1 <= 0 || v2 <= 0 || v1 > N || v2 > N) {
          return;
+      }
 
-      for(int i=0; i<N; i++)
-      //if(i != v1-1 && i != v2-1)
-      //{
-      {
+      for(int i=0; i<N; i++) {
          boolean changed = false;
-         for(int j=0; j<degrees[i]; j++)
-         {
+         for(int j=0; j<degrees[i]; j++) {
 
-
-            if(arcs[i][j] == v1)
-            {
+            if(arcs[i][j] == v1) {
                arcs[i][j] = v2;
                changed = true;
-            }
-
-            else if(arcs[i][j] == v2)
-            {
+            } else if(arcs[i][j] == v2) {
                arcs[i][j] = v1;
                changed = true;
             }
          }
-         if(changed)
+         if(changed){
             orderArcs(i+1);
+         }
       }
-      //}
 
-      for(int i=0; i<maxDegree; i++)
-      {
+
+      for(int i=0; i<maxDegree; i++) {
          int temp = arcs[v1-1][i];
          arcs[v1-1][i] = arcs[v2-1][i];
          arcs[v2-1][i] = temp;
@@ -510,87 +576,162 @@ public class Graph
       selected[v2-1] = tempSelected;
    }
 
-   public int[] getDegrees()
-   {
+   /**
+    * Gets an array of length N, where the entry at index i is the degree of the vertex with index i.
+    * @return an array of degrees of each vertex.
+    */
+   public int[] getDegrees() {
       return degrees;
    }
 
+   /**
+    * Gets the x coordinate of the specified vertex.
+    * @param node the index of the vertex.
+    * @return the x coordinate of the vertex.
+    */
    public double getXPos(int node)
    {
       return nodePosX[node];
    }
 
+   /**
+    * Gets the y coordinate of the specified vertex.
+    * @param node the index of the vertex.
+    * @return the y coordinate of the vertex.
+    */
    public double getYPos(int node)
    {
       return nodePosY[node];
    }
 
+   /**
+    * Gets the x coordinate of the specified vertex.
+    * @param node the index of the vertex.
+    * @param posX the x coordinate of the vertex.
+    */
    public void setXPos(int node, double posX)
    {
       nodePosX[node] = posX;
    }
 
+   /**
+    * Gets the y coordinate of the specified vertex.
+    * @param node the index of the vertex.
+    * @param posY the y coordinate of the vertex.
+    */
    public void setYPos(int node, double posY)
    {
       nodePosY[node] = posY;
    }
 
-   public void setAllPos(double []nx, double []ny)
+   /**
+    * Sets the positions of all vertices in bulk.
+    * @param nx an array of length N where nx[i] is the x position of the vertex with index i;
+    * @param ny an array of length N where ny[i] is the y position of the vertex with index i;
+    */
+   public void setAllPos(double[] nx, double[] ny)
    {
       nodePosX = nx;
       nodePosY = ny;
    }
 
+   /**
+    * Gets an array containing the x positions of all vertices.
+    * @return an array of length N where the ith element is the x position of the vertex with index i;
+    */
    public double[] getXPoses()
    {
       return nodePosX;
    }
 
+   /**
+    * Gets an array containing the y positions of all vertices.
+    * @return an array of length N where the ith element is the y position of the vertex with index i;
+    */
    public double[] getYPoses()
    {
       return nodePosY;
    }
 
+   /**
+    * Gets an array containing the current ordering of vertices.
+    * @return an array of length N where each element is the index of a vertex.
+    */
    public int[] getContour()
    {
       return contour;
    }
 
+   /**
+    * Sets the ordering of vertices. Used for aligning vertices in a circle.
+    * @param co an array of length N where each element is the index of a vertex, and each element is unique.
+    */
    public void setContour(int[] co)
    {
       contour = co;
    }
 
+   /**
+    * Gets an array indicating which vertices are currently selected.
+    * TODO should selected be a property of GraphPane?
+    * @return an array of length N, where the element at position i is:
+    * true if the vertex with index i is selected,
+    * false if the vertex with index i is not selected.
+    */
    public boolean[] getSelected()
    {
       return selected;
    }
 
+   /**
+    * Sets which vertices are currently selected.
+    * @param se an array of length N, where se[i] is:
+    * true if the vertex with index i is selected,
+    * false if the vertex with index i is not selected.
+    */
    public void setSelected(boolean[] se)
    {
       selected = se;
    }
 
+   /**
+    * Gives the specified vertex the selected status.
+    * @param v the index of the vertex.
+    */
    public void select(int v)
    {
       selected[v] = true;
    }
 
+   /**
+    * Makes the specified vertex unselected.
+    * @param v the index of the vertex.
+    */
    public void deselect(int v)
    {
       selected[v] = false;
    }
 
+   /**
+    * Removes the selected status of every vertex.
+    */
    public void deselectAll(){
       selected = new boolean[N];
    }
 
+   /**
+    * Checks if the specified vertex is selected.
+    * @param v the index of the vertex.
+    * @return true if the vertex is selected, false otherwise.
+    */
    public boolean isSelected(int v)
    {
       return selected[v];
    }
 
-
+   /**
+    * Arranges the vertex in a circle, where the clockwise order of the vertices is specified by setContour().
+    */
    public void createCircle()
    {
       int radius = 15*N;
@@ -603,6 +744,13 @@ public class Graph
       }
    }
 
+   /**
+    * Arranges the vertices of the graph in a grid.
+    * @param copies number of elements in the first column (if vertical is true) or row (if vertical is false)
+    * @param vertical true if the first column should contain vertices (1 2 3 ...),
+    *                 false if the first row should contain vertices (1 2 3 ...)
+    * @param spacing vertical and horizontal distance between vertices.
+    */
    public void createGrid(int copies, boolean vertical, double spacing){
 
       int width = copies;
@@ -614,6 +762,7 @@ public class Graph
 
       for (int i = 0; i < N; i++) {
          double x = (i % width)*spacing;
+         //noinspection IntegerDivisionInFloatingPointContext
          double y = (i/width)*spacing;
 
          if(vertical){
@@ -628,8 +777,11 @@ public class Graph
 
    }
 
-   public boolean isConnected()
-   {
+   /**
+    * Checks if the graph is a connected graph.
+    * @return true if the graph is connected, false if the graph is disconnected.
+    */
+   public boolean isConnected() {
       if(N == 0)
          return false;
       if(N == 1)
@@ -667,6 +819,10 @@ public class Graph
       return true;
    }
 
+   /**
+    * Checks if the graph is regular (every vertex has the same degree).
+    * @return the degree of every vertex if the graph is regular, or -1 if it is not.
+    */
    public int checkRegular()
    {
       int regular = degrees[0];
@@ -677,8 +833,15 @@ public class Graph
       return regular;
    }
 
+   /**
+    * Checks if the graph is bipartite.
+    * (Vertices can be put into two separate groups, where no vertex is adjacent to any other in the same group).
+    * @return true if the graph is bipartite, false otherwise
+    */
    public boolean isBipartite()
    {
+
+
       if(N == 0)
          return false;
       if(N == 1)
@@ -752,320 +915,20 @@ public class Graph
       return true;
    }
 
-   public int connectivity(PropertiesDialog pd)
-   {
-      JProgressBar progressBar = null;
-      if(pd != null)
-      {
-         progressBar = pd.getProgressBar();
-         progressBar.setMaximum(N-1);
-         progressBar.setMinimum(0);
-         progressBar.setValue(0);
-      }
-      int minMaxFlow = maxFlow(2);
-      if(progressBar != null)
-         progressBar.setValue(1);
-      for(int i=3; i<=N; i++)
-      {
-         int maxFlow = maxFlow(i);
-         if(maxFlow < minMaxFlow)
-            minMaxFlow = maxFlow;
-         if(progressBar != null)
-            progressBar.setValue(i-1);
-         //if(maxFlow == 1)
-         //System.out.println(i);
-      }
-      return minMaxFlow;
-   }
-
-
-
-   public int maxFlow(int v)
-   {
-      int flow = 0;
-      int [][]flowMatrix = new int[N][N];
-      for(int i=0; i<N; i++)
-         for(int j=0; j<degrees[i]; j++)
-            flowMatrix[i][arcs[i][j]-1] = 1;
-
-      int [][]updateFlow = new int[N][N];
-
-
-      while(true)
-      {
-         int []path = findPath(flowMatrix, 0, v-1);
-         if(path[0] == -1)
-            return flow;
-
-         flow++;
-         for(int i=1; i<N; i++)
-         {
-            if(path[i] == -1)
-               break;
-
-            flowMatrix[path[i-1]][path[i]] -= 1;
-            flowMatrix[path[i]][path[i-1]] += 1;
-         }
-      }
-   }
-
-   public int[] findPath(int [][]flowMatrix, int v1, int v2)
-   {
-      int nodes = flowMatrix[0].length;
-      int []path = new int[nodes];
-      for(int i=0; i<nodes; i++)
-         path[i] = -1;
-      int []levels = new int[nodes];
-      int []parents = new int[nodes];
-      boolean []checked = new boolean[nodes];
-      checked[v1] = true;
-
-      boolean []toCheck = new boolean[nodes];
-      boolean goOn = false;
-      int current = -1;
-      for(int i=0; i<nodes; i++)
-         if(flowMatrix[v1][i] > 0)
-         {
-            if(current == -1)
-               current = i;
-            toCheck[i] = true;
-            parents[i] = v1;
-            levels[i] = 1;
-            goOn = true;
-            if(i == v2)
-            {
-               path[0] = v1;
-               path[1] = v2;
-               return path;
-            }
-         }
-
-      boolean finished = false;
-
-      while(goOn)
-      {
-         goOn = false;
-
-
-
-         for(int i=0; i<nodes; i++)
-         {
-            if(flowMatrix[current][i] > 0 && !checked[i])
-            {
-               toCheck[i] = true;
-               parents[i] = current;
-               levels[i] = levels[current]+1;
-               if(i == v2)
-               {
-                  finished = true;
-                  break;
-               }
-            }
-         }
-
-         if(finished)
-            break;
-
-         checked[current] = true;
-         toCheck[current] = false;
-
-         current = -1;
-         for(int i=0; i<nodes; i++)
-            if(toCheck[i])
-            {
-               current = i;
-               goOn = true;
-               break;
-            }
-      }
-
-      if(finished)
-      {
-         current = v2;
-         for(int i=levels[v2]; i>=0; i--)
-         {
-            path[i] = current;
-            current = parents[current];
-         }
-
-      /*for(int i=0; i<nodes; i++)
-      {
-         if(path[i] == -1)
-            break;
-         System.out.print((path[i]+1) + " ");
-      }
-      System.out.println();*/
-      }
-      return path;
-   }
-
-
-   public int girth(PropertiesDialog pd)
-   {
-      JProgressBar progressBar = null;
-      if(pd != null)
-      {
-         progressBar = pd.getProgressBar();
-         progressBar.setMaximum(N-1);
-         progressBar.setMinimum(0);
-         progressBar.setValue(0);
-      }
-      int girth = N+1;
-      for(int i=1; i<=N; i++)
-      {
-         boolean []S = new boolean[N];
-         boolean []R = new boolean[N];
-         int []D = new int[N];
-         int []parent = new int[N];
-         //R[i-1] = true;
-         int x = i;
-         int sindex = 0;
-         boolean goOn = true;
-         while(goOn)
-         {
-            goOn = false;
-            S[x-1] = true;
-            for(int j=1; j<=N; j++)
-            {
-               if(parent[x-1] != j)
-               {
-                  boolean found = false;
-                  for(int k=0; k<degrees[x-1]; k++)
-                  {
-                     if(arcs[x-1][k] == j)
-                     {
-                        found = true;
-                        break;
-                     }
-                  }
-                  if(found)
-                  {
-                     if(!S[j-1])
-                     {
-                        parent[j-1] = x;
-                        D[j-1] = D[x-1] + 1;
-                        R[j-1] = true;
-                     }
-                     else
-                     {
-                        girth = Math.min(girth,D[x-1] + D[j-1] + 1);
-                        if(girth == 3)
-                        {
-                           progressBar.setValue(N);
-                           return girth;
-                        }
-                     }
-                  }
-               }
-            }
-            for(int j=0; j<N; j++)
-               if(R[j])
-               {
-                  x = j+1;
-                  R[j] = false;
-                  goOn = true;
-                  break;
-               }
-         }
-
-         if(progressBar != null)
-            progressBar.setValue(i);
-      }
-      if(girth == N+1)
-         return -1;
-      return girth;
-   }
-
-
-   public int diameter(PropertiesDialog pd)
-   {
-      JProgressBar progressBar = null;
-      if(pd != null)
-      {
-         progressBar = pd.getProgressBar();
-         progressBar.setMaximum(N-1);
-         progressBar.setMinimum(0);
-         progressBar.setValue(0);
-      }
-      int diameter = 0;
-      for(int i=0; i<N; i++)
-      {
-
-         int []dist = new int[N];
-         int []previous = new int[N];
-
-         for(int j=0; j<N; j++)
-         {
-            dist[j] = N+1;
-            previous[j] = 0;
-         }
-
-         dist[i] = 0;
-
-         boolean []Q = new boolean[N];
-         for(int j=0; j<N; j++)
-            Q[j] = true;
-
-         boolean goOn = true;
-         int u = i;
-         Q[u] = false;
-
-         while(goOn)
-         {
-            goOn = false;
-            if(dist[u] == N+1)
-               break;
-
-            for(int j=0; j<degrees[u]; j++)
-            {
-               if(Q[arcs[u][j]-1])
-               {
-                  int alt = dist[u] + 1;
-                  if(alt < dist[arcs[u][j]-1])
-                  {
-                     dist[arcs[u][j]-1] = alt;
-                     previous[arcs[u][j]-1] = u;
-                  }
-               }
-            }
-
-            int min = N+2;
-            for(int j=0; j<N; j++)
-               if(Q[j])
-               {
-                  goOn = true;
-                  if(dist[j] < min)
-                  {
-                     min = dist[j];
-                     u = j;
-                  }
-               }
-
-            if(goOn)
-            {
-               Q[u] = false;
-            }
-         }
-
-         for(int j=0; j<N; j++)
-            if(dist[j] > diameter)
-               diameter = dist[j];
-
-         if(progressBar != null)
-            progressBar.setValue(i);
-      }
-      return diameter;
-   }
-
-   public int inDomset(int node)
-   {
-      /*if(domset[node-1] > 0)
-         return true;
-      else
-         return false;*/
+   /**
+    * Checks if the specified vertex is in the dominating set.
+    * @param node label of the vertex.
+    * @return the number of guards at the vertex.
+    */
+   public int inDomset(int node) {
       return domset[node-1];
    }
 
+   /**
+    * Sets the number of guards at the specified vertex. Between 0 and 2 inclusive.
+    * @param node the index of the vertex.
+    * @param domValue the number of guards to be put at the vertex.
+    */
    public void setDomValue(int node, int domValue){
 
       if(domValue > 2) domValue = 0;
@@ -1074,8 +937,17 @@ public class Graph
       domset[node] = domValue;
    }
 
-   public boolean[] dominatedVertices(boolean domTotal, boolean domSecure, boolean domConnected, boolean domRoman, boolean domWeakRoman)
-   {
+   /**
+    * Checks whether or not vertices meet the specified domination conditions.
+    * @param domTotal if true checks which vertices are total dominated.
+    * @param domSecure if true checks which vertices are secure dominated.
+    * @param domConnected if true checks which vertices are connected dominated.
+    * @param domRoman if true checks which vertices are roman dominated.
+    * @param domWeakRoman if true checks which vertices are weak roman dominated.
+    * @return an array of length N where an element i is true if the vertex with index i meets all of the
+    * specified domination conditions, false otherwise.
+    */
+   public boolean[] dominatedVertices(boolean domTotal, boolean domSecure, boolean domConnected, boolean domRoman, boolean domWeakRoman) {
       boolean []dv = new boolean[N];
 
       if(domConnected)
@@ -1164,11 +1036,18 @@ public class Graph
       return dv;
    }
 
-   public int[] getDomset()
-   {
+   /**
+    * Gets the number of guards at each vertex of the graph.
+    * @return an array of length N, where element i is the number of guards at the vertex with index i.
+    */
+   public int[] getDomset() {
       return domset;
    }
 
+   /**
+    * Gets the sum of all guards in graph.
+    * @return the sum of all domination values of all vertices in this graph.
+    */
    public int getDomSize(){
       int count = 0;
       for (int i = 0; i < N; i++) {
@@ -1178,30 +1057,35 @@ public class Graph
 
    }
 
-   public void setDomset(int []ds)
-   {
+   /**
+    * Sets the number of guards at each vertex of the graph.
+    * @param ds an array of length N, where ds[i] is the number of guards at the vertex with index i.
+    */
+   public void setDomset(int[] ds) {
       domset = ds;
    }
 
-   public int[] toggleDom(int node)
-   {
+   /**
+    * Progresses the number of guards at the specified vertex along the cyclic order (0 1 2).
+    * @param node the index of the vertex.
+    */
+   public void toggleDom(int node) {
       if(domset[node] == 0)
          domset[node] = 1;
       else if(domset[node] == 1)
          domset[node] = 2;
       else if(domset[node] == 2)
          domset[node] = 0;
-      return domset;
    }
 
+   /**
+    * Updates the positions of every vertex using a Kamada-Kawai spring algorithm.
+    * @param radius the current visual radius of the vertices. Affects the desired length of each edge in the calculations.
+    */
    public void springLayout(int radius){
-      //calculatingSpring = true;
       calculateShortestPaths();
 
       double tolerance = 0.001/N;
-
-      double[] before = getMiddle();
-
 
       int[][] l = new int[N][N];
       double[][] k = new double[N][N];
@@ -1214,17 +1098,11 @@ public class Graph
             if(dist(i,j) < N+1) {
                l[i][j] = radius * 10 * dist(i,j);
                k[i][j] = springStrength/dist(i,j);
-            }
-            else {
+            } else {
                l[i][j] = 0;
                k[i][j] = 0;
             }
-
-
-
          }
-
-
       }
 
       int m = 0;
@@ -1242,12 +1120,10 @@ public class Graph
          }
       }
 
-      //System.out.println("m = " + m);
 
       double prevD = 0;
       int count = 0;
       while(count < 1000 && (delta[m] > 0.001 && Math.abs(delta[m] - prevD)/prevD >= tolerance)){
-         //System.out.println("Inner m = " + m);
          count++;
          prevD = delta[m];
 
@@ -1288,8 +1164,6 @@ public class Graph
             double dY = (E*F - B*C)/(F*D - B*B);
 
 
-            //System.out.println("dX = " +dX + " and dY = " + dY+". F*D - B*B = " + (F*D - B*B) + " and C*D - E*B = " + (C*D - E*B) + ". C = " + C + " and D + " + D + " and E = " + E + " and F = " + F);
-
             setXPos(m, getXPos(m)+dX);
             setYPos(m, getYPos(m)+dY);
 
@@ -1318,20 +1192,13 @@ public class Graph
 
 
       }
-
-      /*double[] after = getMiddle();
-      double xShift = before[0] - after[0];
-      double yShift = before[1] - after[1];
-
-      for (int i = 0; i < N; i++) {
-         nodePosX[i] += xShift;
-         nodePosY[i] += yShift;
-      }*/
-
-
-      //calculatingSpring = false;
    }
 
+   /**
+    * Gets the mean x and y coordinates of the selected vertices.
+    * @param vertices an array of length N, where vertices[i] is true if the vertex with index i should be included in the calculation.
+    * @return an array of two elements, {mean x coordinate, mean y coordinate}
+    */
    public double[] getMiddle(boolean[] vertices){
 
       double x = 0;
@@ -1353,7 +1220,10 @@ public class Graph
       return new double[]{x, y};
    }
 
-
+   /**
+    * Gets the mean x and y coordinates of all vertices of the graph.
+    * @return an array of two elements, {mean x coordinate, mean y coordinate}
+    */
    public double[] getMiddle(){
       double x = 0;
       double y = 0;
@@ -1367,11 +1237,14 @@ public class Graph
       y = y/N;
 
       return new double[]{x, y};
-
-
    }
 
-
+   /**
+    * Gets the number of arcs in the shortest path between the specified vertices.
+    * @param v1 the index of the first vertex.
+    * @param v2 the index of the second vertex.
+    * @return the number of arcs in shortest path between the v1 and v2.
+    */
    public int dist(int v1, int v2){
       if (dists == null || dists.length != N) {
          //TODO need to update shortest paths when verts/edges/labels changed
@@ -1380,12 +1253,22 @@ public class Graph
       return dists[v1][v2];
    }
 
+   /**
+    * Gets the square of euclidean distance between the two specified vertices.
+    * @param v1 the index of the first vertex.
+    * @param v2 the index of the second vertex.
+    * @return the square of the Euclidean distance between v1 and v2.
+    */
    public double distL2(int v1, int v2){
       return Math.pow(getXPos(v1)-getXPos(v2),2) + Math.pow(getYPos(v1)-getYPos(v2),2);
    }
 
+   /**
+    * Gets the list of vertices which have a shortest path of 2 from the specified vertex.
+    * @param v1 the index of the vertex.
+    * @return an array where each element is the index of a vertex two away from the specified vertex.
+    */
    public int[] twoApartList(int v1){
-      //ArrayList<Integer> verts = new ArrayList<>();
       Set<Integer> verts = new HashSet<>();
 
       //get 1 away
@@ -1406,13 +1289,15 @@ public class Graph
                verts.add(v2);
                break;
             }
-
          }
       }
 
       return verts.stream().mapToInt(Number::intValue).toArray();
    }
 
+   /**
+    * Calculates the shortest paths between every pair of vertices and stores the result in dists[][].
+    */
    private void calculateShortestPaths() {
 
 
@@ -1461,14 +1346,33 @@ public class Graph
 
    }
 
+
+   /**
+    * Creates a new graph using the currently selected vertices, copying position, domination value and edges.
+    * Optionally aligns the new graph so its top left boundary is at (0,0).
+    * @param align whether the graph should be aligned to (0,0).
+    * @return a new graph object created from the currently selected vertices.
+    */
    public Graph getSelectedSubgraph(boolean align){
       return getSubgraph(selected, align);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * @param vertices an array of length N, where vertex with index i will be in the new graph if vertices[i] is true.
+    * @return a new graph created from the indicated vertices.
+    */
    public Graph getSubgraph(boolean[] vertices){
       return getSubgraph(vertices, false);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * Optionally aligns the new graph so its top left boundary is at (0,0).
+    * @param vertices an array of length N, where vertex with index i will be in the new graph if vertices[i] is true.
+    * @param align whether the graph should be aligned to (0,0).
+    * @return a new graph created from the indicated vertices, optionally aligned to (0,0).
+    */
    public Graph getSubgraph(boolean[] vertices, boolean align){
       int subN = 0;
       for (boolean v : vertices) {
@@ -1491,10 +1395,22 @@ public class Graph
       return getSubgraph(verts, align);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * @param vertices an array where each element is the index of a vertex to be included in the new graph.
+    * @return a new graph created from the indicated vertices.
+    */
    public Graph getSubgraph(int[] vertices){
       return getSubgraph(vertices, false);
    }
 
+   /**
+    * Creates a new graph using the indicated vertices. Copies position, domination values and edges.
+    * Optionally aligns the new graph so its top left boundary is at (0,0).
+    * @param vertices an array where each element is the index of a vertex to be included in the new graph.
+    * @param align whether the graph should be aligned to (0,0).
+    * @return a new graph created from the indicated vertices, optionally aligned to (0,0).
+    */
    public Graph getSubgraph(int[] vertices, boolean align){
       int subN = vertices.length;
       int mDegree = 0;
@@ -1524,6 +1440,11 @@ public class Graph
       return g;
    }
 
+   /**
+    * Adds a new vertex to the graph, with the given x and y coordinates.
+    * @param x the x coordinate of the new vertex.
+    * @param y the y coordinate of the new vertex.
+    */
    public void addVertex(double x, double y){
       this.setN(N+1);
 
@@ -1531,19 +1452,43 @@ public class Graph
       setYPos(N-1, y);
    }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values and coordinates are kept.
+    * @param g the graph to add to this one.
+    */
    public void addSubgraph(Graph g){
-
       addSubgraph(g, 0,0, 1);
-}
+   }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values are kept and coordinates are scaled by
+    * the specified value.
+    * @param g the graph to add to this one.
+    * @param scale the factor by which the vertex coordinates will be divided.
+    */
    public void addSubgraph(Graph g, double scale){
       addSubgraph(g, 0, 0, scale);
    }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values are kept, and coordinates are shifted
+    * by the given offsets.
+    * @param g the graph to add to this one.
+    * @param xOffset how much the x coordinates of the vertices are offset by.
+    * @param yOffset how much the y coordinates of the vertices are offset by.
+    */
    public void addSubgraph(Graph g, double xOffset, double yOffset){
       addSubgraph(g, xOffset, yOffset, 1);
    }
 
+   /**
+    * Adds all vertices and edges of the graph g to this graph. Domination values are kept, and coordinates are scaled
+    * by the given amount then shifted by the given offsets.
+    * @param g the graph to add to this one.
+    * @param xOffset how much the x coordinates of the vertices are offset by.
+    * @param yOffset how much the y coordinates of the vertices are offset by.
+    * @param scale inverse of how much the original coordinates are scaled by.
+    */
    public void addSubgraph(Graph g, double xOffset, double yOffset, double scale){
       int oldN = N;
 
@@ -1575,6 +1520,12 @@ public class Graph
 
    }
 
+   /**
+    * Gets the coordinates of the closest vertex to the vertex with the given index.
+    * @param vertex the index of the vertex to find a neighbour of.
+    * @return a two element array containing the x and y coordinates (respectively) of the closest vertex.
+    * Has a default value of (15,15).
+    */
    public double[] distToClosestNeighbour(int vertex){
       double[] closestXY = {15,15};
 
@@ -1606,12 +1557,21 @@ public class Graph
       return closestXY;
    }
 
+   /**
+    * Aligns this graph such that the top left boundary of the graph is at (0,0).
+    */
    public void alignTopLeft(){
       alignTopLeft(0,0, 1);
    }
 
 
-
+   /**
+    * Rescales all coordinates using the given scale, then aligns this graph such that the top left boundary
+    * of the graph is at (xOffset, yOffset).
+    * @param xOffset x coordinate that the top left should be aligned to.
+    * @param yOffset y coordinate that the top left should be aligned to.
+    * @param scale inverse how much the coordinates should be scaled by before aligning them.
+    */
    public void alignTopLeft(double xOffset, double yOffset, double scale){
 
       if(N == 0) return;
@@ -1632,6 +1592,12 @@ public class Graph
 
    }
 
+   /**
+    * Gets the coordinates of the top left boundary of the given vertices. This is given by the smallest x coordinate
+    * and smallest y coordinate among all vertices (not necessarily the same vertex).
+    * @return a two element array containing the x coordinate and y coordinate (respectively) of the top left boundary
+    * of this graph.
+    */
    public double[] getTopLeft(){
 
       if(N == 0) return new double[2];
@@ -1654,6 +1620,12 @@ public class Graph
 
    }
 
+   /**
+    * Gets the coordinates of the bottom right boundary of the given vertices. This is given by the largest x coordinate
+    * and largest y coordinate among all vertices (not necessarily the same vertex).
+    * @return a two element array containing the x coordinate and y coordinate (respectively) of the bottom right boundary
+    * of this graph.
+    */
    public double[] getBottomRight(){
       if(N == 0) return new double[2];
 
@@ -1670,12 +1642,14 @@ public class Graph
 
       }
 
-
       return bottomRight;
-
 
    }
 
+   /**
+    * Divides the coordinates of every vertex in this graph by the given scale.
+    * @param scale factor by which the coordinates are reduced.
+    */
    public void rescale(double scale){
 
       for (int i = 0; i < N; i++) {
@@ -1685,10 +1659,19 @@ public class Graph
 
    }
 
+   /**
+    * Divides the coordinates of every selected vertex in this graph by the given scale.
+    * @param scale factor by which the coordinates are reduced.
+    */
    public void rescaleSelected(double scale){
       rescaleList(scale, selected);
    }
 
+   /**
+    * Divides the coordinates of every indicated vertex in this graph by the given scale.
+    * @param scale factor by which the coordinates are reduced.
+    * @param toRescale an array of length N, where vertex with index i will be rescaled if toRescale[i] is true.
+    */
    public void rescaleList(double scale, boolean[] toRescale){
 
       if(N == 0) return;
@@ -1715,6 +1698,10 @@ public class Graph
 
    }
 
+   /**
+    * Creates a new graph with the same vertices, edges, domination values and selected vertices as this one.
+    * @return a copy of this graph.
+    */
    public Graph getCopy(){
       boolean[] all = new boolean[N];
       Arrays.fill(all, true);
@@ -1725,6 +1712,10 @@ public class Graph
 
    }
 
+   /**
+    * Adjusts all x and y coordinates of vertices of this graph to the nearest multiple of the given spacing.
+    * @param spacing distance between points where vertices are aligned.
+    */
    public void alignToGrid(double spacing){
       boolean[] all = new boolean[N];
       Arrays.fill(all, true);
@@ -1732,6 +1723,14 @@ public class Graph
       alignToGrid(spacing, all, 0, 0);
    }
 
+   /**
+    * Adjusts x and y coordinates of vertices of this graph to the nearest multiple of the given spacing, then offset
+    * by the given amount. If any vertex is selected, only the selected vertices will be adjusted, otherwise all vertices
+    * are adjusted.
+    * @param spacing distance between points where vertices are aligned.
+    * @param offsetX how much the x coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    * @param offsetY how much the y coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    */
    public void alignToGrid(double spacing, double offsetX, double offsetY){
 
       for (int i = 0; i < N; i++) {
@@ -1747,6 +1746,14 @@ public class Graph
       alignToGrid(spacing, all, offsetX, offsetY);
    }
 
+   /**
+    * Adjusts x and y coordinates of the selected vertices of this graph to the nearest multiple of the given spacing, then offset
+    * by the given amount.
+    * @param spacing distance between points where vertices are aligned.
+    * @param toAlign an array of length N, where vertex with index i will be realigned if toAlign[i] is true.
+    * @param offsetX how much the x coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    * @param offsetY how much the y coordinate is offset by before and after rounding to the nearest multiple of spacing.
+    */
    public void alignToGrid(double spacing, boolean[] toAlign, double offsetX, double offsetY){
 
       for (int i = 0; i < N; i++) {
@@ -1756,9 +1763,7 @@ public class Graph
          }
       }
 
-
    }
-
 
 
 }
