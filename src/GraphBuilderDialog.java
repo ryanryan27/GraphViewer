@@ -170,8 +170,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
       choices.add(new ChoiceItem("Cartesian Product", ChoiceItem.GRAPH, ChoiceItem.GRAPH));
       choices.add(new ChoiceItem("Path", ChoiceItem.INTEGER));
+      choices.add(new ChoiceItem("Path (Vertical)", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Cycle", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Cycle (Linear)", ChoiceItem.INTEGER));
+      choices.add(new ChoiceItem("Grid", ChoiceItem.INTEGER, ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Torus Grid", ChoiceItem.INTEGER, ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Flower Snark", ChoiceItem.INTEGER));
       choices.add(new ChoiceItem("Complete", ChoiceItem.INTEGER));
@@ -301,6 +303,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
          output = GraphBuilder.path(Integer.parseInt(intOneValue.getText()));
          output_name = choice.name +"("+ intOneValue.getText()+")";
       }
+      else if(Objects.equals(choice.name, "Path (Vertical)")){
+         output = GraphBuilder.path(Integer.parseInt(intOneValue.getText()), true);
+         output_name = choice.name +"("+ intOneValue.getText()+")";
+      }
       else if(Objects.equals(choice.name, "Cycle")){
          output = GraphBuilder.cycle(Integer.parseInt(intOneValue.getText()), false);
          output_name = choice.name +"("+ intOneValue.getText()+")";
@@ -313,6 +319,12 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
          String int_one = intOneValue.getText();
          String int_two = intTwoValue.getText();
          output = GraphBuilder.cartesian_product(GraphBuilder.cycle(Integer.parseInt(int_two), true), GraphBuilder.cycle(Integer.parseInt(int_one), true), true);
+         output_name = choice.name + "(" + int_one +","+int_two+")";
+      }
+      else if(Objects.equals(choice.name, "Grid")){
+         String int_one = intOneValue.getText();
+         String int_two = intTwoValue.getText();
+         output = GraphBuilder.grid(Integer.parseInt(int_two), Integer.parseInt(int_one));
          output_name = choice.name + "(" + int_one +","+int_two+")";
       }
       else if(Objects.equals(choice.name, "Cartesian Product")){

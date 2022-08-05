@@ -49,8 +49,11 @@ public class GraphBuilder {
         return product;
     }
 
+    static Graph path(int n){
+        return path(n, false);
+    }
 
-    static Graph path(int n) {
+    static Graph path(int n, boolean vertical) {
         Graph g = new Graph(n, 0);
 
         for (int i = 1; i < n; i++) {
@@ -58,8 +61,16 @@ public class GraphBuilder {
             g.addArc(i+1,i);
         }
 
-        g.createGrid(n, false, 100);
+        int cols = n;
+        if(vertical) cols = 1;
 
+        g.createGrid(cols, true, 100);
+
+        return g;
+    }
+
+    static Graph grid(int m, int n){
+        Graph g = cartesian_product(path(m), path(n), true);
         return g;
     }
 
