@@ -167,5 +167,31 @@ public class GraphBuilder {
         return g;
     }
 
+    static Graph generalised_petersen(int n, int k){
+        Graph outer = cycle(n, false);
+
+        Graph inner = new Graph(n, 0);
+
+        for (int i = 0; i < n; i++) {
+            inner.addEdge(i+1, ((i + k)%n)+1);
+        }
+
+        inner.createCircle();
+
+        double height = outer.getBottomRight()[1] - outer.getTopLeft()[1];
+        outer.rescale(height/(height+200));
+
+        outer.alignTopLeft(outer.getTopLeft()[0]-outer.getXPos(0),0, 1);
+        inner.alignTopLeft(inner.getTopLeft()[0]-inner.getXPos(0), 100, 1);
+        outer.addSubgraph(inner, 0, 0);
+
+        for (int i = 1; i <= n; i++) {
+            outer.addEdge(i, i+n);
+        }
+
+        outer.deselectAll();
+        return outer;
+    }
+
 
 }

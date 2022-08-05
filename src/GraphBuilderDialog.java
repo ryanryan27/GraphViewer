@@ -168,6 +168,7 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       choices.add(new ChoiceItem("Flower Snark", 1, 0));
       choices.add(new ChoiceItem("Complete", 1, 0));
       choices.add(new ChoiceItem("Star", 1, 0));
+      choices.add(new ChoiceItem("GP", 2, 0));
 
 
 
@@ -311,6 +312,12 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       else if(Objects.equals(choice.name, "Star")){
          output = GraphBuilder.star(Integer.parseInt(intValues[0].getText()));
          output_name = choice.name +"("+ intValues[0].getText()+")";
+      }
+      else if(Objects.equals(choice.name, "GP")){
+         String int_one = intValues[0].getText();
+         String int_two = intValues[1].getText();
+         output = GraphBuilder.generalised_petersen(Integer.parseInt(int_one), Integer.parseInt(int_two));
+         output_name = choice.name + "(" + int_one +","+int_two+")";
       }
 
 
