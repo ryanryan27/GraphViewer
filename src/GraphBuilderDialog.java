@@ -6,13 +6,15 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.util.Objects;
-import java.util.StringJoiner;
 import java.util.Vector;
 
 public class GraphBuilderDialog extends JDialog implements ActionListener
 {
+   final int MAX_INT_INPUT = 2;
+   final int MAX_GRAPH_INPUT = 2;
+
+
    JFrame parent;
    JTabbedPane openGraphs;
 
@@ -25,28 +27,18 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
    JButton confirmButton;
    JButton cancelButton;
 
-   JPanel intInputOne;
-   JPanel intInputTwo;
-   JPanel graphInputOne;
-   JPanel graphInputTwo;
+   JPanel[] intInputs;
+   JPanel[] graphInputs;
 
-   JTextField intOneValue;
-   JTextField intTwoValue;
+   JTextField[] intValues;
 
-   JTextField graphOneName;
-   JTextField graphTwoName;
+   JTextField[] graphNameBoxes;
 
-   JButton graphOneBuildButton;
-   JButton graphOneSelectButton;
-   JButton graphTwoBuildButton;
-   JButton graphTwoSelectButton;
+   JButton[] graphBuildButtons;
+   JButton[] graphSelectButtons;
 
-
-
-   Graph g1;
-   Graph g2;
-   String g1_name;
-   String g2_name;
+   Graph[] graphs;
+   String[] graphNames;
 
    Graph output;
    String output_name;
@@ -65,6 +57,8 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       parent = frame;
       this.openGraphs = openGraphs;
       cancelled = true;
+      graphs = new Graph[MAX_GRAPH_INPUT];
+      graphNames = new String[MAX_GRAPH_INPUT];
 
       setTitle("Generate New Graph");
       setSize(800,400);
@@ -87,19 +81,15 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
    public void actionPerformed(ActionEvent e)
    {
 
+      for (int i = 0; i < MAX_GRAPH_INPUT; i++) {
+         if(e.getSource() == graphBuildButtons[i]){
+            buildGraph(i);
+         }
+         if(e.getSource() == graphSelectButtons[i]){
+            selectGraph(i);
+         }
+      }
 
-      if(e.getSource() == graphOneBuildButton){
-         buildGraph(1);
-      }
-      if(e.getSource() == graphTwoBuildButton){
-         buildGraph(2);
-      }
-      if(e.getSource() == graphOneSelectButton){
-         selectGraph(1);
-      }
-      if(e.getSource() == graphTwoSelectButton){
-         selectGraph(2);
-      }
 
       if(e.getSource() == confirmButton){
          evaluateGraph();
@@ -168,16 +158,16 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
       Vector<ChoiceItem> choices = new Vector<>();
 
-      choices.add(new ChoiceItem("Cartesian Product", ChoiceItem.GRAPH, ChoiceItem.GRAPH));
-      choices.add(new ChoiceItem("Path", ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Path (Vertical)", ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Cycle", ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Cycle (Linear)", ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Grid", ChoiceItem.INTEGER, ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Torus Grid", ChoiceItem.INTEGER, ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Flower Snark", ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Complete", ChoiceItem.INTEGER));
-      choices.add(new ChoiceItem("Star", ChoiceItem.INTEGER));
+      choices.add(new ChoiceItem("Cartesian Product", 0, 2));
+      choices.add(new ChoiceItem("Path", 1, 0));
+      choices.add(new ChoiceItem("Path (Vertical)", 1, 0));
+      choices.add(new ChoiceItem("Cycle", 1, 0));
+      choices.add(new ChoiceItem("Cycle (Linear)", 1, 0));
+      choices.add(new ChoiceItem("Grid", 2, 0));
+      choices.add(new ChoiceItem("Torus Grid", 2, 0));
+      choices.add(new ChoiceItem("Flower Snark", 1, 0));
+      choices.add(new ChoiceItem("Complete", 1, 0));
+      choices.add(new ChoiceItem("Star", 1, 0));
 
 
 
@@ -201,61 +191,53 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       inputPanel = new JPanel();
       inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.PAGE_AXIS));
 
-      intOneValue = new JTextField();
-      intOneValue.setColumns(8);
-      intInputOne = new JPanel();
-      intInputOne.setLayout(new FlowLayout(FlowLayout.LEFT));
-      intInputOne.add(new JLabel("Input 1:"));
-      intInputOne.add(intOneValue);
-      intInputOne.setVisible(false);
-      intInputOne.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+      intValues = new JTextField[MAX_INT_INPUT];
+      intInputs = new JPanel[MAX_INT_INPUT];
 
-      intTwoValue = new JTextField();
-      intTwoValue.setColumns(8);
-      intInputTwo = new JPanel();
-      intInputTwo.setLayout(new FlowLayout(FlowLayout.LEFT));
-      intInputTwo.add(new JLabel("Input 2:"));
-      intInputTwo.add(intTwoValue);
-      intInputTwo.setVisible(false);
-      intInputTwo.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+      for (int i = 0; i < MAX_INT_INPUT; i++) {
+         intValues[i] = new JTextField();
+         intValues[i].setColumns(8);
+         intInputs[i] = new JPanel();
+         intInputs[i].setLayout(new FlowLayout(FlowLayout.LEFT));
+         intInputs[i].add(new JLabel("Input "+ (i + 1) +":"));
+         intInputs[i].add(intValues[i]);
+         intInputs[i].setVisible(false);
+         intInputs[i].setAlignmentX(JPanel.LEFT_ALIGNMENT);
+      }
 
-      graphOneName = new JTextField();
-      graphOneName.setEditable(false);
-      graphOneName.setColumns(30);
-      graphOneBuildButton = new JButton("Build");
-      graphOneBuildButton.addActionListener(this);
-      graphOneSelectButton = new JButton("Select");
-      graphOneSelectButton.addActionListener(this);
-      graphInputOne = new JPanel();
-      graphInputOne.setLayout(new FlowLayout(FlowLayout.LEFT));
-      graphInputOne.add(graphOneName);
-      graphInputOne.add(graphOneBuildButton);
-      graphInputOne.add(graphOneSelectButton);
-      graphInputOne.setVisible(false);
-      graphInputOne.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+      graphNameBoxes = new JTextField[MAX_GRAPH_INPUT];
+      graphBuildButtons = new JButton[MAX_GRAPH_INPUT];
+      graphSelectButtons = new JButton[MAX_GRAPH_INPUT];
+      graphInputs = new JPanel[MAX_GRAPH_INPUT];
 
-      graphTwoName = new JTextField();
-      graphTwoName.setEditable(false);
-      graphTwoName.setColumns(30);
-      graphTwoBuildButton = new JButton("Build");
-      graphTwoBuildButton.addActionListener(this);
-      graphTwoSelectButton = new JButton("Select");
-      graphTwoSelectButton.addActionListener(this);
-      graphInputTwo = new JPanel();
-      graphInputTwo.setLayout(new FlowLayout(FlowLayout.LEFT));
-      graphInputTwo.add(graphTwoName);
-      graphInputTwo.add(graphTwoBuildButton);
-      graphInputTwo.add(graphTwoSelectButton);
-      graphInputTwo.setVisible(false);
-      graphInputTwo.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+      for (int i = 0; i < MAX_GRAPH_INPUT; i++) {
+
+         graphNameBoxes[i] = new JTextField();
+         graphNameBoxes[i].setEditable(false);
+         graphNameBoxes[i].setColumns(30);
+         graphBuildButtons[i] = new JButton("Build");
+         graphBuildButtons[i].addActionListener(this);
+         graphSelectButtons[i] = new JButton("Select");
+         graphSelectButtons[i].addActionListener(this);
+         graphInputs[i] = new JPanel();
+         graphInputs[i].setLayout(new FlowLayout(FlowLayout.LEFT));
+         graphInputs[i].add(graphNameBoxes[i]);
+         graphInputs[i].add(graphBuildButtons[i]);
+         graphInputs[i].add(graphSelectButtons[i]);
+         graphInputs[i].setVisible(false);
+         graphInputs[i].setAlignmentX(JPanel.LEFT_ALIGNMENT);
+      }
 
       JLabel lb = new JLabel("Inputs");
       lb.setAlignmentX(JLabel.LEFT_ALIGNMENT);
       inputPanel.add(lb);
-      inputPanel.add(intInputOne);
-      inputPanel.add(intInputTwo);
-      inputPanel.add(graphInputOne);
-      inputPanel.add(graphInputTwo);
+
+      for (int i = 0; i < MAX_INT_INPUT; i++) {
+         inputPanel.add(intInputs[i]);
+      }
+      for (int i = 0; i < MAX_GRAPH_INPUT; i++) {
+         inputPanel.add(graphInputs[i]);
+      }
 
    }
 
@@ -265,24 +247,11 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
     */
    private void updateInputList(ChoiceItem choice){
 
-      intInputOne.setVisible(false);
-      intInputTwo.setVisible(false);
-      graphInputOne.setVisible(false);
-      graphInputTwo.setVisible(false);
+      for (int i = 0; i < MAX_INT_INPUT; i++) {
+         intInputs[i].setVisible(i < choice.int_inputs);
 
-
-      switch (choice.inputs[0]) {
-         case ChoiceItem.INTEGER: intInputOne.setVisible(true); break;
-         case ChoiceItem.GRAPH: graphInputOne.setVisible(true); break;
-      }
-
-
-      if(choice.inputs.length == 2) {
-
-         switch (choice.inputs[1]) {
-            case ChoiceItem.INTEGER: intInputTwo.setVisible(true);break;
-            case ChoiceItem.GRAPH: graphInputTwo.setVisible(true);break;
-         }
+      }for (int i = 0; i < MAX_GRAPH_INPUT; i++) {
+         graphInputs[i].setVisible(i < choice.graph_inputs);
       }
 
       getContentPane().revalidate();
@@ -300,48 +269,48 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
 
       if(Objects.equals(choice.name, "Path")){
-         output = GraphBuilder.path(Integer.parseInt(intOneValue.getText()));
-         output_name = choice.name +"("+ intOneValue.getText()+")";
+         output = GraphBuilder.path(Integer.parseInt(intValues[0].getText()));
+         output_name = choice.name +"("+ intValues[0].getText()+")";
       }
       else if(Objects.equals(choice.name, "Path (Vertical)")){
-         output = GraphBuilder.path(Integer.parseInt(intOneValue.getText()), true);
-         output_name = choice.name +"("+ intOneValue.getText()+")";
+         output = GraphBuilder.path(Integer.parseInt(intValues[0].getText()), true);
+         output_name = choice.name +"("+ intValues[0].getText()+")";
       }
       else if(Objects.equals(choice.name, "Cycle")){
-         output = GraphBuilder.cycle(Integer.parseInt(intOneValue.getText()), false);
-         output_name = choice.name +"("+ intOneValue.getText()+")";
+         output = GraphBuilder.cycle(Integer.parseInt(intValues[0].getText()), false);
+         output_name = choice.name +"("+ intValues[0].getText()+")";
       }
       else if(Objects.equals(choice.name, "Cycle (Linear)")){
-         output = GraphBuilder.cycle(Integer.parseInt(intOneValue.getText()), true);
-         output_name = choice.name +"("+ intOneValue.getText()+")";
+         output = GraphBuilder.cycle(Integer.parseInt(intValues[0].getText()), true);
+         output_name = choice.name +"("+ intValues[0].getText()+")";
       }
       else if(Objects.equals(choice.name, "Torus Grid")){
-         String int_one = intOneValue.getText();
-         String int_two = intTwoValue.getText();
+         String int_one = intValues[0].getText();
+         String int_two = intValues[1].getText();
          output = GraphBuilder.cartesian_product(GraphBuilder.cycle(Integer.parseInt(int_two), true), GraphBuilder.cycle(Integer.parseInt(int_one), true), true);
          output_name = choice.name + "(" + int_one +","+int_two+")";
       }
       else if(Objects.equals(choice.name, "Grid")){
-         String int_one = intOneValue.getText();
-         String int_two = intTwoValue.getText();
+         String int_one = intValues[0].getText();
+         String int_two = intValues[1].getText();
          output = GraphBuilder.grid(Integer.parseInt(int_two), Integer.parseInt(int_one));
          output_name = choice.name + "(" + int_one +","+int_two+")";
       }
       else if(Objects.equals(choice.name, "Cartesian Product")){
-         output = GraphBuilder.cartesian_product(g1,g2);
-         output_name = g1_name + " X " + g2_name;
+         output = GraphBuilder.cartesian_product(graphs[0],graphs[1]);
+         output_name = graphNames[0] + " X " + graphNames[1];
       }
       else if(Objects.equals(choice.name, "Flower Snark")){
-         output = GraphBuilder.flower_snark(Integer.parseInt(intOneValue.getText()));
-         output_name = choice.name +"("+ intOneValue.getText()+")";
+         output = GraphBuilder.flower_snark(Integer.parseInt(intValues[0].getText()));
+         output_name = choice.name +"("+ intValues[0].getText()+")";
       }
       else if(Objects.equals(choice.name, "Complete")){
-         output = GraphBuilder.complete(Integer.parseInt(intOneValue.getText()));
-         output_name = choice.name +"("+ intOneValue.getText()+")";
+         output = GraphBuilder.complete(Integer.parseInt(intValues[0].getText()));
+         output_name = choice.name +"("+ intValues[0].getText()+")";
       }
       else if(Objects.equals(choice.name, "Star")){
-         output = GraphBuilder.star(Integer.parseInt(intOneValue.getText()));
-         output_name = choice.name +"("+ intOneValue.getText()+")";
+         output = GraphBuilder.star(Integer.parseInt(intValues[0].getText()));
+         output_name = choice.name +"("+ intValues[0].getText()+")";
       }
 
 
@@ -363,15 +332,9 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       GraphBuilderDialog gbd = new GraphBuilderDialog(parent, openGraphs);
 
       if(!gbd.cancelled()){
-         if(input_num == 1){
-            g1 = gbd.getGraph();
-            g1_name = gbd.getName();
-            graphOneName.setText(g1_name);
-         } else {
-            g2 = gbd.getGraph();
-            g2_name = gbd.output_name;
-            graphTwoName.setText(g2_name);
-         }
+         graphs[input_num] = gbd.getGraph();
+         graphNames[input_num] = gbd.getName();
+         graphNameBoxes[input_num].setText(graphNames[input_num]);
       }
    }
 
@@ -384,14 +347,10 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
       GraphChooserDialog gcd = new GraphChooserDialog(parent, openGraphs);
 
       if(!gcd.cancelled()){
-         if(input_num == 1){
-            g1 = gcd.getChosenGraph();
-            g1_name = gcd.getChosenName();
-            graphOneName.setText(g1_name);
-         } else {
-            g2 = gcd.getChosenGraph();
-            g2_name = gcd.getChosenName();
-            graphOneName.setText(g2_name);
+         if(!gcd.cancelled()){
+            graphs[input_num] = gcd.getChosenGraph();
+            graphNames[input_num] = gcd.getChosenName();
+            graphNameBoxes[input_num].setText(graphNames[input_num]);
          }
       }
 
@@ -426,32 +385,23 @@ public class GraphBuilderDialog extends JDialog implements ActionListener
 
    private static class ChoiceItem{
 
-      static final int INTEGER = 0;
-      static final int GRAPH = 1;
-
-      int[] inputs;
       String name;
 
-      /**
-       * Creates a new list option with the given name and only one input.
-       * @param name name of the list option.
-       * @param input_type ChoiceItem.INTEGER if the input is integer or ChoiceItem.GRAPH if the input is a graph.
-       */
-      ChoiceItem(String name, int input_type){
-         inputs = new int[]{input_type};
-         this.name = name;
-      }
+      int graph_inputs;
+      int int_inputs;
 
       /**
-       * Creates a new list option with the given name and only one input.
-       * @param name name of the list option.
-       * @param input1 ChoiceItem.INTEGER if the input is integer or ChoiceItem.GRAPH if the input is a graph.
-       * @param input2 ChoiceItem.INTEGER if the input is integer or ChoiceItem.GRAPH if the input is a graph.
+       * Creates a new ChoiceItem for the graph build selection menu.
+       * @param name The option name that shows in the menu.
+       * @param int_inputs The number of integer inputs for the graph builder.
+       * @param graph_inputs The number of graph inputs for the graph builder.
        */
-      ChoiceItem(String name, int input1, int input2){
-         inputs = new int[]{input1, input2};
+      ChoiceItem(String name, int int_inputs, int graph_inputs){
          this.name = name;
+         this.int_inputs = int_inputs;
+         this.graph_inputs = graph_inputs;
       }
+
 
       /**
        * Returns the specified name of list item.
