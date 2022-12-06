@@ -13,9 +13,6 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
     GraphPane thisGraphPane;
     GraphLinkedList gll;
 
-    String minFilename = "temp";
-    int startPoint = -1;
-
 
     int mouseOffsetX2 = 0; //4
     int mouseOffsetY2 = 0; //53
@@ -896,10 +893,20 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
      */
     public void paintComponent(Graphics gra) {
 
-        if(graph == null) return;
 
-        image = new BufferedImage((int) Math.round(getSize().getWidth()), (int) Math.round(getSize().getHeight()), BufferedImage.TYPE_BYTE_INDEXED);
+
+        image = new BufferedImage((int) Math.round(getSize().getWidth()), (int) Math.round(getSize().getHeight()), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) image.getGraphics();
+
+
+
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
 
         g.setPaint(backgroundColor);
 
@@ -910,12 +917,10 @@ public class GraphPane extends JPanel implements MouseMotionListener, MouseListe
             g.fill(new Rectangle(0, 0, (int) Math.round(getSize().getWidth()), (int) Math.round(getSize().getHeight())));
         }
 
-
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        if(graph == null){
+            gra.drawImage(image, 0, 0, null);
+            return;
+        }
 
         g.scale(scale, scale);
 
