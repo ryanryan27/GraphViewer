@@ -1,3 +1,4 @@
 # Project exclude paths
 build/
 *settings.cfg*
+.vscode*

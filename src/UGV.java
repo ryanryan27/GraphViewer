@@ -18,7 +18,7 @@ public class UGV
 
 
       
-      UGVViewer viewer = new UGVViewer();
+      new UGVViewer();
       
       
       

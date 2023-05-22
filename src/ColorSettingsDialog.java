@@ -4,7 +4,6 @@
    import javax.swing.event.*;
    import java.awt.*;
    import java.awt.event.*;
-   import java.util.Arrays;
 
    public class ColorSettingsDialog extends JDialog implements ActionListener
    {
@@ -690,9 +689,6 @@
             blue = 32*blue/z;
          }
          
-         double redRemoveZ = red;
-         double greenRemoveZ = green;
-         double blueRemoveZ = blue;
          
          smallest = red;
          largest = red;

@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -85,6 +84,7 @@ public class FileParser {
 
 
             }
+            br.close();
 
             vertices.sort(Vertex::compareTo);
 
@@ -111,7 +111,7 @@ public class FileParser {
                 g.addEdge(e.source+1, e.target+1);
             }
 
-            br.close();
+            
             return graphs;
 
 
@@ -253,7 +253,8 @@ public class FileParser {
                 }
 
                 br.readLine(); // Should be -1
-
+                
+                br.close();
 
                 for (int i = 0; i < N; i++) {
                     graph.setXPos(i, xPos[i]);
@@ -973,6 +974,8 @@ public class FileParser {
                 graph.createCircle();
 
             }
+
+            br.close();
 
 
         } catch (Exception e) {

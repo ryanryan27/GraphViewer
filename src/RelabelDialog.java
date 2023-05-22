@@ -1,7 +1,6 @@
 //package UGV;
 
    import javax.swing.*;
-   import java.awt.*;
    import java.awt.event.*;
 
    public class RelabelDialog extends JDialog implements ActionListener {

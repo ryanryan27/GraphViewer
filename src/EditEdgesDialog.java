@@ -1,7 +1,6 @@
 //package UGV;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
@@ -91,7 +90,7 @@ public class EditEdgesDialog extends JDialog implements ActionListener
    {
       if(e.getSource() == okButton)
       {
-         JOptionPane jop = new JOptionPane();
+
          int numberOfVertices;
          try
          {

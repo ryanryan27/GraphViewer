@@ -90,8 +90,6 @@ public class SlowPropertiesRunner implements Runnable
             for(int j=0; j<degrees[i]; j++)
                flowMatrix[i][arcs[i][j]-1] = 1;
 
-         int [][]updateFlow = new int[N][N];
-
 
          while(true)
          {
@@ -222,7 +220,6 @@ public class SlowPropertiesRunner implements Runnable
             int []parent = new int[N];
             //R[i-1] = true;
             int x = i;
-            int sindex = 0;
             boolean goOn = true;
             while(goOn)
             {
