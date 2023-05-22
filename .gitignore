@@ -1,4 +1,3 @@
 # Project exclude paths
-/out/
-/.idea/vcs.xml
-/src/settings.cfg
+build/
+*settings.cfg*
