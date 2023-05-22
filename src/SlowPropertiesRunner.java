@@ -13,12 +13,15 @@ public class SlowPropertiesRunner implements Runnable
       int N;
       int[] degrees;
       int[][] arcs;
+
+      boolean stop;
    
       public SlowPropertiesRunner(Graph g, PropertiesDialog p)
       {
          graph = g;
          propertiesDialog = p;
          action = ACTIONS_CONNECTIVITY;
+         stop = false;
 
          N = g.getN();
          degrees = g.getDegrees();
@@ -28,19 +31,27 @@ public class SlowPropertiesRunner implements Runnable
       public void setAction(int a)
       {
          action = a;
+         stop = false;
+      }
+
+      public void stop(){
+         stop = true;
       }
    
       public void run()
-      {
+      {  
+         stop = false;
          if(action == ACTIONS_CONNECTIVITY)
          {
             int connectivity = connectivity(propertiesDialog);
             propertiesDialog.setLabel(action,connectivity);
+            
          }
          if(action == ACTIONS_GIRTH)
          {
             int girth = girth(propertiesDialog);
             propertiesDialog.setLabel(action,girth);
+            
          }
          if(action == ACTIONS_DIAMETER)
          {
@@ -69,6 +80,8 @@ public class SlowPropertiesRunner implements Runnable
          for(int i=3; i<=N; i++)
          {
             int maxFlow = maxFlow(i);
+            if(maxFlow == -1)
+               return -1;
             if(maxFlow < minMaxFlow)
                minMaxFlow = maxFlow;
             if(progressBar != null)
@@ -93,9 +106,14 @@ public class SlowPropertiesRunner implements Runnable
 
          while(true)
          {
+            if(stop){
+               return -1;
+            }
             int []path = findPath(flowMatrix, 0, v-1);
             if(path[0] == -1)
                return flow;
+               if(path[0] == -2)
+               return -1;
 
             flow++;
             for(int i=1; i<N; i++)
@@ -145,6 +163,9 @@ public class SlowPropertiesRunner implements Runnable
 
          while(goOn)
          {
+            if(stop){
+               return new int[]{-2};
+            }
             goOn = false;
 
 
@@ -223,6 +244,9 @@ public class SlowPropertiesRunner implements Runnable
             boolean goOn = true;
             while(goOn)
             {
+               if(stop){
+                  return -2;
+               }
                goOn = false;
                S[x-1] = true;
                for(int j=1; j<=N; j++)
@@ -312,6 +336,10 @@ public class SlowPropertiesRunner implements Runnable
 
             while(goOn)
             {
+               if(stop){
+                  return -1;
+               }
+
                goOn = false;
                if(dist[u] == N+1)
                   break;

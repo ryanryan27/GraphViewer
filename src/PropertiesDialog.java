@@ -152,8 +152,13 @@
        * Closes the dialog and kills the calculation threads.
        */
       public void exit() {
-         if(thread != null) {
-            thread.stop();
+         if(thread != null){
+            spr.stop();
+            try {
+               thread.join();
+            } catch (InterruptedException e1) {
+               System.out.println("oops");
+            }
          }
          setVisible(false);
          dispose();
@@ -263,25 +268,44 @@
          if(e.getSource() == connectivityButton)
          {
             spr.setAction(ACTIONS_CONNECTIVITY);
-            if(thread != null)
-               thread.stop();
+            if(thread != null){
+               spr.stop();
+               try {
+                  thread.join();
+               } catch (InterruptedException e1) {
+                  System.out.println("oops");
+               }
+            }
             thread = new Thread(spr);
             thread.start();
          }
          if(e.getSource() == girthButton)
          {
             spr.setAction(ACTIONS_GIRTH);
-            if(thread != null)
-               thread.stop();
+            if(thread != null){
+               spr.stop();
+               try {
+                  thread.join();
+               } catch (InterruptedException e1) {
+                  System.out.println("oops");
+               }
+            }
             thread = new Thread(spr);
             thread.start();
          }
          if(e.getSource() == diameterButton)
          {
             spr.setAction(ACTIONS_DIAMETER);
-            if(thread != null)
-               thread.stop();
+            if(thread != null){
+               spr.stop();
+               try {
+                  thread.join();
+               } catch (InterruptedException e1) {
+                  System.out.println("oops");
+               }
+            }
             thread = new Thread(spr);
+            
             thread.start();
          }
       }
@@ -297,6 +321,8 @@
          {
             if(result == 0) {
                connectivityLabel.setText("The graph is disconnected ");
+            } else if(result == -1){
+               connectivityLabel.setText("Connectivity check cancelled");
             } else {
                connectivityLabel.setText("The graph is " + result + "-connected ");
             }
@@ -305,13 +331,19 @@
          {
             if(result == -1) {
                girthLabel.setText("The graph contains no cycles ");
-            } else {
+            } else if(result == -2){
+               girthLabel.setText("Girth check cancelled");
+            }  else {
                girthLabel.setText("The graph has girth " + result + " ");
             }
          }
          if(action == ACTIONS_DIAMETER)
-         {
-            diameterLabel.setText("The graph has diameter " + result + " ");
+         { 
+             if(result == -1){
+               diameterLabel.setText("Diameter check cancelled");
+            } else {
+               diameterLabel.setText("The graph has diameter " + result + " ");
+            }
          }
          validate();   
          repaint();
