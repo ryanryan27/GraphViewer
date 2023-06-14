@@ -1220,7 +1220,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
             }
 
             try {
-                double[] solution = runner.run();
+                double[] solution = runner.run(0);
 
                 int[] domset = new int[g.getN()];
 

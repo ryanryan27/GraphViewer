@@ -1,1 +1,1 @@
-java -Djava.library.path="C:\Program Files\IBM\ILOG\CPLEX_Studio129\cplex\bin\x64_win64" -cp ./build/;./include/CPLEX/cplex.jar UGV 
+java -Djava.library.path="%cplexdir221%" -cp ./build/;./include/CPLEX/cplex.jar UGV 

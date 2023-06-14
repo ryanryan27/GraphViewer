@@ -14,7 +14,7 @@ public class SolverDialog extends JDialog implements ActionListener
 
 
    ButtonGroup domtype;
-   JRadioButton secure_button, dom_button, total_button, roman_button, weak_button;
+   JRadioButton secure_button, dom_button, total_button, roman_button, weak_button, connected_button;
 
    JScrollPane zeros_pane, ones_pane, twos_pane;
    JTextArea zeros_area,  ones_area, twos_area;
@@ -56,12 +56,14 @@ public class SolverDialog extends JDialog implements ActionListener
       total_button = new JRadioButton("Total Domination");
       roman_button = new JRadioButton("Roman Domination");
       weak_button = new JRadioButton("Weak Roman Domination");
+      connected_button = new JRadioButton("Connected Domination");
 
       domtype.add(dom_button);
       domtype.add(secure_button);
       domtype.add(total_button);
       domtype.add(roman_button);
       domtype.add(weak_button);
+      domtype.add(connected_button);
 
 
 
@@ -99,6 +101,7 @@ public class SolverDialog extends JDialog implements ActionListener
       optionPane.add(total_button);
       optionPane.add(roman_button);
       optionPane.add(weak_button);
+      optionPane.add(connected_button);
 
 
 
@@ -156,6 +159,8 @@ public class SolverDialog extends JDialog implements ActionListener
                domination_type = MILPRunner.ROMAN_DOMINATION;
             } else if(weak_button.isSelected()){
                domination_type = MILPRunner.WEAK_ROMAN_DOMINATION;
+            } else if(connected_button.isSelected()){
+               domination_type = MILPRunner.CONNECTED_DOMINATION;
             }
 
             int N = domset.length;

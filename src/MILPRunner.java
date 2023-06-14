@@ -11,6 +11,8 @@ public class MILPRunner {
     private final boolean preserveDom;
     private int domcount = 0;
 
+    private String run_state = "Not Started";
+
     public final static int DOMINATION = 1;
     public final static int TOTAL_DOMINATION = 2;
     public final static int SECURE_DOMINATION = 3;
@@ -19,6 +21,7 @@ public class MILPRunner {
     public final static int CONNECTED_DOMINATION = 6;
     public final static int UPPER_DOMINATION = 7;
     public final static int UPPER_DOMINATION_ALT = 8;
+    public final static int TWO_DOMINATION = 9;
 
 
     private final int[] fixed;
@@ -42,6 +45,7 @@ public class MILPRunner {
 
         N= graph.getN();
         M = graph.getEdgeCount();
+        
     }
 
     public MILPRunner(int domType, Graph graph, int[] fixed){
@@ -55,21 +59,31 @@ public class MILPRunner {
     }
 
 
-    public double[] run() throws IloException {
+    public double[] run(double timeout) throws IloException {
 
         buildModel();
+        MILPCallback mc = new MILPCallback(timeout);
+        model.use(mc);
         model.solve();
 
         double[] solution = model.getValues(variables[0]);
 
         /*
          for (int j = 0; j < solution.length; ++j) {
-             System.out.println("Variable " + j + ": Value = " + solution[j]);
+             System.out.pri     ntln("Variable " + j + ": Value = " + solution[j]);
          }
         */
+        run_state = model.getStatus().toString();
+
         model.end();
 
+
+
         return solution;
+    }
+
+    public String getRunState(){
+        return run_state;
     }
 
     private void buildModel() throws IloException {
@@ -91,43 +105,51 @@ public class MILPRunner {
 
         int binary;
         int continuous;
+        int integer;
 
         switch (domType) {
             case SECURE_DOMINATION:
                 binary = N;
                 continuous = N * N;
+                integer = 0;
                 break;
             case ROMAN_DOMINATION:
             case UPPER_DOMINATION:
                 binary = 2 * N;
                 continuous = 0;
+                integer = 0;
                 break;
             case WEAK_ROMAN_DOMINATION:
                 binary = 2 * N;
                 continuous = N * N;
+                integer = 0;
                 break;
             case CONNECTED_DOMINATION:
                 binary = 2 * M + 3 * N + 1;
-                continuous = N + 1;
+                continuous = 0;
+                integer = N + 1;
                 break;
             case UPPER_DOMINATION_ALT:
                 binary = 2 * N + 2 * M;
                 continuous = 0;
+                integer = 0;
                 break;
-//DOMINATION, TOTAL_DOMINATION
+//DOMINATION, TOTAL_DOMINATION, TWO_DOMINATION
             default:
                 binary = N;
                 continuous = 0;
+                integer = 0;
                 break;
         }
 
-        int total = binary + continuous;
+        int total = binary + continuous + integer;
         double[] xlb = new double[total];
         double[] xub = new double[total];
 
         if(domType == CONNECTED_DOMINATION){
             Arrays.fill(xub, 0, binary, 1);
-            Arrays.fill(xub, binary, total, Integer.MAX_VALUE);
+            Arrays.fill(xub, binary, total, N+1);
+            Arrays.fill(xlb, binary, total, 1);
         }else {
             Arrays.fill(xub, 1);
         }
@@ -287,6 +309,11 @@ public class MILPRunner {
 
             for (int j = 0; j < N; j++) {
                 if(graph.isArc(i+1,j+1)){
+
+                    if(domType == TWO_DOMINATION) {
+                        constr = model.sum(constr, model.prod(0.5, variables[0][j]));
+                        continue;
+                    }
 
                     if(domType != ROMAN_DOMINATION) {
                         constr = model.sum(constr, model.prod(1.0, variables[0][j]));
@@ -464,7 +491,131 @@ public class MILPRunner {
 
     }
 
-    private void setCDConstraints(){
+    private void setCDConstraints() throws IloException{
+        setDominationConstraints();
+        
+        
+
+        //set up w-lookup
+
+        int[][] wlookup = new int[N+2][N+2];
+
+        int count = N;
+        
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if(graph.isArc(i+1, j+1)){
+                    wlookup[i][j] = count;
+                    count++;
+                }
+            }
+        }
+
+        for (int i = 0; i < N; i++) {
+            wlookup[N][i] = count;
+            count++;
+        }
+
+        wlookup[N][N+1] = count;
+        count++;
+
+        for (int i = 0; i < N; i++) {
+            wlookup[N+1][i] = count;
+            count++;
+        }
+
+        int uoffset = count;
+
+        int icount = N;
+        int ecount = 0;
+
+        //constraint 2
+        IloNumExpr constr = model.constant(0);
+        for (int i = 0; i < N; i++) {
+            constr = model.sum(constr, variables[0][wlookup[N+1][i]]);
+        }
+        constraints[1][ecount] = model.addEq(constr, 1);
+        ecount++;
+
+        //constraint 3
+        for (int j = 0; j < N; j++) {
+            constr = model.constant(0);
+            for (int i = 0; i < wlookup.length; i++) {
+                if(wlookup[i][j] > 0){
+                    constr = model.sum(constr, variables[0][wlookup[i][j]]);
+                }
+            }
+            constraints[1][ecount] = model.addEq(constr,1);
+            ecount++;
+        }
+
+
+        //constraint 4
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if(graph.isArc(i+1, j+1)){
+                    constr = model.prod(1, variables[0][wlookup[N][i]]);
+                    constr = model.sum(constr, variables[0][wlookup[i][j]]);
+                    constraints[0][icount] = model.addLe(constr, 1);
+                    icount++;
+                }
+            }
+        }
+
+        //constraint 5
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if(graph.isArc(i+1, j+1)){
+                    constr = model.prod(N+1, variables[0][wlookup[i][j]]);
+                    constr = model.sum(constr, model.prod(N-1, variables[0][wlookup[j][i]]));
+                    constr = model.sum(constr, variables[0][uoffset+i]);
+                    constr = model.sum(constr, model.prod(-1, variables[0][uoffset+j]));
+                    constraints[0][icount] = model.addLe(constr, N);
+                    icount++;
+                }
+            }
+        }
+
+        //constraint 6
+        for (int i = 0; i < wlookup.length; i++) {
+            for (int j = 0; j < wlookup.length; j++) {
+                if((i >= N || j >= N) && wlookup[i][j] > 0){
+                    constr = model.prod(N+1, variables[0][wlookup[i][j]]);
+
+                    if(i < N){
+                        constr = model.sum(constr, variables[0][uoffset+i]);
+                    } else if (i == N+1){
+                        constr = model.sum(constr, variables[0][uoffset + N]);
+                    }
+
+                    if(j < N){
+                        constr = model.sum(constr, model.prod(-1,variables[0][uoffset+j]));
+                    } else if (j == N+1){
+                        constr = model.sum(constr, model.prod(-1,variables[0][uoffset + N]));
+                    }
+
+                    constraints[0][icount] = model.addLe(constr, N);
+                    icount++;
+                }
+            }
+        }
+
+        //constraint 7
+        constraints[1][ecount] = model.addEq(1, model.prod(1, variables[0][wlookup[N][N+1]]));
+        ecount++;
+        
+
+        //constraint 8
+        
+        for (int i = 0; i < N; i++) {
+            constr = model.prod(1, variables[0][i]);
+            constr = model.sum(constr, variables[0][wlookup[N][i]]);
+            constraints[1][ecount] = model.addEq(1, constr);
+            ecount++;
+        }
+
+        System.out.println(constraints[0].length + ", " + icount + ": " + constraints[1].length + ", " + ecount + " : " + variables[0].length + ", " + (uoffset+N+1));
 
 
     }
