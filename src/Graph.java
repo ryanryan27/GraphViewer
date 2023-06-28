@@ -1,8 +1,7 @@
 //package UGV;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+
 
 public class Graph
 {
@@ -1268,30 +1267,46 @@ public class Graph
     * @return an array where each element is the index of a vertex two away from the specified vertex.
     */
    public int[] twoApartList(int v1){
-      Set<Integer> verts = new HashSet<>();
+      int[] lv = new int[N];
 
       //get 1 away
       int[] neighbours = getArcs()[v1];
-      for (int jj = 0; jj < degrees[v1];  jj++) {
-         int j = neighbours[jj]-1;
-         //get 2 away
-         int[] n2 = getArcs()[j];
-         for (int vv2 = 0; vv2 < degrees[j];vv2++) {
-            int v2 = n2[vv2]-1;
-            //don't add self
-            if (v2 == v1) continue;
+      for (int ii = 0; ii < degrees[v1];  ii++) {
+         int i = neighbours[ii];
 
-            for (int nn = 0; nn < degrees[j]; nn++) {
-               int neighbour = neighbours[nn]-1;
-               //don't add 1 away
-               if (v2 == neighbour) continue;
-               verts.add(v2);
-               break;
+         for (int j = 1; j <= N; j++) {
+            if(isEdge(i, j)){
+               lv[j-1] = 1;
             }
          }
       }
 
-      return verts.stream().mapToInt(Number::intValue).toArray();
+      for (int ii = 0; ii < degrees[v1];  ii++) {
+         int i = neighbours[ii];
+         lv[i-1] = 0;
+      }
+
+      lv[v1] = 0;
+
+      int count = 0;
+      for (int i = 0; i < N; i++) {
+         if(lv[i]==1){
+            count++;
+         }
+      }
+
+      int[] twoAway = new int[count];
+
+      count = 0;
+      for (int i = 0; i < N; i++) {
+         if(lv[i]==1){
+            twoAway[count] = i;
+            count++;
+         }
+      }
+
+      return twoAway;
+
    }
 
    /**
