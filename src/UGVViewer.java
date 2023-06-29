@@ -108,6 +108,7 @@ public class UGVViewer extends JFrame implements MouseListener, WindowListener//
     public UGVViewer() {
         setTitle("Universal Graph Viewer");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setIconImage(new ImageIcon("pics/icon.png").getImage());
         setLayout(new BorderLayout());
         setAlwaysOnTop(false);
         addWindowListener(this);
